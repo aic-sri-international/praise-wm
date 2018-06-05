@@ -1,0 +1,12 @@
+version: '2'
+services:
+    praisewm-app:
+        extends:
+            file: praisewm.yml
+            service: praisewm-app
+        environment:
+            - PRAISEWM_SLEEP=40 # gives time for the database to boot before the application
+    praisewm-mysql:
+        extends:
+            file: mysql.yml
+            service: praisewm-mysql

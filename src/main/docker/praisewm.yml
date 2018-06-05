@@ -1,0 +1,9 @@
+version: '2'
+services:
+    praisewm-app:
+        image: praisewm:latest
+        environment:
+            - PRAISEWM_DATABASE_HOST=praisewm-mysql
+        ports:
+            - 4567:4567
+            - 4568:4568

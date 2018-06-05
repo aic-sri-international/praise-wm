@@ -1,0 +1,21 @@
+# This is a list of the SRI projects that have been charged against in order to build the code. 
+# It's important to keep historical SRI information, not just current active projects.
+sriProjects:
+- W41CS5
+- P24795.002
+
+# Who's responsible for this project? Please include PI and technical lead.
+# the first entry should be project leader or supervisor or the project
+sriContacts:
+- braz@ai.sri.com
+- david.dunkley@sri.com
+
+# A friendly description of the project.
+description: World Modelers Editor Web App
+
+# What SRI orgs are involved in this work?
+sriOrgs:
+- "550"
+- "486"
+
+

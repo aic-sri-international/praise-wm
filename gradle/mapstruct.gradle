@@ -1,0 +1,12 @@
+apply plugin: "net.ltgt.apt-idea"
+
+dependencies {
+    compile "org.mapstruct:mapstruct-jdk8:${mapstruct_version}"
+    apt "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            '-Amapstruct.suppressGeneratorTimestamp=true'
+    ]
+}

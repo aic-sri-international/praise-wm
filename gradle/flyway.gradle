@@ -1,0 +1,13 @@
+apply plugin: "org.flywaydb.flyway"
+
+dependencies {
+    compile "org.flywaydb:flyway-core:${flyway_core_version}"
+}
+
+flyway {
+    user = "${project.ext.cfg['database.user']}"
+    password = "${project.ext.cfg['database.password']}"
+    url = "${project.ext.cfg['database.url']}"
+    schemas = ["${project.ext.cfg['database.schema']}"]
+}
+

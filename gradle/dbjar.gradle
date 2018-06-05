@@ -1,0 +1,12 @@
+task createDbJar(type: Jar, dependsOn: compileJava) {
+    baseName = 'praisewm_db'
+    from "${buildDir}/classes/java/main",
+            "${buildDir}/generated-src/jooq/praisewm",
+            "src/main/java",
+            "src/main/resources"
+    include 'com/praisewm/db/**/*'
+    include 'com/praisewm/util/**/*'
+    include 'com/praisewm/repository/**/*'
+    include 'com/praisewm/service/**/*'
+    include 'com.sri.ai.praisewm.cfg'
+}

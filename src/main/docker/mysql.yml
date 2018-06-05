@@ -1,0 +1,15 @@
+version: '2'
+services:
+    praisewm-mysql:
+        image: mysql:5.7.18
+        # volumes:
+        #     - ~/volumes/praisewm/mysql/:/var/lib/mysql/
+        environment:
+            - MYSQL_ROOT_PASSWORD=praisewm
+            - MYSQL_USER=praisewm
+            - MYSQL_PASSWORD=praisewm
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+            - MYSQL_DATABASE=praisewm
+        ports:
+            - 3306:3306
+        command: mysqld --lower_case_table_names=1 --skip-ssl

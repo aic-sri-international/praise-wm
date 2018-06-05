@@ -1,0 +1,34 @@
+.no-data-bg-text {
+    color: #a8a8a8;
+    font-size: 48px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  display: inline;
+}
+
+.dataTable thead {
+    background-color: lightsteelblue;
+}
+
+.systemStatusInfoColor {
+  color: green;
+}
+.systemStatusWarnColor {
+  color: #f9eb1e;
+}
+.systemStatusErrorColor{
+  color: red;
+}
+
+.requireField::after {
+  font-family: "Font Awesome 5 Free";
+  content: "\f069";
+  font-weight: 900;
+  color: red;
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 3px;
+  font-size: 10px;
+}
+

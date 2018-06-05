@@ -1,0 +1,47 @@
+# GitLab Pipeline for praise-wm
+
+variables:
+  MYSQL_ROOT_PASSWORD: praisewm
+  MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  MYSQL_USER: praisewm
+  MYSQL_PASSWORD: praisewm
+  MYSQL_DATABASE: praisewm
+  PRAISEWM_DATABASE_HOST: praisewm
+  FLOW_BIN: node_modules/flow-bin/flow-linux64-v0.70.0/flow
+
+stages:
+  - buildClient
+  - buildServer
+
+services:
+  - name: mysql:5.7.18
+    alias: praisewm
+
+buildClient:
+  stage: buildClient
+  image: node:8.11.2
+  script:
+    - cd src/main/webapp
+    - yarn
+    - ls -l "${FLOW_BIN}"
+    - yarn build
+  artifacts:
+    paths:
+      - src/main/webapp/dist
+    expire_in: 10 minutes
+
+buildServer:
+  stage: buildServer
+  image: openjdk:8-jdk-alpine
+  dependencies:
+    - buildClient
+  script:
+    - ./gradlew
+    - ./gradlew compileJava
+    - ./gradlew copyClientResourcesNoBuild
+    - ./gradlew shadowJar
+  artifacts:
+    paths:
+      - build/libs
+    expire_in: 1 week
+

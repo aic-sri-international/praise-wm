@@ -1,0 +1,317 @@
+import java.nio.file.Files
+
+apply plugin: "com.moowork.node"
+
+node {
+    // Version of node to use.
+    version = "${gradle_node_plugin_node_version}"
+
+    // Version of Yarn to use.
+    yarnVersion = "${gradle_node_plugin_yarn_version}"
+
+    // Base URL for fetching node distributions (change if you have a mirror)
+    distBaseUrl = 'https://nodejs.org/dist'
+
+    // If true, it will download node using above parameters.
+    // If false, it will try to use globally installed node.
+    download = true
+
+    // Set the work directory for unpacking node
+    workDir = file("${project.projectDir}/.gradle/nodejs")
+
+    // Set the work directory for unpacking Yarn
+    yarnWorkDir = file("${project.projectDir}/.gradle/yarn")
+
+    // Set the work directory where node_modules should be located
+    nodeModulesDir = file("${project.projectDir}")
+}
+
+// We do not want the following from tasks from the plugin, so, remove them
+tasks.remove(npmInstall)
+tasks.remove(npmSetup)
+tasks.remove(yarn)
+yarnSetup.description 'Download and install a local version of node and yarn'
+
+project.ext.yarnCommandLine = {
+    Map<String, Object> environment, def cmdList ->
+        def workingDir = project.file("${project.projectDir}/src/main/webapp")
+
+        def platformHelper = PlatformHelper.INSTANCE
+        def osName = platformHelper.getOsName()
+        def osArch = platformHelper.getOsArch()
+
+        def dirName = "node-v${node.version}-${osName}-${osArch}"
+        def nodeDir = new File(node.workDir, dirName)
+
+        dirName = "yarn-v${node.yarnVersion}"
+        def yarnDir = new File(node.yarnWorkDir, dirName)
+
+        def nodeBinDir = nodeDir
+        def yarnBinDir = yarnDir
+        String nodeExec = 'node'
+        String yarnExec = 'yarn'
+
+        if (platformHelper.isWindows()) {
+            nodeExec += ".exe"
+            yarnExec += ".cmd"
+        } else {
+            nodeBinDir = new File(nodeBinDir, 'bin')
+            yarnBinDir = new File(yarnBinDir, 'bin')
+        }
+
+        nodeExec = new File(nodeBinDir, nodeExec).getAbsolutePath()
+        yarnExec = new File(yarnBinDir, yarnExec).getAbsolutePath()
+
+        nodeBinDir = nodeBinDir.getAbsolutePath()
+        yarnBinDir = yarnBinDir.getAbsolutePath()
+
+        // needed for createNodeDirLink task
+        project.ext.nodeExe = nodeExec
+        project.ext.npmPackageDir = new File(nodeDir, "lib/node_modules/npm").getAbsolutePath()
+
+        def path = yarnBinDir + File.pathSeparator + nodeBinDir
+
+        // Take care of Windows environments that may contain "Path" OR "PATH" - both existing
+        // possibly (but not in parallel as of now)
+        if (environment['Path'] != null) {
+            environment['Path'] = path + File.pathSeparator + environment['Path']
+        } else {
+            environment['PATH'] = path + File.pathSeparator + environment['PATH']
+        }
+
+        List<String> commandLine = new ArrayList()
+        commandLine.add(yarnExec)
+        if (cmdList != null && cmdList.size != 0) {
+            commandLine.addAll(cmdList)
+        }
+
+        [workingDir, commandLine]
+}
+
+def groupName = 'node'
+
+// Examples: ./gradlew yarn -Pcmd=info | ./gradlew yarn -Pcmd="run dev"
+task yarn(type: Exec) {
+    List<String> list = new ArrayList<>()
+    if (project.hasProperty('cmd')) {
+        String[] cmdArr = "$cmd".split("\\s+")
+        list.addAll(cmdArr)
+    }
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, list)
+
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn.group groupName
+yarn.description "Runs 'yarn install' to update dependencies.\n" +
+        "To run any yarn command use 'yarn -Pcmd=\"cmdName [options]\"\n" +
+        "Examples:\n" +
+        "./gradlew yarn -Pcmd=\"info\"\n" +
+        "./gradlew yarn -Pcmd=\"run build --report"
+
+task yarn_readme(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['readme'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_readme.group groupName
+yarn_readme.description "Generate HTML from markdown docs and launch in browser"
+
+task yarn_lint(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['lint'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_lint.group groupName
+yarn_lint.description "Run the lint file checker"
+
+task yarn_help(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['help'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_help.group groupName
+yarn_help.description "List help on all yarn commands"
+
+task yarn_run_dev(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'dev'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_dev.group groupName
+yarn_run_dev.description 'Runs a server with hot reload at localhost:8080'
+
+task yarn_run_build(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'build'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_build.group groupName
+yarn_run_build.description 'Build for production with minification'
+
+task yarn_run_build_report(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'build', '--report'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_build_report.group groupName
+yarn_run_build_report.description 'Build for production and view the bundle analyzer report'
+
+task yarn_run_unit_tests(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'unit'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_unit_tests.group groupName
+yarn_run_unit_tests.description 'Run unit tests'
+
+task yarn_run_e2e_tests(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'e2e'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_e2e_tests.group groupName
+yarn_run_e2e_tests.description 'Run end-to-end tests'
+
+task yarn_run_all_tests(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'test'])
+    setWorkingDir arr[0]
+    commandLine arr[1]
+}
+yarn_run_all_tests.group groupName
+yarn_run_all_tests.description 'Run all tests'
+
+task createNodeDirLink() {
+    // create project node dir if it does not already exist
+    doFirst {
+        def platformHelper = PlatformHelper.INSTANCE
+
+        def projectNodeDir = new File(projectDir, 'node').toPath()
+        if (!Files.exists(projectNodeDir)) {
+            try {
+                Files.createDirectory(projectNodeDir);
+                println("Created ${projectNodeDir}")
+            } catch (Exception e) {
+                println("ERROR: Cannot create directory: '${projectNodeDir}', ${e}")
+                return;
+            }
+        }
+
+        def targetNodeExePath = file(project.ext.nodeExe).toPath();
+        def projectNodePath
+
+        if (platformHelper.isWindows()) {
+            projectNodePath = projectNodeDir.resolve("node.bat")
+        } else {
+            projectNodePath = projectNodeDir.resolve("node")
+        }
+
+        try {
+            Files.deleteIfExists(projectNodePath)
+        } catch (Exception e) {
+            println("ERROR: Cannot delete file: '${projectNodePath}', ${e}")
+            return;
+        }
+
+        if (platformHelper.isWindows()) {
+            def f = projectNodePath.toFile();
+                f << "\"${targetNodeExePath}\" %*\n\n"
+            println("File created: '${projectNodePath}'")
+        } else {
+            try {
+                Files.createSymbolicLink(projectNodePath, targetNodeExePath)
+                println("Link created from '${projectNodePath}' to '${targetNodeExePath}'")
+            } catch (Exception e) {
+                println("ERROR: Cannot create file: '${projectNodeLink}', ${e}")
+            }
+        }
+
+        def targetNpmPackagePath = file(project.ext.npmPackageDir).toPath();
+        def projectNpmPackagePath = projectNodeDir.resolve("npm")
+        try {
+            Files.deleteIfExists(projectNpmPackagePath)
+        } catch (Exception e) {
+            println("ERROR: Cannot delete link: '${projectNpmPackagePath}', ${e}")
+            return;
+        }
+
+        try {
+            Files.createSymbolicLink(projectNpmPackagePath, targetNpmPackagePath)
+            println("Link created from '${projectNpmPackagePath}' to '${targetNpmPackagePath}'")
+        } catch (Exception e) {
+            println("ERROR: Cannot create link: from '${projectNpmPackagePath}', ${e}")
+        }
+    }
+}
+
+nodeSetup.finalizedBy(createNodeDirLink);
+createNodeDirLink.group 'node'
+createNodeDirLink.description "Creates ${projectDir.name}/node dir if it does not exist\n" +
+        "Creates or recreates"
+
+class PlatformHelper {
+    static PlatformHelper INSTANCE = new PlatformHelper()
+
+    private final Properties props
+
+    PlatformHelper() {
+        this(System.getProperties())
+    }
+
+    PlatformHelper(final Properties props) {
+        this.props = props
+    }
+
+    private String property(final String name) {
+        def value = this.props.getProperty(name)
+        return value != null ? value : System.getProperty(name)
+    }
+
+    String getOsName() {
+        final String name = property("os.name").toLowerCase()
+        if (name.contains("windows")) {
+            return "win"
+        }
+
+        if (name.contains("mac")) {
+            return "darwin"
+        }
+
+        if (name.contains("linux")) {
+            return "linux"
+        }
+
+        if (name.contains("freebsd")) {
+            return "linux"
+        }
+
+        if (name.contains("sunos")) {
+            return "sunos"
+        }
+
+        throw new IllegalArgumentException("Unsupported OS: " + name)
+    }
+
+    String getOsArch() {
+        final String arch = property("os.arch").toLowerCase()
+        if (arch.contains("64")) {
+            return "x64"
+        }
+        //as Java just returns "arm" on all ARM variants, we need a system call to determine the exact arch
+        if (arch.equals("arm")) {
+            def systemArch = 'uname -m'.execute().text.trim()
+            //the node binaries for 'armv8l' are called 'arm64', so we need to distinguish here
+            if (systemArch.equals("armv8l")) {
+                return "arm64"
+            } else {
+                return systemArch
+            }
+        }
+
+        return "x86"
+    }
+
+    boolean isWindows() {
+        return getOsName().equals("win")
+    }
+}

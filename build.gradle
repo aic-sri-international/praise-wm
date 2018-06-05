@@ -1,0 +1,147 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "mysql:mysql-connector-java:${mysql_connector_java_version}"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:${gradle_apt_plugin_version}"
+        classpath "nu.studer:gradle-jooq-plugin:${gradle_jooq_plugin_version}"
+        classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:${flyway_core_version}"
+        classpath "com.github.jengelman.gradle.plugins:shadow:${shadow_version}"
+        classpath "com.moowork.gradle:gradle-node-plugin:${gradle_node_plugin_version}"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+group = 'com.sri.ai.praisewm'
+version = '1.0'
+
+description = "praisewm"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// must precede shadow plugin
+mainClassName = "${group}.Application"
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+file("src/main/resources/${group}.cfg").withReader {
+    Properties props = new Properties()
+    props.load(it)
+    project.ext.cfg = new ConfigSlurper().parse(props).flatten().each {
+        // remove end-of-line comments
+        int i = it.value.findIndexOf {it == '#'}
+        if (i > -1) {
+            it.value = it.value.substring(0, i).trim()
+        }
+    }
+
+    String urlPropName = "database.url"
+    String url  = "${project.ext.cfg[urlPropName]}"
+    String envHost  = "${project.ext.cfg['database.host.env']}"
+
+    if (envHost != null) {
+        String host = System.getenv(envHost);
+        if (host != null) {
+            int start = url.indexOf("//");
+            int end = url.indexOf(':', start);
+            url = url.substring(0, start + 2) + host + url.substring(end);
+            project.ext.cfg[urlPropName] = url;
+            println "Database URL: '${project.ext.cfg[urlPropName]}'";
+        }
+    }
+}
+
+apply from: 'gradle/mapstruct.gradle'
+apply from: 'gradle/flyway.gradle'
+apply from: 'gradle/jooq.gradle'
+apply from: 'gradle/node.gradle'
+
+// We are only interested in the shadow jar related tasks
+//
+// If we remove the 'standard' jar related tasks, they won't get displayed as available
+// but they don't seem to actually get removed, and will get run during a build cycle.
+// We disabled them so that they get skipped and then remove them.
+// We also remove the other tasks that we do not need.
+
+[jar, startScripts, distTar, distZip, assembleDist, installDist,
+ assemble, build, buildDependents, buildNeeded,
+ init, install].each {
+    it.enabled = false
+    tasks.remove(it)
+}
+
+task copyClientResources(type: Copy) {
+    from "${web_dist_src}"
+    into "${buildDir}/resources/main/${project.ext.cfg['server.staticFolder']}"
+    doLast {
+        // Delete the shadow jar to force it to get recreated
+        delete("${libsDir}/${rootProject.name}-${version}-all.jar")
+    }
+}
+copyClientResources.description 'Copies web client resources'
+copyClientResources.dependsOn(yarn_run_build)
+yarn_run_build.dependsOn(yarn_lint)
+
+//Commented out due to length of time to run the tests
+// yarn_run_build.dependsOn(yarn_run_unit_tests)
+
+task copyClientResourcesNoBuild(type: Copy) {
+    from "${web_dist_src}"
+    into "${buildDir}/resources/main/${project.ext.cfg['server.staticFolder']}"
+    doLast {
+        // Delete the shadow jar to force it to get recreated
+        delete("${libsDir}/${rootProject.name}-${version}-all.jar")
+    }
+}
+copyClientResourcesNoBuild.description 'Copies web client current resources - does not trigger a build'
+
+task deploy {
+    setDependsOn([clean, yarn_lint, copyClientResources, test, shadowJar])
+}
+deploy.group 'build'
+deploy.description 'Performs a clean rebuild of the client and server code, ' +
+        'runs all unit tests and creates a shadowJar'
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+apply from: 'gradle/docker.gradle'
+
+repositories {
+    maven { url "http://repo.maven.apache.org/maven2" }
+    mavenLocal()
+    flatDir { dirs 'lib' }
+}
+
+dependencies {
+    compile name: "PRAiSE-${aic_praise_version}-jar-with-dependencies"
+    compile "com.sparkjava:spark-core:${spark_version}"
+    compile "mysql:mysql-connector-java:${mysql_connector_java_version}"
+    compile "com.zaxxer:HikariCP:${HikariCP_version}"
+    compile "com.fasterxml.jackson.core:jackson-core:${jackson_core_version}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${jackson_core_version}"
+    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:${jackson_core_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_core_version}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_core_version}"
+    compile "com.google.guava:guava:${guava_version}"
+    compile "com.jayway.jsonpath:json-path:${json_path_version}"
+    compile "org.apache.commons:commons-lang3:${commons_lang3_version}"
+    compile "commons-fileupload:commons-fileupload:${commons_fileupload_version}"
+    compile "org.apache.pdfbox:pdfbox:${apache_pdfbox_version}"
+    compile "ch.qos.logback:logback-classic:${logback_version}"
+    testCompile "junit:junit:${junit_version}"
+    testCompile "org.assertj:assertj-core:${assertj_core_version}"
+    testCompile "org.assertj:assertj-guava:${assertj_guava_version}"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "${gradle_version}"
+}

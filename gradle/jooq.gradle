@@ -1,0 +1,49 @@
+apply plugin: 'nu.studer.jooq'
+
+dependencies {
+    compile 'org.jooq:jooq'
+    jooqRuntime "mysql:mysql-connector-java:${mysql_connector_java_version}"
+}
+
+
+jooq {
+    version = "${jooq_version}"
+    praisewm(sourceSets.main) {
+        jdbc {
+            driver = "${project.ext.cfg['database.driver']}"
+            url = "${project.ext.cfg['database.url']}"
+            user = "${project.ext.cfg['database.user']}"
+            password = "${project.ext.cfg['database.password']}"
+        }
+        generator {
+            name = 'org.jooq.util.DefaultGenerator'
+            database {
+                name = 'org.jooq.util.mysql.MySQLDatabase'
+                inputSchema = "${project.ext.cfg['database.schema']}"
+                schemaVersionProvider = """
+                    SELECT CONCAT('praisewm', '_', MAX(version)) FROM flyway_schema_history;
+                    """
+                forcedTypes {
+                    forcedType {
+                        userType = 'java.time.Instant'
+                        converter = 'com.sri.ai.praisewm.db.internal.TimestampUtcBinding'
+                        types = 'datetime'
+                    }
+                }
+            }
+            generate {
+                deprecated = false
+                relations = true
+                pojos = true
+                daos = true
+                records = true
+                fluentSetters = true
+            }
+            target {
+                packageName = "${project.group}.db.jooq"
+            }
+        }
+    }
+}
+
+generatePraisewmJooqSchemaSource.dependsOn flywayMigrate

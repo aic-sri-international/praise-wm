@@ -1,0 +1,18 @@
+.DS_Store
+.gradle
+.idea
+/build
+/data
+/node
+
+/keystore.jks
+# idea module files
+*.iml
+
+*.log
+
+src/main/webapp/dist
+src/main/webapp/node_modules
+src/main/webapp/test/e2e/reports
+src/main/webapp/test/unit/coverage/lcov-report/src
+

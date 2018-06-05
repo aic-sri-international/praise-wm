@@ -1,0 +1,128 @@
+// @flow
+
+import ace from './aceBoot';
+import { segmentModel } from './modelSplitter';
+import type { SegmentedModel, ModelRule } from './modelSplitter';
+
+
+const editorMode = 'ace/mode/hogm';
+
+export type AceModelEditorArgs = {
+  value?: string,
+  minLines?: number,
+  maxLines?: number,
+}
+
+type SessionEntry = {
+  session: Object,
+  metadata: string,
+}
+
+export default class AceModelEditor {
+  editor: Object;
+  sessionEntries: SessionEntry[] = [];
+  editorContainerParent: Object;
+
+  constructor(args: AceModelEditorArgs) {
+    const { value, minLines, maxLines } = args;
+
+    this.editor = ace.edit(null, {
+      minLines,
+      maxLines,
+      value: value || '',
+      mode: editorMode,
+    });
+    const curSession = this.editor.getSession();
+    AceModelEditor.configSession(curSession);
+    this.sessionEntries.push({ session: curSession, metadata: '' });
+  }
+
+  appendToRef(ref: Object) {
+    this.editorContainerParent = ref;
+    ref.appendChild(this.editor.container);
+  }
+
+  on(action: string, func: Function) {
+    this.editor.on(action, func);
+  }
+
+  setValue(text: string) {
+    this.editor.setValue(text);
+  }
+
+  getValue() {
+    return this.editor.getValue();
+  }
+
+  clearSelection() {
+    this.editor.clearSelection();
+  }
+
+  canUndo() {
+    return this.editor.getSession().getUndoManager().canUndo();
+  }
+
+  canRedo() {
+    return this.editor.getSession().getUndoManager().canRedo();
+  }
+
+  undo() {
+    this.editor.getSession().getUndoManager().undo();
+  }
+
+  redo() {
+    this.editor.getSession().getUndoManager().redo();
+  }
+
+  resetUndoManager() {
+    this.editor.getSession().getUndoManager().reset();
+  }
+
+  loadSegmentedModel(model: string) {
+    const sm : SegmentedModel = segmentModel(model);
+    if (!sm.rules) {
+      throw Error('Model does not have any rules');
+    }
+    this.sessionEntries.forEach(e => e.session.destroy);
+    this.sessionEntries = [];
+
+
+    sm.rules.forEach((mr: ModelRule) => {
+      this.addSession(mr.rule, mr.metadata);
+    });
+
+    this.editor.setSession(this.sessionEntries[0].session);
+  }
+
+  static configSession(session: Object) {
+    session.setNewLineMode('unix');
+  }
+
+  addSession(text: string, metadata: ?string) {
+    const session = ace.createEditSession(text, editorMode);
+    AceModelEditor.configSession(session);
+    this.sessionEntries.push({ session, metadata: metadata || '' });
+  }
+
+  getSessionData(index: number) : ?{ value: string, metadata: string } {
+    if (index < this.sessionEntries.length) {
+      const entry : SessionEntry = this.sessionEntries[index];
+      return {
+        value: entry.session.getValue(),
+        metadata: entry.metadata,
+      };
+    }
+    return null;
+  }
+
+  setSession(newIndex: number) {
+    this.editor.setSession(this.sessionEntries[newIndex].session);
+  }
+
+  destroy() {
+    this.editorContainerParent.removeChild(this.editor.container);
+    this.editor.destroy();
+    this.sessionEntries.forEach(e => e.session.destroy);
+  }
+}
+
