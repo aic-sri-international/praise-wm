@@ -28,7 +28,7 @@ buildClient:
   artifacts:
     paths:
       - src/main/webapp/dist
-    expire_in: 10 minutes
+    expire_in: 30 minutes
 
 buildServer:
   stage: buildServer
