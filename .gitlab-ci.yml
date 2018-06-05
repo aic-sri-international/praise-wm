@@ -23,7 +23,7 @@ buildClient:
   script:
     - cd src/main/webapp
     - yarn
-    - ls -l "${FLOW_BIN}"
+    - yarn lint
     - yarn build
   artifacts:
     paths:
