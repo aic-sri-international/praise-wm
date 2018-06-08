@@ -15,6 +15,8 @@ import faSave from '@fortawesome/fontawesome-free-solid/faSave';
 import faBroom from '@fortawesome/fontawesome-free-solid/faBroom';
 
 import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
+import faCaretUp from '@fortawesome/fontawesome-free-solid/faCaretUp';
+import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
 import faCaretRight from '@fortawesome/fontawesome-free-solid/faCaretRight';
 import faCaretLeft from '@fortawesome/fontawesome-free-solid/faCaretLeft';
 import faHome from '@fortawesome/fontawesome-free-solid/faHome';
@@ -50,6 +52,8 @@ fontawesome.library.add(faBroom);
 //
 
 fontawesome.library.add(faPlusSquare);
+fontawesome.library.add(faCaretUp);
+fontawesome.library.add(faCaretDown);
 fontawesome.library.add(faCaretRight);
 fontawesome.library.add(faCaretLeft);
 fontawesome.library.add(faHome);

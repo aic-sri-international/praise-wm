@@ -23,6 +23,7 @@
     "moment": "^2.22.1",
     "random-js": "^1.0.8",
     "vue": "^2.5.16",
+    "vue-context-menu": "^2.0.6",
     "vue-router": "^3.0.1",
     "vue-snotify": "^3.0.4",
     "vue-tippy": "^2.0.11",

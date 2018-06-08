@@ -258,7 +258,7 @@
         if (this.editor$ !== undefined) {
           this.editor$.destroy();
         }
-        this.editor$ = new AceModelEditor({ minLines: 10, maxLines: 30 });
+        this.editor$ = new AceModelEditor({ mode: 'ace/mode/hogm', minLines: 10, maxLines: 30 });
         const that = this;
         this.editor$.on('change', () => {
           that.pages[that.currentPageIx].canUndo = that.editor$.canUndo();

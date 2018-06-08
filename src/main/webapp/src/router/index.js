@@ -5,6 +5,7 @@ import Router from 'vue-router';
 import Login from '@/components/login/Login';
 import UserMaintenance from '@/components/usermaint/UserMaintenance';
 import ModelEditor from '@/components/editor/ModelEditor';
+import SegmentedModelEditor from '@/components/editor/SegmentedModelEditor';
 
 Vue.use(Router);
 
@@ -15,7 +16,9 @@ Vue.use(Router);
 
 export const paths = {
   LOGIN: '/',
-  HOME: '/ModelEditor',
+  HOME: '/SegmentedModelEditor',
+  MODEL_EDITOR: '/ModelEditor',
+  SEGMENTED_MODEL_EDITOR: '/SegmentedModelEditor',
   USER_MAINT: '/UserMaintenance',
 };
 
@@ -28,6 +31,14 @@ export const router = new Router({
     },
     {
       path: paths.HOME,
+      component: SegmentedModelEditor,
+    },
+    {
+      path: paths.SEGMENTED_MODEL_EDITOR,
+      component: SegmentedModelEditor,
+    },
+    {
+      path: paths.MODEL_EDITOR,
       component: ModelEditor,
     },
     {

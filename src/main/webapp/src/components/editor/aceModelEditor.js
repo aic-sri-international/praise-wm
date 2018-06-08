@@ -5,12 +5,14 @@ import { segmentModel } from './modelSplitter';
 import type { SegmentedModel, ModelRule } from './modelSplitter';
 
 
-const editorMode = 'ace/mode/hogm';
-
 export type AceModelEditorArgs = {
+  mode: string,
   value?: string,
   minLines?: number,
   maxLines?: number,
+  showPrintMargin?: boolean,
+  showGutter?: boolean,
+  readOnly?: boolean,
 }
 
 type SessionEntry = {
@@ -22,16 +24,26 @@ export default class AceModelEditor {
   editor: Object;
   sessionEntries: SessionEntry[] = [];
   editorContainerParent: Object;
+  editorMode: string;
 
   constructor(args: AceModelEditorArgs) {
-    const { value, minLines, maxLines } = args;
+    const {
+      value, minLines, maxLines, showPrintMargin, showGutter, mode, readOnly,
+    } = args;
+    this.editorMode = mode;
 
     this.editor = ace.edit(null, {
       minLines,
       maxLines,
       value: value || '',
-      mode: editorMode,
+      mode,
+      showPrintMargin: showPrintMargin || false,
+      showGutter: showGutter !== false,
+      readOnly: readOnly === true,
     });
+    if (this.editor.getReadOnly()) {
+      this.editor.renderer.$cursorLayer.element.style.display = 'none';
+    }
     const curSession = this.editor.getSession();
     AceModelEditor.configSession(curSession);
     this.sessionEntries.push({ session: curSession, metadata: '' });
@@ -48,6 +60,7 @@ export default class AceModelEditor {
 
   setValue(text: string) {
     this.editor.setValue(text);
+    this.editor.moveCursorTo(0, 0);
   }
 
   getValue() {
@@ -99,7 +112,7 @@ export default class AceModelEditor {
   }
 
   addSession(text: string, metadata: ?string) {
-    const session = ace.createEditSession(text, editorMode);
+    const session = ace.createEditSession(text, this.editorMode);
     AceModelEditor.configSession(session);
     this.sessionEntries.push({ session, metadata: metadata || '' });
   }

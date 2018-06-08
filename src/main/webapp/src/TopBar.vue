@@ -6,7 +6,7 @@
       <span class="fa-layers fa-fw">
         <i class="fas fa-bell" data-fa-transform="grow-12 down-2"></i>
         <span v-if="notificationUiHasNewMsg">
-          <i class="fas fa-circle" data-fa-transform="shrink-10 up-3 right-3" style="color: #5a96ff"></i>
+          <i class="fas fa-circle" data-fa-transform="shrink-10 up-3 right-3" style="color: blue"></i>
         </span>
       </span>
     </span>
