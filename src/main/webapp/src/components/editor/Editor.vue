@@ -64,7 +64,7 @@
       },
     },
     watch: {
-      text() {
+      value() {
         this.$nextTick(() => this.initEditorText());
       },
     },

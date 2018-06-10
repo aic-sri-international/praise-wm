@@ -1,9 +1,6 @@
 // @flow
 
 import ace from './aceBoot';
-import { segmentModel } from './modelSplitter';
-import type { SegmentedModel, ModelRule } from './modelSplitter';
-
 
 export type AceModelEditorArgs = {
   mode: string,
@@ -15,14 +12,9 @@ export type AceModelEditorArgs = {
   readOnly?: boolean,
 }
 
-type SessionEntry = {
-  session: Object,
-  metadata: string,
-}
-
 export default class AceModelEditor {
   editor: Object;
-  sessionEntries: SessionEntry[] = [];
+  sessions: Object[] = [];
   editorContainerParent: Object;
   editorMode: string;
 
@@ -46,7 +38,7 @@ export default class AceModelEditor {
     }
     const curSession = this.editor.getSession();
     AceModelEditor.configSession(curSession);
-    this.sessionEntries.push({ session: curSession, metadata: '' });
+    this.sessions.push(curSession);
   }
 
   appendToRef(ref: Object) {
@@ -91,51 +83,34 @@ export default class AceModelEditor {
     this.editor.getSession().getUndoManager().reset();
   }
 
-  loadSegmentedModel(model: string) {
-    const sm : SegmentedModel = segmentModel(model);
-    if (!sm.rules) {
-      throw Error('Model does not have any rules');
-    }
-    this.sessionEntries.forEach(e => e.session.destroy);
-    this.sessionEntries = [];
-
-
-    sm.rules.forEach((mr: ModelRule) => {
-      this.addSession(mr.rule, mr.metadata);
-    });
-
-    this.editor.setSession(this.sessionEntries[0].session);
-  }
-
   static configSession(session: Object) {
     session.setNewLineMode('unix');
   }
 
-  addSession(text: string, metadata: ?string) {
+  addSession(text: string) {
     const session = ace.createEditSession(text, this.editorMode);
     AceModelEditor.configSession(session);
-    this.sessionEntries.push({ session, metadata: metadata || '' });
+    this.sessions.push(session);
   }
 
-  getSessionData(index: number) : ?{ value: string, metadata: string } {
-    if (index < this.sessionEntries.length) {
-      const entry : SessionEntry = this.sessionEntries[index];
+  getSessionData(index: number) : ?{ value: string } {
+    if (index < this.sessions.length) {
+      const session : Object = this.sessions[index];
       return {
-        value: entry.session.getValue(),
-        metadata: entry.metadata,
+        value: session.getValue(),
       };
     }
     return null;
   }
 
   setSession(newIndex: number) {
-    this.editor.setSession(this.sessionEntries[newIndex].session);
+    this.editor.setSession(this.sessions[newIndex]);
   }
 
   destroy() {
     this.editorContainerParent.removeChild(this.editor.container);
     this.editor.destroy();
-    this.sessionEntries.forEach(e => e.session.destroy);
+    this.sessions.forEach(session => session.destroy);
   }
 }
 

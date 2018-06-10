@@ -87,9 +87,7 @@
         <div v-for="result in pages[currentPageIx].queryResults" >
           {{result}}
         </div>
-        <input v-show="false" ref="input_ref" type="file" class="input-file"
-               @change="inputFileChanged($event.target.files)"
-               accept=".praise">
+        <input-text-file ref="input_ref" @change="inputFileChanged" accept=".praise"></input-text-file>
       </b-card-body>
     </b-card>
   </div>
@@ -97,10 +95,10 @@
 
 <script>
   // @flow
-
   import cloneDeep from 'lodash/cloneDeep';
-  import { readTextFile } from '@/utils';
   import ActionButton from '@/components/ActionButton';
+  import InputTextFile from '@/components/InputTextFile';
+  import type { FileInfo } from '@/utils';
   import AceModelEditor from './aceModelEditor';
   import { fetchExamples, solve, toFormattedPageModel, fromFormattedPageModel } from './dataSourceProxy';
   import type { ModelPagesDto, ModelPageDto, ModelQueryDto, FormattedPageModelDto } from './types';
@@ -108,7 +106,8 @@
   export default {
     name: 'modelEditor',
     components: {
-      'action-button': ActionButton,
+      ActionButton,
+      InputTextFile,
     },
     data() {
       return {
@@ -182,18 +181,11 @@
           return [];
         }
       },
-      async inputFileChanged(files: FileList) {
-        let file;
-
-        Array.from(files).forEach((f) => {
-          file = f;
-        });
-        this.$refs.input_ref.value = '';
-        if (file === undefined) {
+      async inputFileChanged(filesInfo : FileInfo[]) {
+        if (filesInfo.length === 0) {
           return;
         }
-
-        const { basename, text } = await readTextFile(file);
+        const { basename, text } = filesInfo[0];
         const fpm: FormattedPageModelDto = { name: basename, text };
         let modelPagesDto : ModelPagesDto;
         try {
