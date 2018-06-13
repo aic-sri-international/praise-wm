@@ -131,6 +131,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-parameter-names:${jackson_core_version}"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_core_version}"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_core_version}"
+    compile "javax.xml.bind:jaxb-api:${jaxb_api_version}"
     compile "com.google.guava:guava:${guava_version}"
     compile "com.jayway.jsonpath:json-path:${json_path_version}"
     compile "org.apache.commons:commons-lang3:${commons_lang3_version}"
