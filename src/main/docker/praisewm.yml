@@ -1,7 +1,10 @@
-version: '2'
+version: '2.1'
+
 services:
     praisewm-app:
-        image: praisewm:latest
+        image: ${PRAISEWM_IMAGE_NAME:-praisewm:latest}
+        volumes:
+            - ${PRAISEWM_DATA_DIRECTORY:-~/praisewm/data}:/opt/praisewm/data
         environment:
             - PRAISEWM_DATABASE_HOST=praisewm-mysql
         ports:

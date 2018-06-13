@@ -44,6 +44,16 @@ Unless you already have the openjdk Docker image installed, it will be downloade
 
 If the containers do not seem to start correctly, run the *up* command without the *-d* option so that you can see the program initialization output. If you see that *MySQL* is still initializing when the *praisewm* application starts, increase the *PRAISEWM_SLEEP* time in [app.yml].
 
+`NOTE`: By default, the praisewm docker container will create a mount point of *~/praisewm/data* that is used by the praisewm server for access to external data files. The server will also write its log files to a *logs* subdirectory. To change the mount point, set the environmental variable *PRAISEWM_DATA_DIRECTORY* to a complete path to a directory on your system. If the directory does not yet exist, it will be created on startup.
+
+
+## Using Deployed Docker Images.
+
+If using a docker image of praisewm that has been deployed to a remote repository, be sure to set the environmental variable *PRAISEWM_IMAGE_NAME* to the correct image name prior to running [praisewm.yml].
+
+See [uploadImage.sh] for the image name used for Artifactory.
+
+
 ## Docker Commands
 List all containers:
 
@@ -70,4 +80,6 @@ Delete a container:
 [Install Docker]: https://docs.docker.com/engine/installation/
 [Install Docker Compose]: https://docs.docker.com/compose/install/
 [app.yml]: ../src/main/docker/app.yml
+[praisewm.yml]: ../src/main/docker/praisewm.yml
+[uploadImage.sh]: ../src/main/docker/uploadImage.sh
 [A Docker Cheat Sheet]: https://www.digitalocean.com/community/tutorials/how-to-remove-docker-images-containers-and-volumes
