@@ -5,7 +5,7 @@
          :disabled="disabled"
          :style="{ color: btnColor }"
          @click.stop="$emit('clicked')">
-      <i :class="btnClass"></i>
+      <i :class="btnClass" :data-fa-transform="transform"></i>
   </b-btn>
 </template>
 
@@ -20,7 +20,7 @@
         validator: (value: string) =>
           ['clone', 'download', 'add', 'edit', 'delete', 'play',
             'undo', 'redo', 'open', 'save', 'broom',
-            'angle-left', 'angle-right'].includes(value),
+            'angle-left', 'angle-right', 'eye', 'eye-slash'].includes(value),
       },
       title: {
         type: String,
@@ -28,6 +28,9 @@
       disabled: {
         type: Boolean,
         default: false,
+      },
+      transform: {
+        type: String,
       },
     },
     computed: {
@@ -75,6 +78,12 @@
             break;
           case 'angle-right':
             name = 'fa-angle-right';
+            break;
+          case 'eye':
+            name = 'fa-eye';
+            break;
+          case 'eye-slash':
+            name = 'fa-eye-slash';
             break;
           default:
             throw Error(`unsupported type: ${this.type}`);

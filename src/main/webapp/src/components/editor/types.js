@@ -20,21 +20,21 @@ export type FormattedPageModelDto = {
   text: string,
 };
 
-export type ModelRule = {
-  metadata: string,
+export type ModelRuleDto = {
+  metadata?: string,
   rule: string,
 };
 
 export type ModelRuleWrapper = {
-  modelRule: ModelRule,
+  modelRule: ModelRuleDto,
   toggleMetadata: boolean,
   emitData: boolean,
 };
 
-export type SegmentedModel = {
+export type SegmentedModelDto = {
   name: string,
-  description: string,
-  declarations: string,
-  rules: ModelRule[],
-  queries: string[],
+  description?: string,
+  declarations?: string,
+  rules: ModelRuleDto[],
+  queries?: string[],
 }

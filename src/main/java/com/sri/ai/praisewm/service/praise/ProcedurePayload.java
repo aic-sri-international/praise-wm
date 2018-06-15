@@ -1,4 +1,3 @@
 package com.sri.ai.praisewm.service.praise;
 
-public interface ProcedurePayload {
-}
+public interface ProcedurePayload {}

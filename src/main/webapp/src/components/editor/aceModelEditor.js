@@ -10,6 +10,7 @@ export type AceModelEditorArgs = {
   showPrintMargin?: boolean,
   showGutter?: boolean,
   readOnly?: boolean,
+  highlightActiveLine?: boolean,
 }
 
 export default class AceModelEditor {
@@ -21,6 +22,7 @@ export default class AceModelEditor {
   constructor(args: AceModelEditorArgs) {
     const {
       value, minLines, maxLines, showPrintMargin, showGutter, mode, readOnly,
+      highlightActiveLine,
     } = args;
     this.editorMode = mode;
 
@@ -32,7 +34,14 @@ export default class AceModelEditor {
       showPrintMargin: showPrintMargin || false,
       showGutter: showGutter !== false,
       readOnly: readOnly === true,
+      highlightActiveLine,
     });
+
+    // Delegate commands to the browser, so that a tab or shift-tab
+    // navigate to the next UI component
+    this.editor.commands.bindKey('Tab', null);
+    this.editor.commands.bindKey('Shift-Tab', null);
+
     if (this.editor.getReadOnly()) {
       this.editor.renderer.$cursorLayer.element.style.display = 'none';
     }

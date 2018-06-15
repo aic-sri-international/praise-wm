@@ -1,7 +1,12 @@
 // @flow
 // import isMock from '@/dataConfig';
 import { http, toApiUrl } from '@/services/http';
-import type { ModelPagesDto, ModelQueryDto, FormattedPageModelDto } from './types';
+import type {
+  ModelPagesDto,
+  ModelQueryDto,
+  FormattedPageModelDto,
+  SegmentedModelDto,
+} from './types';
 
 async function fetchExamples(): Promise<ModelPagesDto[]> {
   let result: ModelPagesDto[] = [];
@@ -22,6 +27,14 @@ async function fetchExamples(): Promise<ModelPagesDto[]> {
   return Promise.resolve(result);
 }
 
+async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
+  let result: SegmentedModelDto[] = [];
+
+  // $FlowFixMe
+  result = await http.get(toApiUrl('segmentedModels'));
+  return Promise.resolve(result);
+}
+
 async function solve(model: ModelQueryDto): Promise<any> {
   const result = await http.post(toApiUrl('solve'), model);
   return Promise.resolve(result);
@@ -38,4 +51,10 @@ async function fromFormattedPageModel(formattedModel: FormattedPageModelDto)
   return Promise.resolve(result);
 }
 
-export { fetchExamples, solve, toFormattedPageModel, fromFormattedPageModel };
+export {
+  fetchExamples,
+  fetchSegmentedModels,
+  solve,
+  toFormattedPageModel,
+  fromFormattedPageModel,
+};

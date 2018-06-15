@@ -35,6 +35,8 @@ import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclama
 import faArrowUp from '@fortawesome/fontawesome-free-solid/faArrowUp';
 import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft';
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
+import faEye from '@fortawesome/fontawesome-free-solid/faEye';
+import faEyeSlash from '@fortawesome/fontawesome-free-solid/faEyeSlash';
 
 
 // The following are used in ActionButton
@@ -72,3 +74,5 @@ fontawesome.library.add(faTimes);
 fontawesome.library.add(faArrowUp);
 fontawesome.library.add(faAngleLeft);
 fontawesome.library.add(faAngleRight);
+fontawesome.library.add(faEye);
+fontawesome.library.add(faEyeSlash);

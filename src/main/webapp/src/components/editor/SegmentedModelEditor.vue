@@ -1,86 +1,75 @@
 <template>
   <div>
-    <div>
-      <b-button-toolbar>
-        <b-button-group size="sm" class="mx-1">
-          <action-button
-              type="open"
-              title="Open Model"
-              @clicked="()=>$refs.input_ref.click()">
-          </action-button>
-          <!--<action-button-->
-          <!--type="download"-->
-          <!--title="Download Model"-->
-          <!--@clicked="download">-->
-          <!--</action-button>-->
-        </b-button-group>
-        <!--<b-input-group size="sm" class="w-50 mx-1" prepend="Model">-->
-        <!--<b-form-select-->
-        <!--@input="modelSelectionChanged"-->
-        <!--v-model="modelOptionSelected"-->
-        <!--:options="modelOptions">-->
-        <!--</b-form-select>-->
-        <!--</b-input-group>-->
-      </b-button-toolbar>
-    </div>
-    <hr/>
-    <div></div>
     <div v-for="(mrw, index) in mrws"
          @contextmenu.prevent="$refs.ctxmenu_ref.open($event, { index: index })">
-      <model-rule-editor :model-rule-wrapper="mrw"></model-rule-editor>
+      <model-rule-editor
+          :model-rule-wrapper="mrw"
+          @modelRuleData="mrd => modelRules.push(mrd)">
+      </model-rule-editor>
     </div>
-
-    <input-text-file ref="input_ref" @change="inputFileChanged" accept=".json"></input-text-file>
-
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
-      <li @click="onToggleMetadata">Toggle Metadata</li>
-      <li @click="onToggleAllMetadata">Toggle All Metadata</li>
-      <!--<li @click="onInsertAbove">Insert Rule Above</li>-->
-      <!--<li @click="onInsertBelow">Insert Rule Below</li>-->
-      <!--<li @click="onDelete">Delete Rule</li>-->
-      <li>Insert Rule Above</li>
-      <li>Insert Rule Below</li>
-      <li>Delete Rule</li>
+      <div class="context-menu">
+        <li @click="onToggleMetadata">Toggle Metadata</li>
+        <li @click="onToggleAllMetadata">Toggle All Metadata</li>
+        <!--<li @click="onInsertAbove">Insert Rule Above</li>-->
+        <!--<li @click="onInsertBelow">Insert Rule Below</li>-->
+        <!--<li @click="onDelete">Delete Rule</li>-->
+        <li>Insert Rule Above</li>
+        <li>Insert Rule Below</li>
+        <li>Delete Rule</li>
+      </div>
     </context-menu>
   </div>
 </template>
 
 <script>
   import ContextMenu from 'vue-context-menu';
-  import ActionButton from '@/components/ActionButton';
-  import InputTextFile from '@/components/InputTextFile';
-  import type { FileInfo } from '@/utils';
-  import type { SegmentedModel } from './types';
+  import type { ModelRuleDto, ModelRuleWrapper } from './types';
   import ModelRuleEditor from './ModelRuleEditor';
 
   export default {
     name: 'SegmentedModelEditor',
     components: {
-      ActionButton,
-      InputTextFile,
       ContextMenu,
       ModelRuleEditor,
+    },
+    props: {
+      rules: {
+        type: Array,
+        default() {
+          return {
+            metadata: '',
+            rule: '',
+          };
+        },
+      },
     },
     data() {
       return {
         mrws: [],
         lastRightClickData: {},
+        modelRules: [],
       };
     },
     methods: {
-      async inputFileChanged(filesInfo: FileInfo[]) {
-        if (filesInfo.length === 0) {
-          return;
-        }
-        // const { basename, jsonString } = filesInfo[0];
-        const { text } = filesInfo[0];
-        const segmentedModel: SegmentedModel = JSON.parse(text);
-
-        this.mrws = segmentedModel.rules.map(mr => ({
+      async getModelRules() : ModelRuleDto[] {
+        this.modelRules = [];
+        this.mrws.forEach(((mrw) => {
+          // eslint-disable-next-line no-param-reassign
+          mrw.emitData = !mrw.emitData;
+        }));
+        await this.$nextTick();
+        return [...this.modelRules];
+      },
+      wrapModelRules(mrs: ModelRuleDto[]) : ModelRuleWrapper[] {
+        return mrs.map(mr => ({
           modelRule: mr,
           toggleMetadata: false,
           emitData: false,
         }));
+      },
+      initialize(mrs: ModelRuleDto[]) {
+        this.mrws = this.wrapModelRules(mrs);
       },
       onToggleMetadata() {
         this.mrws[this.lastRightClickData.index].toggleMetadata
@@ -94,39 +83,23 @@
       },
       setCurrentRightClickData(data) {
         this.lastRightClickData = data;
-        // console.log(data);
+      },
+    },
+    watch: {
+      rules(newValue: ModelRuleDto[]) {
+        this.initialize(newValue);
       },
     },
     created() {
-      this.mrws.push({
-        modelRule: {
-          metadata: 'metadata for rule 1  goes here',
-          rule: 'variables for rule 1 along with its definition goes here',
-        },
-        toggleMetadata: false,
-        emitData: false,
-      });
-      this.mrws.push({
-        modelRule: {
-          metadata: 'metadata for rule 2  goes here',
-          rule: 'variables for rule 2 along with its definition goes here',
-        },
-        toggleMetadata: false,
-        emitData: false,
-      });
-      this.mrws.push({
-        modelRule: {
-          metadata: 'metadata for rule 3  goes here',
-          rule: 'variables for rule 3 along with its definition goes here',
-        },
-        toggleMetadata: false,
-        emitData: false,
-      });
+      this.initialize(this.rules);
     },
   };
 </script>
 
 <style scoped>
+  .context-menu {
+    margin-left: 4px;
+  }
   #context-menu li:hover, li:focus {
     color: inherit;
     background-color: #e9e9e9;

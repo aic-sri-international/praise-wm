@@ -2,20 +2,12 @@
   <div>
       <div class="rule-border" >
         <span v-show="metaIsOpen">
-          <span class="float-left mr-2" @click.stop="metaIsOpen = false">
-            <i class="fas fa-caret-up" style="color: green" data-fa-transform="grow-5 up-8"></i>
-          </span>
           <editor ref="metadata_ref"
                   type="text"
                   :value="modelRuleWrapper.modelRule.metadata">
           </editor>
+          <hr />
         </span>
-        <span v-show="!metaIsOpen">
-            <span class="float-left" @click.stop="metaIsOpen = true">
-              <i class="fas fa-caret-down" style="color: green" data-fa-transform="grow-5 up-8"></i>
-          </span>
-        </span>
-        <hr />
         <editor ref="rule_ref"
                 type="hogm"
                 :value="modelRuleWrapper.modelRule.rule">
@@ -27,7 +19,7 @@
 <script>
   // @flow
   import Editor from './Editor';
-  import type { ModelRule } from './types';
+  import type { ModelRuleDto } from './types';
 
   export default {
     name: 'ModelRuleEditor',
@@ -64,10 +56,10 @@
       };
     },
     methods: {
-      getModelRule(): ModelRule {
+      getModelRule(): ModelRuleDto {
         return {
-          metadata: this.$refs.metadata_ref.getValue(),
-          rule: this.$refs.rule_ref.getValue(),
+          metadata: this.$refs.metadata_ref.getValue().trim(),
+          rule: this.$refs.rule_ref.getValue().trim(),
         };
       },
     },
@@ -80,10 +72,8 @@
       },
     },
     watch: {
-      emitData(newValue: boolean) {
-        if (newValue) {
-          this.$emit('modelRuleData', this.getModelRule());
-        }
+      emitData() {
+        this.$emit('modelRuleData', this.getModelRule());
       },
       toggleMetadata() {
         this.metaIsOpen = !this.metaIsOpen;
