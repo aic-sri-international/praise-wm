@@ -11,12 +11,9 @@
       <div class="context-menu">
         <li @click="onToggleMetadata">Toggle Metadata</li>
         <li @click="onToggleAllMetadata">Toggle All Metadata</li>
-        <!--<li @click="onInsertAbove">Insert Rule Above</li>-->
-        <!--<li @click="onInsertBelow">Insert Rule Below</li>-->
-        <!--<li @click="onDelete">Delete Rule</li>-->
-        <li>Insert Rule Above</li>
-        <li>Insert Rule Below</li>
-        <li>Delete Rule</li>
+        <li @click="onInsertModelRule(true)">Insert Rule Above</li>
+        <li @click="onInsertModelRule(false)">Insert Rule Below</li>
+        <li @click="onDeleteModelRule">Delete Rule</li>
       </div>
     </context-menu>
   </div>
@@ -68,6 +65,9 @@
           emitData: false,
         }));
       },
+      getEmptyWrappedModelRule() : ModelRuleWrapper {
+        return this.wrapModelRules([{ metadata: '', rule: '' }])[0];
+      },
       initialize(mrs: ModelRuleDto[]) {
         this.mrws = this.wrapModelRules(mrs);
       },
@@ -80,6 +80,19 @@
           // eslint-disable-next-line no-param-reassign
           mrw.toggleMetadata = !mrw.toggleMetadata;
         }));
+      },
+      onInsertModelRule(isAbove: boolean) {
+        let ix = this.lastRightClickData.index;
+        if (!isAbove) {
+          ix += 1;
+        }
+        this.mrws.splice(ix, 0, this.getEmptyWrappedModelRule());
+      },
+      onDeleteModelRule() {
+        this.mrws.splice(this.lastRightClickData.index, 1);
+        if (!this.mrws.length) {
+          this.mrws.push(this.getEmptyWrappedModelRule());
+        }
       },
       setCurrentRightClickData(data) {
         this.lastRightClickData = data;

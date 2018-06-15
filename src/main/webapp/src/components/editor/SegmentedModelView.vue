@@ -128,7 +128,6 @@
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
-
         return {
           name: this.modelOptions[this.modelOptionSelected].text.trim(),
           description: this.segmentedModel.description.trim(),
