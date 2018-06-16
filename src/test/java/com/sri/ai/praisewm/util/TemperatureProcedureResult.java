@@ -16,8 +16,6 @@ public class TemperatureProcedureResult implements ProcedureResult {
 
   @Override
   public String toString() {
-    return "TemperatureProcedureResult{" +
-        "temperatureInCelsius=" + temperatureInCelsius +
-        '}';
+    return "TemperatureProcedureResult{" + "temperatureInCelsius=" + temperatureInCelsius + '}';
   }
 }

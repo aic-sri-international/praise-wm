@@ -1,12 +1,11 @@
 package com.sri.ai.praisewm.util;
 
-import com.sri.ai.praisewm.service.praise.Procedure;
 import com.sri.ai.praisewm.service.praise.ProcedurePayload;
 
-public class TemperatureProcedure implements Procedure {
+public class TemperatureProcedureImpl extends AbstractTemperatureProcedure {
   private CropYieldPredictionQuery querySolver;
 
-  public TemperatureProcedure(CropYieldPredictionQuery querySolver) {
+  public TemperatureProcedureImpl(CropYieldPredictionQuery querySolver) {
     this.querySolver = querySolver;
   }
 
