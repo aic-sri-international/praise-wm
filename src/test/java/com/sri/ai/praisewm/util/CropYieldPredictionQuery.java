@@ -6,7 +6,8 @@ public class CropYieldPredictionQuery {
 
     // HTTP post to CropYieldPrediction server ('api/' + ProcedureNames.TEMPERATURE, jsonPayload)
     // remote server computes and returns result as JSON
-    TemperatureProcedureResult result = new TemperatureProcedureResult().setTemperatureInCelsius(83.6f);
+    TemperatureProcedureResult result =
+        new TemperatureProcedureResult().setTemperatureInCelsius(83.6f);
     String jsonResult = JsonConverter.to(result);
 
     // Convert remote JSON response

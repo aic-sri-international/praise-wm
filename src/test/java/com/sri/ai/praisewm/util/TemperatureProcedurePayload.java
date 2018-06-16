@@ -37,10 +37,13 @@ public class TemperatureProcedurePayload implements ProcedurePayload {
 
   @Override
   public String toString() {
-    return "TemperatureProcedurePayload{" +
-        "date=" + date +
-        ", latitude=" + latitude +
-        ", longitude=" + longitude +
-        '}';
+    return "TemperatureProcedurePayload{"
+        + "date="
+        + date
+        + ", latitude="
+        + latitude
+        + ", longitude="
+        + longitude
+        + '}';
   }
 }
