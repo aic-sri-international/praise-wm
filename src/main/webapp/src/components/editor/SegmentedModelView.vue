@@ -57,9 +57,8 @@
           </action-button>
         </span>
       </b-button-toolbar>
-      <div class="query-results-border mt-2" v-show="showQueryResults" v-for="r in queryResults">
-        {{r}}
-      </div>
+      <query-results v-if="showQueryResults && queryResults.length"
+                     class="mt-2 mb-2" :results="queryResults"></query-results>
       <div>
         <b-form-textarea class="mt-2 mb-2" v-model="segmentedModel.description"
                          placeholder="Enter a description for the model"
@@ -88,6 +87,7 @@
   import type { FileInfo } from '@/utils';
   import Editor from './Editor';
   import SegmentedModelEditor from './SegmentedModelEditor';
+  import QueryResults from './QueryResults';
   import { fetchSegmentedModels, solve } from './dataSourceProxy';
   import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto } from './types';
 
@@ -110,6 +110,7 @@
       ActionButton,
       InputTextFile,
       SegmentedModelEditor,
+      QueryResults,
     },
     data() {
       return {
@@ -215,11 +216,6 @@
 
 <style scoped>
   .dcl-border {
-    border: thin double lightgrey;
-    padding: 10px;
-  }
-
-  .query-results-border {
     border: thin double lightgrey;
     padding: 10px;
   }
