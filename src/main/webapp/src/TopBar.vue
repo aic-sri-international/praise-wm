@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <span class="headerTitle" @click.stop="$emit('notificationsTesterClicked')">PRAiSE</span>
+    <span class="headerTitle" @click.stop="$emit('notificationsTesterClicked')">PRAiSE-WM</span>
 
     <span class="headerIcon headerNotification" @click="$emit('notificationsClicked')">
       <span class="fa-layers fa-fw">
