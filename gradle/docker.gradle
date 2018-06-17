@@ -17,6 +17,11 @@ task buildDocker(type: Exec) {
             into "build/docker/"
             include "keystore.jks"
         }
+        copy {
+            from "data/models/"
+            into "build/docker/data/models/"
+            include "*"
+        }
     }
     if (OperatingSystem.current().isWindows()) {
         commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'praisewm:latest', 'build/docker/'

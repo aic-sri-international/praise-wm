@@ -5,5 +5,5 @@
 # image is create via './gradlew buildDocker' command as 'praisewm:latest', tag the image as below,
 # using appropriate version number, then use the following command to push it into the repo.
 
-docker push worldmodelers.cse.sri.com/praise-wm:1.0
+docker push worldmodelers.cse.sri.com/praise-wm:2.0
 
