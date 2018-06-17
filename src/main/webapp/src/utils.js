@@ -14,11 +14,12 @@ function objectEntries<T>(obj : { [string]: T }) : Array<[string, T]> {
   return keys.map(key => [key, obj[key]]);
 }
 
-type FileInfo = {
+export type FileInfo = {
   filename: string,
   basename: string,
   extension: string,
   text: string,
+  lastModified: number,
 };
 
 function readTextFile(file: File) : Promise<FileInfo> {
@@ -45,6 +46,8 @@ function readTextFile(file: File) : Promise<FileInfo> {
         basename,
         extension,
         text,
+        // eslint-disable-next-line flowtype-errors/show-errors
+        lastModified: file.lastModified,
       };
       resolve(result);
     };

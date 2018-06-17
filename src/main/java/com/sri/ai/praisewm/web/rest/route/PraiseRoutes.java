@@ -22,6 +22,11 @@ public class PraiseRoutes extends AbstractRouteGroup {
         "/examples",
         (req, res) -> SparkUtil.respondObjectOrNotFound(res, praiseService.getExamplePages()));
 
+    // get segmented models
+    get(
+        "/segmentedModels",
+        (req, res) -> SparkUtil.respondObjectOrNotFound(res, praiseService.getSegmentedModels()));
+
     // solve a Praise probabilistic model
     post(
         "/solve",
@@ -35,15 +40,18 @@ public class PraiseRoutes extends AbstractRouteGroup {
         "/formatModelPages",
         (req, res) -> {
           ModelPagesDto modelPages = SparkUtil.fromJson(req, ModelPagesDto.class);
-          return SparkUtil.respondObjectOrNotFound(res, praiseService.toFormattedPageModel(modelPages));
+          return SparkUtil.respondObjectOrNotFound(
+              res, praiseService.toFormattedPageModel(modelPages));
         });
 
     // convert from a paged model format file
     post(
         "/unformatModelPages",
         (req, res) -> {
-          FormattedPageModelDto formattedModelPages = SparkUtil.fromJson(req, FormattedPageModelDto.class);
-          return SparkUtil.respondObjectOrNotFound(res, praiseService.fromFormattedPageModel(formattedModelPages));
+          FormattedPageModelDto formattedModelPages =
+              SparkUtil.fromJson(req, FormattedPageModelDto.class);
+          return SparkUtil.respondObjectOrNotFound(
+              res, praiseService.fromFormattedPageModel(formattedModelPages));
         });
   }
 }

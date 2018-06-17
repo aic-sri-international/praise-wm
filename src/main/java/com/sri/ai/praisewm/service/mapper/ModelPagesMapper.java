@@ -2,9 +2,8 @@ package com.sri.ai.praisewm.service.mapper;
 
 import com.sri.ai.praise.application.praise.app.model.ExamplePages;
 import com.sri.ai.praise.model.common.io.ModelPage;
-import com.sri.ai.praise.model.common.io.ModelPage;
-import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelPageDto;
+import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

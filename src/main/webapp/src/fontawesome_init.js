@@ -15,6 +15,8 @@ import faSave from '@fortawesome/fontawesome-free-solid/faSave';
 import faBroom from '@fortawesome/fontawesome-free-solid/faBroom';
 
 import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
+import faCaretUp from '@fortawesome/fontawesome-free-solid/faCaretUp';
+import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
 import faCaretRight from '@fortawesome/fontawesome-free-solid/faCaretRight';
 import faCaretLeft from '@fortawesome/fontawesome-free-solid/faCaretLeft';
 import faHome from '@fortawesome/fontawesome-free-solid/faHome';
@@ -33,6 +35,8 @@ import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclama
 import faArrowUp from '@fortawesome/fontawesome-free-solid/faArrowUp';
 import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft';
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
+import faEye from '@fortawesome/fontawesome-free-solid/faEye';
+import faEyeSlash from '@fortawesome/fontawesome-free-solid/faEyeSlash';
 
 
 // The following are used in ActionButton
@@ -50,6 +54,8 @@ fontawesome.library.add(faBroom);
 //
 
 fontawesome.library.add(faPlusSquare);
+fontawesome.library.add(faCaretUp);
+fontawesome.library.add(faCaretDown);
 fontawesome.library.add(faCaretRight);
 fontawesome.library.add(faCaretLeft);
 fontawesome.library.add(faHome);
@@ -68,3 +74,5 @@ fontawesome.library.add(faTimes);
 fontawesome.library.add(faArrowUp);
 fontawesome.library.add(faAngleLeft);
 fontawesome.library.add(faAngleRight);
+fontawesome.library.add(faEye);
+fontawesome.library.add(faEyeSlash);
