@@ -4,12 +4,14 @@
         <span v-show="metaIsOpen">
           <editor ref="metadata_ref"
                   type="text"
+                  :editTextWatch="editTextWatch"
                   :value="modelRuleWrapper.modelRule.metadata">
           </editor>
           <hr />
         </span>
         <editor ref="rule_ref"
                 type="hogm"
+                :editTextWatch="editTextWatch"
                 :value="modelRuleWrapper.modelRule.rule">
         </editor>
       </div>
@@ -52,7 +54,8 @@
     },
     data() {
       return {
-        metaIsOpen: true,
+        metaIsOpen: false,
+        editTextWatch: false,
       };
     },
     methods: {
@@ -72,6 +75,9 @@
       },
     },
     watch: {
+      modelRuleWrapper() {
+        this.editTextWatch = !this.editTextWatch;
+      },
       emitData() {
         this.$emit('modelRuleData', this.getModelRule());
       },

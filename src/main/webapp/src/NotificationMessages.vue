@@ -11,7 +11,7 @@
       </div>
       <hr />
       <div v-if="notificationsForUi.length">
-        <div v-for="msg in notificationsForUi">
+        <div v-for="msg in notificationsInDisplayOrder">
           <div class="d-flex justify-content-start">
             <i class="fas fa-circle mt-1" :style="getCircleStyle(msg.level)"></i>
             <div class="font-weight-bold pl-2">{{msg.level | lowercase | capitalize }}</div>
@@ -98,6 +98,9 @@
       ...mapGetters(NC.MODULE, [
         NC.GET.NOTIFICATIONS_FOR_UI,
       ]),
+      notificationsInDisplayOrder() {
+        return [...this.notificationsForUi].reverse();
+      },
     },
     created() {
       this.$store.commit(vxcFp(NC, NC.SET.UI_IS_OPEN), true);

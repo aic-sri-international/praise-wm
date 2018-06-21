@@ -1,10 +1,10 @@
 package com.sri.ai.praisewm.service;
 
+import com.sri.ai.praisewm.util.FilesUtil;
 import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.route.FileTransferRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -31,17 +31,7 @@ public class FileTransferService implements Service {
 
   private void init(String fileUploadFolderSubPath) {
     uploadDir = Paths.get("." + fileUploadFolderSubPath).toAbsolutePath().normalize();
-    String msg = String.format("file upload directory '%s'", uploadDir);
-    if (Files.notExists(uploadDir)) {
-      try {
-        Files.createDirectories(uploadDir);
-        LOG.info("Created " + msg);
-      } catch (Exception ex) {
-        throw new RuntimeException("Cannot create " + msg, ex);
-      }
-    } else {
-      LOG.info("Using " + msg);
-    }
+    FilesUtil.createDirectories(uploadDir, "file upload");
   }
 
   static class UploadFileProcessor {
