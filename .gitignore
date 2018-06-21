@@ -2,8 +2,7 @@
 .gradle
 .idea
 /build
-/data/logs
-/data/upload
+/data
 /node
 
 /keystore.jks

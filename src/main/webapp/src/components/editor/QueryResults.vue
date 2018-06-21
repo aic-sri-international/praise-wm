@@ -7,6 +7,7 @@
 </template>
 
 <script>
+  // @flow
   export default {
     name: 'QueryResults',
     props: {
@@ -21,7 +22,7 @@
       },
     },
     methods: {
-      formatResult(r) {
+      formatResult(r: Object) {
         let answer;
         // only use the 1st entry
         if (Array.isArray(r.answers)) {
@@ -32,7 +33,7 @@
           if (answer.startsWith('Error:')) {
             return answer;
           }
-          return `Prob. of ${r.query}: ${answer} (${r.queryDuration})`;
+          return `Prob. of ${r.query}: ${answer} (${r.queryDuration} ms)`;
         }
         return r;
       },
@@ -45,13 +46,14 @@
     border: thin double lightgrey;
     padding: 4px;
     width: 500px;
-    height: 90px;
+    height: 100px;
     overflow: auto
   }
   .query-results-border {
     text-align: left;
     border: thin double lightgrey;
     padding: 4px;
-    font-size: small;
+    font-size: .8em;
+    font-weight: bold;
   }
 </style>

@@ -21,6 +21,10 @@
         type: String,
         required: true,
       },
+      editTextWatch: {
+        type: Boolean,
+        required: true,
+      },
       readOnly: {
         type: Boolean,
       },
@@ -64,7 +68,7 @@
       },
     },
     watch: {
-      value() {
+      editTextWatch() {
         this.$nextTick(() => this.initEditorText());
       },
     },

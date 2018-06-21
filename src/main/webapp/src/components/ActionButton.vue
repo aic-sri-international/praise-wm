@@ -20,7 +20,8 @@
         validator: (value: string) =>
           ['clone', 'download', 'add', 'edit', 'delete', 'play',
             'undo', 'redo', 'open', 'save', 'broom',
-            'angle-left', 'angle-right', 'eye', 'eye-slash'].includes(value),
+            'angle-left', 'angle-right', 'eye', 'eye-slash',
+            'sync', 'help'].includes(value),
       },
       title: {
         type: String,
@@ -84,6 +85,12 @@
             break;
           case 'eye-slash':
             name = 'fa-eye-slash';
+            break;
+          case 'help':
+            name = 'fa-question-circle';
+            break;
+          case 'sync':
+            name = 'fa-sync';
             break;
           default:
             throw Error(`unsupported type: ${this.type}`);

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="top-level-container">
     <div class="topPanel">
       <b-button-toolbar>
         <b-button-group size="sm">
@@ -21,6 +21,18 @@
               :options="modelOptions">
           </b-form-select>
         </b-input-group>
+        <span class="ml-1">
+          <action-button
+              type="sync"
+              title="Reload models from server"
+              @clicked="loadModelsFromServer">
+          </action-button>
+        </span>
+        <action-button
+            type="help"
+            title="Toggle field level help"
+            @clicked="displayHelp = !displayHelp">
+        </action-button>
       </b-button-toolbar>
       <b-button-toolbar>
         <b-button-group size="sm">
@@ -41,39 +53,65 @@
               :options="queryOptions">
           </b-form-select>
         </b-input-group>
+        <action-button
+            type="edit"
+            title="Toggle query editor"
+            @clicked="() => showQueryEditor = !showQueryEditor">
+        </action-button>
         <span v-show="!showQueryResults || !queryResults.length">
           <action-button
               type="eye-slash"
               title="Show query results"
               :disabled="!queryResults.length"
-              @clicked="() => showQueryResults = !showQueryResults">
+              @clicked="() => showQueryResults = true">
           </action-button>
         </span>
         <span v-show="showQueryResults && queryResults.length">
           <action-button
               type="eye"
               title="Hide query results"
-              @clicked="() => showQueryResults = !showQueryResults">
+              @clicked="() => showQueryResults = false">
           </action-button>
         </span>
       </b-button-toolbar>
+      <query-editor v-if="showQueryEditor"
+                    :queries="currentQueries"
+                    @queriesChanged="(qs) => {updateQueryOptions(qs); showQueryEditor = false}">
+      </query-editor>
       <query-results v-if="showQueryResults && queryResults.length"
                      class="mt-2 mb-2" :results="queryResults"></query-results>
       <div>
-        <b-form-textarea class="mt-2 mb-2" v-model="segmentedModel.description"
+        <b-form-textarea id="segmentedModelDescription"
+                         class="mt-2 mb-2" v-model="segmentedModel.description"
                          placeholder="Enter a description for the model"
                          max-rows="3"
                          wrap="off"
                          :no-resize="true">
         </b-form-textarea>
+        <b-popover target="segmentedModelDescription"
+                   triggers=""
+                   :show.sync="displayHelp">
+          This field describes the model.
+        </b-popover>
       </div>
     </div>
 
     <div class="segmentedEditor">
       <div class="dcl-border">
-        <editor ref="dcl_editor_ref" type="hogm" :value="segmentedModel.declarations"></editor>
+        <editor id="dclEditor" ref="dcl_editor_ref"
+                :editTextWatch="dclEditTextWatch"
+                type="hogm" :value="segmentedModel.declarations">
+        </editor>
       </div>
-      <segmented-model-editor ref="seg_model_editor_ref" :rules="segmentedModel.rules"></segmented-model-editor>
+      <b-popover target="dclEditor"
+                 triggers=""
+                 :show.sync="displayHelp">
+        Global model declarations section.
+      </b-popover>
+      <segmented-model-editor ref="seg_model_editor_ref"
+                              :displayHelp="displayHelp"
+                              :rules="segmentedModel.rules">
+      </segmented-model-editor>
       <input-text-file ref="input_ref" @change="inputFileChanged" accept=".json"></input-text-file>
     </div>
   </div>
@@ -87,6 +125,7 @@
   import type { FileInfo } from '@/utils';
   import Editor from './Editor';
   import SegmentedModelEditor from './SegmentedModelEditor';
+  import QueryEditor from './QueryEditor';
   import QueryResults from './QueryResults';
   import { fetchSegmentedModels, solve } from './dataSourceProxy';
   import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto } from './types';
@@ -110,6 +149,7 @@
       ActionButton,
       InputTextFile,
       SegmentedModelEditor,
+      QueryEditor,
       QueryResults,
     },
     data() {
@@ -123,7 +163,15 @@
         queryOptionSelected: -1,
         queryResults: [],
         showQueryResults: false,
+        showQueryEditor: false,
+        displayHelp: false,
+        dclEditTextWatch: false,
       };
+    },
+    computed: {
+      currentQueries() {
+        return this.queryOptions.map(e => e.text);
+      },
     },
     methods: {
       async getUpdatedSegmentedModel() {
@@ -134,7 +182,7 @@
           description: this.segmentedModel.description.trim(),
           declarations,
           rules,
-          queries: this.queryOptions.map(e => e.text),
+          queries: this.currentQueries,
         };
       },
       async runQuery() {
@@ -149,6 +197,9 @@
         try {
           const result = await solve(query);
           this.queryResults = [result].concat(this.queryResults);
+          if (this.queryResults.length) {
+            this.showQueryResults = true;
+          }
         } catch (err) {
           // errors already logged/displayed
         }
@@ -157,23 +208,21 @@
         const sm : SegmentedModelDto = await this.getUpdatedSegmentedModel();
         this.$$.downloadFile(sm, `${sm.name}.json`);
       },
-      modelSelectionChanged(modelIx: number) {
-        const getQueryOptions = (smd: SegmentedModelDto) => {
-          const queryOptions = [];
-          if (smd.queries) {
-            for (let i = 0; i < smd.queries.length; i += 1) {
-              queryOptions.push({ value: i, text: smd.queries[i] });
-            }
+      updateQueryOptions(queries: string[]) {
+        const queryOptions = [];
+        if (queries) {
+          for (let i = 0; i < queries.length; i += 1) {
+            queryOptions.push({ value: i, text: queries[i] });
           }
-          return queryOptions;
-        };
-
+          this.queryOptions = queryOptions;
+          this.queryOptionSelected = queryOptions.length ? 0 : -1;
+        }
+      },
+      modelSelectionChanged(modelIx: number) {
         const smd: SegmentedModelDto = this.segmentedModels[modelIx];
         this.segmentedModel = cloneDeep(smd);
-
-        const qo = getQueryOptions(smd);
-        this.queryOptions = qo;
-        this.queryOptionSelected = qo.length ? 0 : -1;
+        this.dclEditTextWatch = !this.dclEditTextWatch;
+        this.updateQueryOptions(smd.queries);
         this.queryResults = [];
       },
       setupModels(models: SegmentedModelDto[]) {
@@ -203,29 +252,40 @@
         this.setupModels([model]);
         this.modelSelectionChanged(this.modelOptionSelected);
       },
+      async loadModelsFromServer() {
+        const models: SegmentedModelDto[] = await this.loadModels();
+        if (models.length) {
+          this.setupModels(models);
+          this.modelSelectionChanged(this.modelOptionSelected);
+        }
+      },
     },
     async created() {
-      const models: SegmentedModelDto[] = await this.loadModels();
-      if (models.length) {
-        this.setupModels(models);
-        this.modelSelectionChanged(this.modelOptionSelected);
-      }
+      this.loadModelsFromServer();
     },
   };
 </script>
 
 <style scoped>
+  .top-level-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topPanel {
+    flex: 0 0 auto;
+  }
+
+  .segmentedEditor {
+    flex: 1 1 auto;
+    position: relative;
+    overflow-y: auto;
+  }
+
   .dcl-border {
     border: thin double lightgrey;
     padding: 10px;
   }
 
-  .topPanel {
-    max-height: calc(30vh);
-  }
-
-  .segmentedEditor {
-    max-height: calc(70vh);
-    overflow-y: auto;
-  }
 </style>

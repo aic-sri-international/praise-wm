@@ -19,7 +19,7 @@ apply plugin: 'maven'
 apply plugin: 'application'
 
 group = 'com.sri.ai.praisewm'
-version = '2.0'
+version = '2.1'
 
 description = "praisewm"
 
@@ -30,6 +30,15 @@ targetCompatibility = 1.8
 mainClassName = "${group}.Application"
 
 apply plugin: 'com.github.johnrengelman.shadow'
+
+shadowJar {
+    // Address problem that prevents jar from being extracted
+    //  jar xf praisewm-2.0-all.jar
+    //   java.io.FileNotFoundException: LICENSE (Is a directory)
+    // Similar issue described here: https://dzone.com/articles/fixed-embedded-jetty-fails-0
+    //
+    exclude 'license/*'
+}
 
 file("src/main/resources/${group}.cfg").withReader {
     Properties props = new Properties()
