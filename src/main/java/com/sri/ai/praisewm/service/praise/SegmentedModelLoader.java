@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +35,22 @@ public class SegmentedModelLoader {
   private ModelWatcher modelWatcher;
   private Map<String, SegmentedModelDto> segmentedModelMap = Collections.emptyMap();
   private Path segmentedModelDir;
+  private boolean refresh;
 
   public SegmentedModelLoader(PropertiesWrapper propertiesWrapper, EventBus eventBus) {
     this.propertiesWrapper = propertiesWrapper;
     initSegmentedModelFolder();
     copyExamplesIntoSegmentedModelsDir();
     loadSegmentedModels();
-    modelWatcher = new ModelWatcher(eventBus, segmentedModelDir);
+    modelWatcher =
+        new ModelWatcher(
+            eventBus,
+            segmentedModelDir,
+            () -> refresh = true,
+            filepath -> {
+              SegmentedModelDto smd = loadSegmentedModelFileDto(filepath);
+              return smd == null ? null : smd.getName();
+            });
 
     LOG.info(
         "Loaded {} model file{} from {}",
@@ -51,16 +61,29 @@ public class SegmentedModelLoader {
 
   private static void loadSegmentedModelFileDto(
       Path filePath, Map<String, SegmentedModelDto> segmentedModelMap) {
-    StringBuilder data = new StringBuilder();
-    Stream<String> lines;
-    try {
-      lines = Files.lines(filePath);
-    } catch (IOException e) {
-      LOG.error("Error reading model file contents: File={}, file skipped", filePath, e);
-      return;
+
+    SegmentedModelDto modelDto = loadSegmentedModelFileDto(filePath);
+    if (modelDto != null) {
+      // The model's name needs to be unique, if it is not unique, make it unique:
+      int uniqueId = 0;
+      String origName = modelDto.getName();
+      while (segmentedModelMap.containsKey(modelDto.getName())) {
+        ++uniqueId;
+        modelDto.setName(String.format("%s (%d)", origName, uniqueId));
+      }
+
+      segmentedModelMap.put(modelDto.getName(), modelDto);
     }
-    lines.forEach(line -> data.append(line).append("\n"));
-    lines.close();
+  }
+
+  private static SegmentedModelDto loadSegmentedModelFileDto(Path filePath) {
+    StringBuilder data = new StringBuilder();
+    try (Stream<String> lines = Files.lines(filePath); ) {
+      lines.forEach(line -> data.append(line).append("\n"));
+    } catch (Exception e) {
+      LOG.error("Error reading model file contents: File={}, file skipped", filePath, e);
+      return null;
+    }
 
     SegmentedModelDto modelDto;
     try {
@@ -70,18 +93,17 @@ public class SegmentedModelLoader {
           "Error converting model file from text to JSON contents: File={}, file skipped",
           filePath,
           e);
-      return;
+      return null;
     }
 
-    // The model's name needs to be unique, if it is not unique, make it unique:
-    int uniqueId = 0;
-    String origName = modelDto.getName();
-    while (segmentedModelMap.containsKey(modelDto.getName())) {
-      ++uniqueId;
-      modelDto.setName(String.format("%s (%d)", origName, uniqueId));
+    if (StringUtils.trimToNull(modelDto.getName()) == null) {
+      LOG.error(
+          "Error converted model file does not contain a non-empty name field: File={}, file skipped",
+          filePath);
+      return null;
     }
 
-    segmentedModelMap.put(modelDto.getName(), modelDto);
+    return modelDto;
   }
 
   private static List<String> getResourceFiles(String regex) {
@@ -173,6 +195,11 @@ public class SegmentedModelLoader {
   }
 
   public List<SegmentedModelDto> getSegmentedModels() {
+    if (refresh) {
+      loadSegmentedModels();
+      refresh = false;
+    }
+
     List<SegmentedModelDto> list = new ArrayList<>(segmentedModelMap.values());
     list.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
     return list;

@@ -16,7 +16,7 @@
             <i class="fas fa-circle mt-1" :style="getCircleStyle(msg.level)"></i>
             <div class="font-weight-bold pl-2">{{msg.level | lowercase | capitalize }}</div>
             <div class="flex-column">
-              <div class="pl-2 text-left">{{msg.text}}</div>
+              <div class="pl-2 text-left"><span v-html=msg.text></span></div>
               <div class="text-left">
                 <i class="pl-1 fas fa-clock"></i> {{getTimeAgo(msg.date)}} ago
               </div>
@@ -63,8 +63,11 @@
   export default {
     name: 'notificationMessages',
     methods: {
-      onClickOutside() {
+      closeNotifications() {
         this.$emit('close');
+      },
+      onClickOutside() {
+        this.closeNotifications();
       },
       getTimeAgo(date: string) {
         return moment.utc(date).fromNow(true);
@@ -76,6 +79,7 @@
       },
       removeAllMessages() {
         this.$store.commit(vxcFp(NC, NC.SET.REMOVE_ALL_NOTIFICATIONS_FOR_UI));
+        this.closeNotifications();
       },
       onRemoveMessage(item: NotificationMessage) {
         const ids: number[] = [item.id];

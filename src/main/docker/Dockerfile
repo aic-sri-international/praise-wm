@@ -1,7 +1,7 @@
 FROM openjdk:8-jre-alpine
 
 ENV PRAISEWM_SLEEP=0 \
-    JAVA_OPTS=""
+    JAVA_OPTS="-Xms500m -Xmx1g"
 
 WORKDIR /opt/praisewm
 
