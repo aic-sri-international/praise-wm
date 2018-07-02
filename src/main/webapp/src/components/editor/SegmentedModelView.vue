@@ -186,6 +186,10 @@
         };
       },
       async runQuery() {
+        if (this.queryOptionSelected === -1) {
+          this.showQueryEditor = true;
+          return;
+        }
         const sm : SegmentedModelDto = await this.getUpdatedSegmentedModel();
         const model: string = `${sm.declarations || ''}\n${sm.rules.map(mr => mr.rule).join('\n')}\n`;
 
@@ -214,9 +218,9 @@
           for (let i = 0; i < queries.length; i += 1) {
             queryOptions.push({ value: i, text: queries[i] });
           }
-          this.queryOptions = queryOptions;
-          this.queryOptionSelected = queryOptions.length ? 0 : -1;
         }
+        this.queryOptions = queryOptions;
+        this.queryOptionSelected = queryOptions.length ? 0 : -1;
       },
       modelSelectionChanged(modelIx: number) {
         const smd: SegmentedModelDto = this.segmentedModels[modelIx];
