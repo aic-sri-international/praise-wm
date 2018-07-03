@@ -1,6 +1,6 @@
 package com.sri.ai.praisewm.service;
 
-import com.sri.ai.praise.inference.HOGMQueryRunner;
+import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMMultiQueryProblemSolver;
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
@@ -50,7 +50,8 @@ public class PraiseServiceImpl implements PraiseService, Service {
   }
 
   public List<ExpressionResultDto> solveProblem(ModelQueryDto modelQuery) {
-    HOGMQueryRunner queryRunner = new HOGMQueryRunner(modelQuery.getModel(), modelQuery.getQuery());
+    HOGMMultiQueryProblemSolver queryRunner
+        = new HOGMMultiQueryProblemSolver(modelQuery.getModel(), modelQuery.getQuery());
 
     List<ExpressionResultDto> results = new ArrayList<>();
     queryRunner
