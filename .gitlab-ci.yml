@@ -13,10 +13,6 @@ stages:
   - buildClient
   - buildServer
 
-services:
-  - name: mysql:5.7.18
-    alias: praisewm
-
 buildClient:
   stage: buildClient
   image: node:8.11.2
@@ -35,6 +31,9 @@ buildServer:
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
+  services:
+  - name: mysql:5.7.18
+    alias: praisewm
   script:
     - ./gradlew
     - ./gradlew compileJava
