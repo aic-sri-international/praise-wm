@@ -13,7 +13,7 @@ stages:
   - buildClient
   - buildServer
 
-.buildClient:
+buildClient:
   stage: buildClient
   image: node:8.11.2
   script:
