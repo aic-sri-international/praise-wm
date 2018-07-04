@@ -10,7 +10,7 @@ variables:
   FLOW_BIN: node_modules/flow-bin/flow-linux64-v0.70.0/flow
 
 stages:
-#  - buildClient
+  - buildClient
   - buildServer
 
 .buildClient:
@@ -29,8 +29,8 @@ stages:
 buildServer:
   stage: buildServer
   image: openjdk:8-jdk-alpine
-#   dependencies:
-#     - buildClient
+   dependencies:
+     - buildClient
   services:
   - name: mysql:5.7.18
     alias: praisewm
