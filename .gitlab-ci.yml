@@ -14,9 +14,9 @@ stages:
   - buildServer
 
 buildClient:
-  tags:
-    - privileged
   stage: buildClient
+  tags:
+  - privileged
   image: node:8.11.2
   script:
     - cd src/main/webapp
@@ -29,9 +29,9 @@ buildClient:
     expire_in: 1 hour
 
 buildServer:
-  tags:
-    - privileged
   stage: buildServer
+  tags:
+  - privileged
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
