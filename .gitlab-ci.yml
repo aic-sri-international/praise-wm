@@ -15,14 +15,13 @@ stages:
 
 buildClient:
   stage: buildClient
-  tags:
-  - privileged
   image: node:8.11.2
   script:
     - cd src/main/webapp
     - yarn
     - yarn lint
     - yarn build
+  retry: 2
   artifacts:
     paths:
       - src/main/webapp/dist
@@ -43,6 +42,7 @@ buildServer:
     - ./gradlew compileJava
     - ./gradlew copyClientResourcesNoBuild
     - ./gradlew shadowJar
+  retry: 2
   artifacts:
     paths:
       - build/libs
