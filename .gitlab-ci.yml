@@ -29,8 +29,6 @@ buildClient:
 
 buildServer:
   stage: buildServer
-  tags:
-  - privileged
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
