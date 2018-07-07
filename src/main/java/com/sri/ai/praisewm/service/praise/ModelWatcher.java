@@ -26,7 +26,6 @@ public class ModelWatcher {
   private final ExecutorService msgQueueExecutor = Executors.newSingleThreadExecutor();
   private final Runnable msgQueueRunnableTask;
   private final Path watchDir;
-  private final ModelNameAccessor modelNameAccessor;
   private WatchService watchService;
 
   public ModelWatcher(
@@ -35,7 +34,7 @@ public class ModelWatcher {
       DirectoryChanged directoryChanged,
       ModelNameAccessor modelNameAccessor) {
     this.watchDir = watchDir;
-    this.modelNameAccessor = modelNameAccessor;
+    ModelNameAccessor modelNameAccessor1 = modelNameAccessor;
 
     msgQueueRunnableTask =
         () -> {

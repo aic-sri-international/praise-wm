@@ -1,7 +1,7 @@
 package com.sri.ai.praisewm.service.mapper;
 
-import com.sri.ai.praise.other.application.praise.app.model.ExamplePages;
 import com.sri.ai.praise.core.representation.classbased.modelscontainer.ModelPage;
+import com.sri.ai.praise.other.application.praise.app.model.ExamplePages;
 import com.sri.ai.praisewm.service.dto.ModelPageDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import java.util.List;

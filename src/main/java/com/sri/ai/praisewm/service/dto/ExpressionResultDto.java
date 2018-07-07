@@ -1,11 +1,13 @@
 package com.sri.ai.praisewm.service.dto;
 
+import com.sri.ai.util.ExplanationTree;
 import java.util.List;
 
 public class ExpressionResultDto {
   private String query;
   private long queryDuration;
   private List<String> answers;
+  private ExplanationTree explanationTree;
 
   // no-arg constructor for JSON conversion
   public ExpressionResultDto() {}
@@ -37,16 +39,22 @@ public class ExpressionResultDto {
     return this;
   }
 
+  public ExplanationTree getExplanationTree() {
+    return explanationTree;
+  }
+
+  public ExpressionResultDto setExplanationTree(ExplanationTree explanationTree) {
+    this.explanationTree = explanationTree;
+    return this;
+  }
+
   @Override
   public String toString() {
-    return "ExpressionResultDto{"
-        + "queryString='"
-        + query
-        + '\''
-        + ", queryDuration="
-        + queryDuration
-        + ", answers="
-        + answers
-        + '}';
+    return "ExpressionResultDto{" +
+        "query='" + query + '\'' +
+        ", queryDuration=" + queryDuration +
+        ", answers=" + answers +
+        ", explanationTree=" + explanationTree +
+        '}';
   }
 }
