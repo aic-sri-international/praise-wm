@@ -1,6 +1,7 @@
 package com.sri.ai.praisewm.service;
 
-import com.sri.ai.praise.inference.HOGMQueryRunner;
+import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMMultiQueryProblemSolver;
+import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
@@ -8,20 +9,25 @@ import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
 import com.sri.ai.praisewm.service.praise.PageModelLoader;
 import com.sri.ai.praisewm.service.praise.SegmentedModelLoader;
+import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
 import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PraiseServiceImpl implements PraiseService, Service {
+  private static final Logger LOG = LoggerFactory.getLogger(PraiseServiceImpl.class);
   private SegmentedModelLoader segmentedModelLoader;
   private PageModelLoader pageModelLoader;
+  private ProceduralAttachments proceduralAttachments;
 
   @Override
   public void start(ServiceManager serviceManager) {
     new PraiseRoutes(this, serviceManager.getRestService(), RouteScope.API);
     pageModelLoader = new PageModelLoader();
-
+    proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
         new SegmentedModelLoader(serviceManager.getConfiguration(), serviceManager.getEventBus());
   }
@@ -50,7 +56,16 @@ public class PraiseServiceImpl implements PraiseService, Service {
   }
 
   public List<ExpressionResultDto> solveProblem(ModelQueryDto modelQuery) {
-    HOGMQueryRunner queryRunner = new HOGMQueryRunner(modelQuery.getModel(), modelQuery.getQuery());
+    HOGMMultiQueryProblemSolver queryRunner =
+        new HOGMMultiQueryProblemSolver(modelQuery.getModel(), modelQuery.getQuery());
+    queryRunner.setProceduralAttachments(proceduralAttachments);
+
+    //@TODO
+    // Remove this test code once mint data is getting returned for query
+    // and the precipitation computation is correct
+    //        LOG.info(
+    //            "proceduralAttachments get precipitation: {}",
+    //            proceduralAttachments.get("precipitation").evaluate(null));
 
     List<ExpressionResultDto> results = new ArrayList<>();
     queryRunner
@@ -69,6 +84,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
                   new ExpressionResultDto()
                       .setQuery(result.getQueryString())
                       .setAnswers(answers)
+                      .setExplanationTree(result.getExplanation())
                       .setQueryDuration(result.getMillisecondsToCompute()));
             });
     return results;

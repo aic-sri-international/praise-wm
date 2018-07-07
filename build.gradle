@@ -125,9 +125,11 @@ tasks.withType(JavaCompile) {
 apply from: 'gradle/docker.gradle'
 
 repositories {
+    flatDir { dirs 'lib' }
+    maven { url "http://repo.boundlessgeo.com/main/" }
+    maven { url "http://maven.geomajas.org/" }
     maven { url "http://repo.maven.apache.org/maven2" }
     mavenLocal()
-    flatDir { dirs 'lib' }
 }
 
 dependencies {
@@ -146,6 +148,10 @@ dependencies {
     compile "org.apache.commons:commons-lang3:${commons_lang3_version}"
     compile "commons-fileupload:commons-fileupload:${commons_fileupload_version}"
     compile "org.apache.pdfbox:pdfbox:${apache_pdfbox_version}"
+
+    compile "org.geotools:gt-geotiff:${gt_geotiff_version}"
+    compile "org.geotools:gt-epsg-hsql:${gt_geotiff_version}"
+
     compile "ch.qos.logback:logback-classic:${logback_version}"
     testCompile "junit:junit:${junit_version}"
     testCompile "org.assertj:assertj-core:${assertj_core_version}"

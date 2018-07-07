@@ -13,10 +13,6 @@ stages:
   - buildClient
   - buildServer
 
-services:
-  - name: mysql:5.7.18
-    alias: praisewm
-
 buildClient:
   stage: buildClient
   image: node:8.11.2
@@ -25,6 +21,7 @@ buildClient:
     - yarn
     - yarn lint
     - yarn build
+  retry: 2
   artifacts:
     paths:
       - src/main/webapp/dist
@@ -35,11 +32,15 @@ buildServer:
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
+  services:
+    - name: mysql:5.7.18
+      alias: praisewm
   script:
     - ./gradlew
     - ./gradlew compileJava
     - ./gradlew copyClientResourcesNoBuild
     - ./gradlew shadowJar
+  retry: 2
   artifacts:
     paths:
       - build/libs

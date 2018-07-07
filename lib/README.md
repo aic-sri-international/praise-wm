@@ -1,5 +1,10 @@
 To get the current version of the praise jar
 --------------------------------------------
+    git clone https://github.com/aic-sri-international/aic-util.git
+    mvn install
+
+    git clone https://github.com/aic-sri-international/aic-expresso.git
+    mvn install
 
     git clone https://github.com/aic-sri-international/aic-praise.git
     mvn package

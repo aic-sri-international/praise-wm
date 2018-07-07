@@ -3,15 +3,15 @@ package com.sri.ai.praisewm.service.praise;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import com.sri.ai.praise.application.praise.app.model.EarthquakeBurglaryAlarm;
-import com.sri.ai.praise.application.praise.app.model.Election;
-import com.sri.ai.praise.application.praise.app.model.ElectionAsInIJCAI2016Paper;
-import com.sri.ai.praise.application.praise.app.model.ExamplePages;
-import com.sri.ai.praise.application.praise.app.model.MontyHallProblem;
-import com.sri.ai.praise.application.praise.app.model.Position;
-import com.sri.ai.praise.lang.ModelLanguage;
-import com.sri.ai.praise.model.common.io.ModelPage;
-import com.sri.ai.praise.model.common.io.PagedModelContainer;
+import com.sri.ai.praise.core.representation.classbased.modelscontainer.ModelPage;
+import com.sri.ai.praise.core.representation.classbased.modelscontainer.PagedModelContainer;
+import com.sri.ai.praise.core.representation.interfacebased.factor.api.ModelLanguage;
+import com.sri.ai.praise.other.application.praise.app.model.EarthquakeBurglaryAlarm;
+import com.sri.ai.praise.other.application.praise.app.model.Election;
+import com.sri.ai.praise.other.application.praise.app.model.ElectionAsInIJCAI2016Paper;
+import com.sri.ai.praise.other.application.praise.app.model.ExamplePages;
+import com.sri.ai.praise.other.application.praise.app.model.MontyHallProblem;
+import com.sri.ai.praise.other.application.praise.app.model.Position;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.mapper.ModelPagesMapper;
@@ -67,7 +67,7 @@ public class PageModelLoader {
     } catch (IOException e) {
       throw new RuntimeException("Cannot write to temp file", e);
     }
-    List<ModelPage> mps = Collections.emptyList();
+    List<ModelPage> mps;
     try {
       PagedModelContainer pmc = new PagedModelContainer(formattedPageModel.getName(), path.toUri());
       mps = pmc.getPages();
