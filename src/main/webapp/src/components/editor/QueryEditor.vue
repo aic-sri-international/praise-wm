@@ -1,5 +1,5 @@
 <template>
-  <div class="query-editor">
+  <div>
     <b-form-input v-model="newQuery"
                   autocomplete="off"
                   type="text"
@@ -84,12 +84,6 @@
 </script>
 
 <style scoped>
-  .query-editor {
-    border: thin double lightgrey;
-    width: 500px;
-    padding: 4px;
-  }
-
   .query-editor-panel {
     height: 93px;
     overflow: auto
