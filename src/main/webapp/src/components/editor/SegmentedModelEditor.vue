@@ -7,13 +7,6 @@
           :model-rule-wrapper="mrw"
           @modelRuleData="mrd => modelRules.push(mrd)">
       </model-rule-editor>
-      <b-popover target="modelRuleEditor"
-                 triggers=""
-                 :show.sync="displayHelp">
-          Right-click within a rule section to display a context menu. The context menu
-          allows you to toggle the display of metadata for the rule, insert a new rule,
-          or delete the rule.
-      </b-popover>
     </div>
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
       <div class="context-menu">
@@ -48,7 +41,6 @@
           };
         },
       },
-      displayHelp: false,
     },
     data() {
       return {

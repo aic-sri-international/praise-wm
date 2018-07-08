@@ -5,17 +5,20 @@
         <b-form-textarea id="segmentedModelDescription"
                          class="mb-2" v-model="segmentedModel.description"
                          placeholder="Enter a description for the model"
-                         max-rows="3"
-                         wrap="off"
-                         :no-resize="true">
+                         rows="1"
+                         size="sm"
+                         max-rows="20"
+                         wrap="off">
         </b-form-textarea>
         <b-popover target="segmentedModelDescription"
                    triggers=""
                    :show.sync="displayHelp">
-          This field describes the model.
+          <span class="help">
+          Describes the model.
+          </span>
         </b-popover>
       </div>
-      <div class="segmentedEditor">
+      <div id="segmentedEditor" class="segmentedEditor">
         <div class="dcl-editor">
           <editor id="dclEditor" ref="dcl_editor_ref"
                   :editTextWatch="dclEditTextWatch"
@@ -25,12 +28,20 @@
         <b-popover target="dclEditor"
                    triggers=""
                    :show.sync="displayHelp">
-          Global model declarations section.
+          <span class="help">Global model declarations section.</span>
         </b-popover>
-        <segmented-model-editor ref="seg_model_editor_ref"
-                                :displayHelp="displayHelp"
+        <segmented-model-editor id="segmented-model-editor" ref="seg_model_editor_ref"
                                 :rules="segmentedModel.rules">
         </segmented-model-editor>
+        <b-popover target="segmentedEditor"
+                   triggers=""
+                   :show.sync="displayHelp">
+          <span class="help">
+            Right-click within a rule section to display a context menu. The context menu
+            allows you to toggle the display of metadata for the rule, insert a new rule,
+            or delete the rule.
+          </span>
+        </b-popover>
       </div>
       <div class="modelControlsContainer">
         <div class="modelControlsPanel">
@@ -378,6 +389,11 @@
   img {
     max-width: 100%;
     height: auto;
+  }
+
+  .help {
+    background-color: lightyellow;
+    border-bottom-color: green;
   }
 
 </style>
