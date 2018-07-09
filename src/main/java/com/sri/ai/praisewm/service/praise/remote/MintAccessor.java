@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 public class MintAccessor {
   private static final Logger LOG = LoggerFactory.getLogger(MintAccessor.class);
   private static final Path GEO_TIFF_OUTPUT_DIR = Paths.get("data/tmp/geotiffs");
-  private static DecimalFormat PRECIPITATION_FORMAT = new DecimalFormat(".0#####");
 
   private RestClient restClient;
 
@@ -34,22 +33,21 @@ public class MintAccessor {
     ma.precipitationQuery(new MintQueryParameters());
   }
 
-  String precipitationQuery(MintQueryParameters params) {
+  double precipitationQuery(MintQueryParameters params) {
     try {
       return precipitationQuery_internal(params);
     } catch (Exception e) {
       LOG.error("Error running precipitationQuery {}", e.toString());
-      return "82.013789";
+      return 82.013789;
     }
   }
 
-  private String precipitationQuery_internal(MintQueryParameters params) {
+  private double precipitationQuery_internal(MintQueryParameters params) {
     List<String> dataSetLocations = lookupDataSetLocations(params);
     List<String> geotiffUrls = lookupGeotiffLocations(dataSetLocations.get(0));
 
     byte[] geotiff = downloadGeotiff(geotiffUrls.get(0));
-    Double mean = GeotiffProcessor.computeMean(geotiff);
-    return PRECIPITATION_FORMAT.format(mean);
+    return GeotiffProcessor.computeMean(geotiff);
   }
 
   private byte[] downloadGeotiff(String locationUrl) {

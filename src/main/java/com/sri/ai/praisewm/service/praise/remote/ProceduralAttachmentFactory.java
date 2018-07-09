@@ -15,9 +15,9 @@ public class ProceduralAttachmentFactory {
         "precipitationSudanApril1999",
         p -> mintAccessor.precipitationQuery(new MintQueryParameters()));
 
-    map.put("Beans_dry_Production", p -> "6000.0");
-    map.put("Closed_shrubland_Burned_Area", p -> "121929.0437");
-    map.put("NonCereals_Food_aid_shipments", p -> "29265.0");
+    map.put("Beans_dry_Production", p -> 6000.0);
+    map.put("Closed_shrubland_Burned_Area", p -> 121929.0437);
+    map.put("NonCereals_Food_aid_shipments", p -> 29265.0);
   }
 
   public ProceduralAttachments getAttachments() {

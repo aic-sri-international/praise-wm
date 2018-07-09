@@ -19,7 +19,7 @@ apply plugin: 'maven'
 apply plugin: 'application'
 
 group = 'com.sri.ai.praisewm'
-version = '2.1'
+version = '2.3'
 
 description = "praisewm"
 
