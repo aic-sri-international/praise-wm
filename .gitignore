@@ -16,3 +16,4 @@ src/main/webapp/node_modules
 src/main/webapp/test/e2e/reports
 src/main/webapp/test/unit/coverage/lcov-report/src
 
+/bin/
