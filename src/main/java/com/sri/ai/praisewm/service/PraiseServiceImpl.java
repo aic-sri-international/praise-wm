@@ -60,13 +60,6 @@ public class PraiseServiceImpl implements PraiseService, Service {
         new HOGMMultiQueryProblemSolver(modelQuery.getModel(), modelQuery.getQuery());
     queryRunner.setProceduralAttachments(proceduralAttachments);
 
-    //@TODO
-    // Remove this test code once mint data is getting returned for query
-    // and the precipitation computation is correct
-            LOG.info(
-                "proceduralAttachments get precipitation: {}",
-                proceduralAttachments.get("precipitationSudanApril1999").evaluate(null));
-
     List<ExpressionResultDto> results = new ArrayList<>();
     queryRunner
         .getResults()
