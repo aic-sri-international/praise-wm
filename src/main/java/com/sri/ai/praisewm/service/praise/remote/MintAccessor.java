@@ -8,7 +8,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.util.List;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;

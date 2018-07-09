@@ -50,11 +50,16 @@ public class ExpressionResultDto {
 
   @Override
   public String toString() {
-    return "ExpressionResultDto{" +
-        "query='" + query + '\'' +
-        ", queryDuration=" + queryDuration +
-        ", answers=" + answers +
-        ", explanationTree=" + explanationTree +
-        '}';
+    return "ExpressionResultDto{"
+        + "query='"
+        + query
+        + '\''
+        + ", queryDuration="
+        + queryDuration
+        + ", answers="
+        + answers
+        + ", explanationTree="
+        + explanationTree
+        + '}';
   }
 }
