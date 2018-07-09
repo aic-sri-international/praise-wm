@@ -1,7 +1,9 @@
 <template>
   <div class="query-results-panel">
-    <div class="query-results-border" v-for="r in queryResults">
-      {{formatResult(r)}}
+    <div class="query-results-border" v-for="(item, index) in items">
+      <b-btn size="sm" @click.stop="onItemClicked(item, index)"
+             :variant="item.selected ? 'outline-success' : 'outline-secondary'"
+             style="width: 100%">{{formatResult(item)}}</b-btn>
     </div>
   </div>
 </template>
@@ -14,14 +16,48 @@
       results: {
         type: Array,
       },
+      selectedIx: {
+        type: Number,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        items: this.updateItems(this.selectedIx),
+      };
     },
     computed: {
       queryResults() {
-        // unpack,
-        return this.results.reduce((accum, value) => [...accum, ...value], []);
+        return this.results.reduce((accum, value, index) => {
+          accum.push(Object.assign({ selected: index === 0 }, value));
+          return accum;
+        }, []);
+      },
+    },
+    watch: {
+      results() {
+        this.updateItems(this.selectedIx);
+      },
+      selectedIx() {
+        this.updateItems(this.selectedIx);
       },
     },
     methods: {
+      onItemClicked(item: Object, index: number) {
+        if (item.selected) {
+          return;
+        }
+  
+        this.$emit('selectionChanged', index);
+      },
+      updateItems(selected: number) {
+        this.$nextTick(() => {
+          this.items = this.results.reduce((accum, value, index) => {
+            accum.push(Object.assign({ selected: index === selected }, value));
+            return accum;
+          }, []);
+        });
+      },
       formatResult(r: Object) {
         let answer;
         // only use the 1st entry
@@ -42,18 +78,4 @@
 </script>
 
 <style scoped>
-  .query-results-panel {
-    border: thin double lightgrey;
-    padding: 4px;
-    width: 500px;
-    height: 100px;
-    overflow: auto
-  }
-  .query-results-border {
-    text-align: left;
-    border: thin double lightgrey;
-    padding: 4px;
-    font-size: .8em;
-    font-weight: bold;
-  }
 </style>

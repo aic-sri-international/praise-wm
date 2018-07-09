@@ -39,7 +39,7 @@ public class MintAccessor {
       return precipitationQuery_internal(params);
     } catch (Exception e) {
       LOG.error("Error running precipitationQuery {}", e.toString());
-      return "254.235";
+      return "82.013789";
     }
   }
 
