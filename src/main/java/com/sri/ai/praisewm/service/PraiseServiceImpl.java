@@ -63,9 +63,9 @@ public class PraiseServiceImpl implements PraiseService, Service {
     //@TODO
     // Remove this test code once mint data is getting returned for query
     // and the precipitation computation is correct
-    //        LOG.info(
-    //            "proceduralAttachments get precipitation: {}",
-    //            proceduralAttachments.get("precipitation").evaluate(null));
+            LOG.info(
+                "proceduralAttachments get precipitation: {}",
+                proceduralAttachments.get("precipitationSudanApril1999").evaluate(null));
 
     List<ExpressionResultDto> results = new ArrayList<>();
     queryRunner
