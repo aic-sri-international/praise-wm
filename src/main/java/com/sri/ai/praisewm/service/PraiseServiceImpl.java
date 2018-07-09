@@ -1,5 +1,6 @@
 package com.sri.ai.praisewm.service;
 
+import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMMultiQueryProblemSolver;
 import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
@@ -26,6 +27,9 @@ public class PraiseServiceImpl implements PraiseService, Service {
   @Override
   public void start(ServiceManager serviceManager) {
     new PraiseRoutes(this, serviceManager.getRestService(), RouteScope.API);
+    ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
+    ExpressoConfiguration.setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
+
     pageModelLoader = new PageModelLoader();
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
