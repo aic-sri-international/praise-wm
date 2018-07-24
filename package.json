@@ -1,0 +1,17 @@
+{
+  "head": {
+    "vars": [
+      "storage_path"
+    ]
+  },
+  "results": {
+    "bindings": [
+      {
+        "storage_path": {
+          "type": "uri",
+          "value": "https://edcintl.cr.usgs.gov/fews_geoengine4/rest/image/geotiff/dataset/fewschirps/region/fewsafrica/periodicity/1-month/statistic/data/period/04-1999/bounds/40%2C0%2C55%2C15/width/300/height/300"
+        }
+      }
+    ]
+  }
+}
