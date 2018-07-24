@@ -11,6 +11,7 @@ export type AceModelEditorArgs = {
   showGutter?: boolean,
   readOnly?: boolean,
   highlightActiveLine?: boolean,
+  styleClass?: string,
 }
 
 export default class AceModelEditor {
@@ -22,7 +23,7 @@ export default class AceModelEditor {
   constructor(args: AceModelEditorArgs) {
     const {
       value, minLines, maxLines, showPrintMargin, showGutter, mode, readOnly,
-      highlightActiveLine,
+      highlightActiveLine, styleClass,
     } = args;
     this.editorMode = mode;
 
@@ -36,6 +37,10 @@ export default class AceModelEditor {
       readOnly: readOnly === true,
       highlightActiveLine,
     });
+
+    if (styleClass) {
+      this.editor.setStyle(styleClass);
+    }
 
     // Delegate commands to the browser, so that a tab or shift-tab
     // navigate to the next UI component
