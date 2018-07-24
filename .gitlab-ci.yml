@@ -1,17 +1,26 @@
 # GitLab Pipeline for praise-wm
 
 variables:
+  PRAISE_WM_REV: '2.4'
   MYSQL_ROOT_PASSWORD: praisewm
-  MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-  MYSQL_USER: praisewm
-  MYSQL_PASSWORD: praisewm
-  MYSQL_DATABASE: praisewm
-  PRAISEWM_DATABASE_HOST: praisewm
-  FLOW_BIN: node_modules/flow-bin/flow-linux64-v0.70.0/flow
+  MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+  MYSQL_USER: 'praisewm'
+  MYSQL_PASSWORD: 'praisewm'
+  MYSQL_DATABASE: 'praisewm'
+  PRAISEWM_DATABASE_HOST: 'praisewm'
+  FLOW_BIN: 'node_modules/flow-bin/flow-linux64-v0.70.0/flow'
+  REGISTRY_URI: 'worldmodelers.cse.sri.com/praise-wm'
+  BUILD_TAG: '$CI_COMMIT_REF_NAME'
+
+cache:
+  paths:
+    - .gradle
 
 stages:
   - buildClient
   - buildServer
+  - deployAny
+  - deployMaster
 
 buildClient:
   stage: buildClient
@@ -46,3 +55,24 @@ buildServer:
       - build/libs
     expire_in: 1 week
 
+deployAny:
+  stage: deployAny
+  tags:
+    - privileged
+  script:
+    - cp -vf build/libs/praisewm*all.jar .
+    - cp -vf gencerts/keystore.jks .
+    - docker build -f src/main/docker/Dockerfile -t $REGISTRY_URI:$BUILD_TAG .
+    - docker push $REGISTRY_URI:$BUILD_TAG
+
+deployMaster:
+  stage: deployMaster
+  tags:
+    - privileged
+  script:
+    - docker pull $REGISTRY_URI:$BUILD_TAG
+    - docker tag $REGISTRY_URI:$BUILD_TAG $REGISTRY_URI:latest
+    - docker push $REGISTRY_URI:latest
+  only:
+    refs:
+      - master
