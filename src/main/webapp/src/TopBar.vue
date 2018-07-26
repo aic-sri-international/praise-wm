@@ -2,6 +2,13 @@
   <div class="header">
     <span class="headerTitle" @click.stop="$emit('notificationsTesterClicked')">PRAiSE-WM</span>
 
+    <span class="headerIcon headerHelp" @click="toggleHelp()">
+      <span class="fa-layers fa-fw">
+         <i class="fas fa-circle" data-fa-transform="grow-12 down-3" style="color: white"></i>
+        <i class="fas fa-question fa-inverse" style="color: green" data-fa-transform="shrink-1 down-3"></i>
+      </span>
+    </span>
+
     <span class="headerIcon headerNotification" @click="$emit('notificationsClicked')">
       <span class="fa-layers fa-fw">
         <i class="fas fa-bell" data-fa-transform="grow-12 down-2"></i>
@@ -38,6 +45,9 @@
     USER_VXC as UC,
     NOTIFICATIONS_VXC as NC,
     SYSTEM_STATUS_VXC as SS,
+    HELP_VXC as HELP,
+    store,
+    vxcFp,
   } from '@/store';
 
   let intervalId;
@@ -47,11 +57,16 @@
       return {
         time: null,
         paths,
+        showHelp: false,
       };
     },
     methods: {
       doLogout() {
         logout();
+      },
+      toggleHelp() {
+        this.showHelp = !this.showHelp;
+        store.commit(vxcFp(HELP, HELP.SET.SHOW_HELP), this.showHelp);
       },
     },
     computed: {
@@ -121,6 +136,10 @@
 
   .headerNotification {
     right: 300px;
+  }
+
+  .headerHelp {
+    right: 350px;
   }
 
   .time {

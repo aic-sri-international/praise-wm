@@ -12,7 +12,7 @@
         </b-form-textarea>
         <b-popover target="segmentedModelDescription"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">
           Describes the model.
           </span>
@@ -27,7 +27,7 @@
         </div>
         <b-popover target="dclEditor"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">Global model declarations section.</span>
         </b-popover>
         <segmented-model-editor id="segmented-model-editor" ref="seg_model_editor_ref"
@@ -35,7 +35,7 @@
         </segmented-model-editor>
         <b-popover target="segmentedEditor"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">
             Right-click within a rule section to display a context menu. The context menu
             allows you to toggle the display of metadata for the rule, insert a new rule,
@@ -46,18 +46,6 @@
       <div class="modelControlsContainer">
         <div class="modelControlsPanel">
           <b-button-toolbar>
-            <b-button-group size="sm">
-              <action-button
-                  type="open"
-                  title="Open Model"
-                  @clicked="()=>$refs.input_ref.click()">
-              </action-button>
-              <action-button
-                  type="download"
-                  title="Download Model"
-                  @clicked="download">
-              </action-button>
-            </b-button-group>
             <b-input-group size="sm" class="w-50 mx-1" prepend="Model">
               <b-form-select
                   @input="modelSelectionChanged"
@@ -66,56 +54,50 @@
               </b-form-select>
             </b-input-group>
             <span class="ml-1">
-          <action-button
-              type="sync"
-              title="Reload models from server"
-              @clicked="loadModelsFromServer">
-          </action-button>
-        </span>
-            <action-button
-                type="help"
-                title="Toggle field level help"
-                @clicked="displayHelp = !displayHelp">
-            </action-button>
+              <b-button-group size="sm">
+                <action-button
+                    type="open"
+                    title="Open Model"
+                    @clicked="()=>$refs.input_ref.click()">
+                </action-button>
+                <action-button
+                    type="download"
+                    title="Download Model"
+                    @clicked="download">
+                </action-button>
+              <action-button
+                  type="sync"
+                  title="Reload models from server"
+                  @clicked="loadModelsFromServer">
+              </action-button>
+            </b-button-group>
+          </span>
           </b-button-toolbar>
           <b-button-toolbar>
+            <b-input-group size="sm" class="w-50 mx-1" prepend="Query">
+              <b-form-select
+                  v-model="queryOptionSelected"
+                  :options="queryOptions">
+              </b-form-select>
+            </b-input-group>
+            <span class="ml-1">
             <b-button-group size="sm">
               <action-button
                   type="play"
                   title="Run the query"
                   @clicked="runQuery">
               </action-button>
-              <action-button
-                  type="broom"
-                  title="Sweep away query results"
-                  @clicked="()=> queryResults = []">
-              </action-button>
-            </b-button-group>
-            <b-input-group size="sm" class="w-50 mx-2" prepend="Query">
-              <b-form-select
-                  v-model="queryOptionSelected"
-                  :options="queryOptions">
-              </b-form-select>
-            </b-input-group>
             <action-button
                 type="edit"
                 title="Toggle query editor"
                 @clicked="() => showQueryEditor = !showQueryEditor">
             </action-button>
-            <span v-show="!showQueryResults || !queryResults.length">
               <action-button
-                  type="eye"
-                  title="Show query results"
-                  :disabled="!queryResults.length"
-                  @clicked="() => showQueryResults = true">
+                  type="broom"
+                  title="Remove query results"
+                  @clicked="()=> queryResults = []">
               </action-button>
-            </span>
-            <span v-show="showQueryResults && queryResults.length">
-              <action-button
-                  type="eye-slash"
-                  title="Hide query results"
-                  @clicked="() => showQueryResults = false">
-              </action-button>
+            </b-button-group>
             </span>
           </b-button-toolbar>
         </div>
@@ -150,6 +132,8 @@
   import ActionButton from '@/components/ActionButton';
   import InputTextFile from '@/components/InputTextFile';
   import type { FileInfo } from '@/utils';
+  import { HELP_VXC as HELP } from '@/store';
+  import { mapGetters } from 'vuex';
   import Editor from './Editor';
   import Explanations from './explanations/Explanations';
   import SegmentedModelEditor from './SegmentedModelEditor';
@@ -191,9 +175,8 @@
         queryOptions: [],
         queryOptionSelected: -1,
         queryResults: [],
-        showQueryResults: false,
+        showQueryResults: true,
         showQueryEditor: false,
-        displayHelp: false,
         dclEditTextWatch: false,
         selectedQueryResult: -1,
       };
@@ -208,6 +191,9 @@
         }
         return null;
       },
+      ...mapGetters(HELP.MODULE, [
+        HELP.GET.SHOW_HELP,
+      ]),
     },
     methods: {
       async getUpdatedSegmentedModel() {
