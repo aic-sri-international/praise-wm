@@ -99,6 +99,11 @@
               </action-button>
             </b-button-group>
             </span>
+            <span v-if="this.runningQueries" class="ml-lg-5">
+              <span class="fa-layers fa-fw">
+                 <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-30 up-10" style="color: green"></i>
+              </span>
+            </span>
           </b-button-toolbar>
         </div>
         <query-editor v-if="showQueryEditor"
@@ -179,6 +184,7 @@
         showQueryEditor: false,
         dclEditTextWatch: false,
         selectedQueryResult: -1,
+        runningQueries: 0,
       };
     },
     computed: {
@@ -221,6 +227,7 @@
         };
 
         try {
+          this.runningQueries = this.runningQueries + 1;
           const arrayOfResults: ExpressionResultDto[] = await solve(query);
           if (arrayOfResults.length) {
             // We should not normally get multiple results for a query.
@@ -237,6 +244,8 @@
           }
         } catch (err) {
           // errors already logged/displayed
+        } finally {
+          this.runningQueries = this.runningQueries > 0 ? this.runningQueries - 1 : 0;
         }
       },
       async download() {
