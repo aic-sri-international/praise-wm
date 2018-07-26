@@ -140,7 +140,7 @@
   import QueryEditor from './QueryEditor';
   import QueryResults from './QueryResults';
   import { fetchSegmentedModels, solve } from './dataSourceProxy';
-  import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto } from './types';
+  import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto, ExpressionResultDto } from './types';
 
   const emptySegmentedModel: SegmentedModelDto = {
     name: '',
@@ -221,11 +221,11 @@
         };
 
         try {
-          const arrayOfResults = await solve(query);
+          const arrayOfResults: ExpressionResultDto[] = await solve(query);
           if (arrayOfResults.length) {
             // We should not normally get multiple results for a query.
             // If we do, only use the first one.
-            const result = arrayOfResults[0];
+            const result: ExpressionResultDto = arrayOfResults[0];
             this.queryResults = [result].concat(this.queryResults);
             this.showQueryResults = true;
             this.selectedQueryResult = 0;

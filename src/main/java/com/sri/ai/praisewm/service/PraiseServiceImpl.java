@@ -15,6 +15,7 @@ import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
 import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -93,7 +94,8 @@ public class PraiseServiceImpl implements PraiseService, Service {
                   .setQuery(result.getQueryString())
                   .setAnswers(answers)
                   .setExplanationTree(result.getExplanation())
-                  .setQueryDuration(result.getMillisecondsToCompute()));
+                  .setQueryDuration(result.getMillisecondsToCompute())
+                  .setCompletionDate(Instant.now()));
         });
 
     return results;

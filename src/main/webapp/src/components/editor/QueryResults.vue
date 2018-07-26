@@ -2,7 +2,7 @@
   <div class="query-results-panel">
     <div class="query-results-border" v-for="(item, index) in items">
       <b-btn size="sm" @click.stop="onItemClicked(item, index)"
-             :variant="item.selected ? 'outline-success' : 'outline-secondary'"
+             :variant="item.selected ? 'success' : 'outline-secondary'"
              style="width: 100%">{{formatResult(item)}}</b-btn>
     </div>
   </div>
@@ -10,6 +10,10 @@
 
 <script>
   // @flow
+  import moment from 'moment';
+  import type { ExpressionResultDto } from './types';
+
+
   export default {
     name: 'QueryResults',
     props: {
@@ -27,7 +31,7 @@
       };
     },
     computed: {
-      queryResults() {
+      queryResults() : ExpressionResultDto[] {
         return this.results.reduce((accum, value, index) => {
           accum.push(Object.assign({ selected: index === 0 }, value));
           return accum;
@@ -58,7 +62,7 @@
           }, []);
         });
       },
-      formatResult(r: Object) {
+      formatResult(r: ExpressionResultDto) {
         let answer;
         // only use the 1st entry
         if (Array.isArray(r.answers)) {
@@ -69,7 +73,8 @@
           if (answer.startsWith('Error:')) {
             return answer;
           }
-          return `Prob. of ${r.query}: ${answer} (${r.queryDuration} ms)`;
+          const time = moment(r.completionDate).format('h:mm:ss a');
+          return `Prob. of ${r.query}: ${answer} (${r.queryDuration} ms, ${time})`;
         }
         return r;
       },
