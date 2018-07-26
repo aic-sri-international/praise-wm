@@ -1,9 +1,10 @@
 #!/bin/bash
 
+# NOTE: Images are being created and automatically pushed to Artifactory, this script
+#       is only being retained if there is a dire need to push an image to the repository
+#       and the GitLab repository is not available.
+
 # Need to login with Docker login  worldmodelers.cse.sri.com and use your LDAP username and docker generated API key
 
-# image is create via './gradlew buildDocker' command as 'praisewm:latest', tag the image as below,
-# using appropriate version number, then use the following command to push it into the repo.
-
-docker push worldmodelers.cse.sri.com/praise-wm:2.3
-
+#docker push worldmodelers.cse.sri.com/praise-wm:latest
+#
