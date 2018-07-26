@@ -37,8 +37,10 @@ import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft';
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
 import faEye from '@fortawesome/fontawesome-free-solid/faEye';
 import faEyeSlash from '@fortawesome/fontawesome-free-solid/faEyeSlash';
+import faQuestion from '@fortawesome/fontawesome-free-solid/faQuestion';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 import faSync from '@fortawesome/fontawesome-free-solid/faSync';
+import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
 
 // The following are used in ActionButton
@@ -77,4 +79,6 @@ fontawesome.library.add(faAngleRight);
 fontawesome.library.add(faEye);
 fontawesome.library.add(faEyeSlash);
 fontawesome.library.add(faQuestionCircle);
+fontawesome.library.add(faQuestion);
 fontawesome.library.add(faSync);
+fontawesome.library.add(faSpinner);

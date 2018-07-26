@@ -4,6 +4,7 @@ import com.sri.ai.praisewm.service.PraiseService;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
+import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
 import com.sri.ai.praisewm.web.rest.util.SparkUtil;
 
 /** PraiseRoutes. */
@@ -33,6 +34,15 @@ public class PraiseRoutes extends AbstractRouteGroup {
         (req, res) -> {
           ModelQueryDto modelQuery = SparkUtil.fromJson(req, ModelQueryDto.class);
           return SparkUtil.respondObjectOrNotFound(res, praiseService.solveProblem(modelQuery));
+        });
+
+    // solve a Praise probabilistic model
+    post(
+        "/interruptSolver",
+        (req, res) -> {
+          SolverInterruptDto solverInterruptDto = SparkUtil.fromJson(req, SolverInterruptDto.class);
+          praiseService.interruptSolver(solverInterruptDto);
+          return "";
         });
 
     // convert to a paged model format file

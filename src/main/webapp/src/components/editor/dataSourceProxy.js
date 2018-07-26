@@ -6,6 +6,7 @@ import type {
   ModelQueryDto,
   FormattedPageModelDto,
   SegmentedModelDto,
+  ExpressionResultDto,
 } from './types';
 
 async function fetchExamples(): Promise<ModelPagesDto[]> {
@@ -35,8 +36,13 @@ async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
   return Promise.resolve(result);
 }
 
-async function solve(model: ModelQueryDto): Promise<any> {
+async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
   const result = await http.post(toApiUrl('solve'), model);
+  return Promise.resolve(result);
+}
+
+async function interruptSolver() {
+  const result = await http.post(toApiUrl('interruptSolver'), {});
   return Promise.resolve(result);
 }
 
@@ -55,6 +61,7 @@ export {
   fetchExamples,
   fetchSegmentedModels,
   solve,
+  interruptSolver,
   toFormattedPageModel,
   fromFormattedPageModel,
 };

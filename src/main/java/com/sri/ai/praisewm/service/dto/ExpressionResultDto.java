@@ -1,11 +1,13 @@
 package com.sri.ai.praisewm.service.dto;
 
 import com.sri.ai.util.ExplanationTree;
+import java.time.Instant;
 import java.util.List;
 
 public class ExpressionResultDto {
   private String query;
   private long queryDuration;
+  private Instant completionDate;
   private List<String> answers;
   private ExplanationTree explanationTree;
 
@@ -27,6 +29,15 @@ public class ExpressionResultDto {
 
   public ExpressionResultDto setQueryDuration(long queryDuration) {
     this.queryDuration = queryDuration;
+    return this;
+  }
+
+  public Instant getCompletionDate() {
+    return completionDate;
+  }
+
+  public ExpressionResultDto setCompletionDate(Instant completionDate) {
+    this.completionDate = completionDate;
     return this;
   }
 
@@ -56,6 +67,8 @@ public class ExpressionResultDto {
         + '\''
         + ", queryDuration="
         + queryDuration
+        + ", completionDate="
+        + completionDate
         + ", answers="
         + answers
         + ", explanationTree="

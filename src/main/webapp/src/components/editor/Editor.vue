@@ -17,6 +17,12 @@
           ['text', 'hogm'].includes(value),
         required: true,
       },
+      styleClass: {
+        type: String,
+        validator: (value: string) =>
+          ['metadata'].includes(value),
+        required: false,
+      },
       value: {
         type: String,
         required: true,
@@ -50,6 +56,13 @@
         if (this.editor$ !== undefined) {
           this.editor$.destroy();
         }
+
+        let styleClass;
+
+        if (this.styleClass) {
+          styleClass = `ace_${this.styleClass}_style`;
+        }
+
         this.editor$ = new AceModelEditor({
           mode: `ace/mode/${this.type}`,
           showGutter: false,
@@ -57,6 +70,7 @@
           minLines: 1,
           maxLines: 1000,
           readOnly: this.readOnly === true,
+          styleClass,
         });
         const that = this;
         this.editor$.on('change', () => {
@@ -81,5 +95,9 @@
   };
 </script>
 
-<style scoped>
+<style>
+  .ace_metadata_style {
+    font-style: italic;
+    color: #105202 !important;
+  }
 </style>
