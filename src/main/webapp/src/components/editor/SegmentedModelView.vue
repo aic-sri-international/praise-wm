@@ -12,7 +12,7 @@
         </b-form-textarea>
         <b-popover target="segmentedModelDescription"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">
           Describes the model.
           </span>
@@ -27,7 +27,7 @@
         </div>
         <b-popover target="dclEditor"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">Global model declarations section.</span>
         </b-popover>
         <segmented-model-editor id="segmented-model-editor" ref="seg_model_editor_ref"
@@ -35,7 +35,7 @@
         </segmented-model-editor>
         <b-popover target="segmentedEditor"
                    triggers=""
-                   :show.sync="displayHelp">
+                   :show="showHelp">
           <span class="help">
             Right-click within a rule section to display a context menu. The context menu
             allows you to toggle the display of metadata for the rule, insert a new rule,
@@ -46,18 +46,6 @@
       <div class="modelControlsContainer">
         <div class="modelControlsPanel">
           <b-button-toolbar>
-            <b-button-group size="sm">
-              <action-button
-                  type="open"
-                  title="Open Model"
-                  @clicked="()=>$refs.input_ref.click()">
-              </action-button>
-              <action-button
-                  type="download"
-                  title="Download Model"
-                  @clicked="download">
-              </action-button>
-            </b-button-group>
             <b-input-group size="sm" class="w-50 mx-1" prepend="Model">
               <b-form-select
                   @input="modelSelectionChanged"
@@ -66,57 +54,65 @@
               </b-form-select>
             </b-input-group>
             <span class="ml-1">
-          <action-button
-              type="sync"
-              title="Reload models from server"
-              @clicked="loadModelsFromServer">
-          </action-button>
-        </span>
-            <action-button
-                type="help"
-                title="Toggle field level help"
-                @clicked="displayHelp = !displayHelp">
-            </action-button>
+              <b-button-group size="sm">
+                <action-button
+                    type="open"
+                    title="Open Model"
+                    @clicked="()=>$refs.input_ref.click()">
+                </action-button>
+                <action-button
+                    type="download"
+                    title="Download Model"
+                    @clicked="download">
+                </action-button>
+              <action-button
+                  type="sync"
+                  title="Reload models from server"
+                  @clicked="loadModelsFromServer">
+              </action-button>
+            </b-button-group>
+          </span>
           </b-button-toolbar>
           <b-button-toolbar>
+            <b-input-group size="sm" class="w-50 mx-1" prepend="Query">
+              <b-form-select
+                  v-model="queryOptionSelected"
+                  :options="queryOptions">
+              </b-form-select>
+            </b-input-group>
+            <span class="ml-1">
             <b-button-group size="sm">
               <action-button
                   type="play"
                   title="Run the query"
                   @clicked="runQuery">
               </action-button>
-              <action-button
-                  type="broom"
-                  title="Sweep away query results"
-                  @clicked="()=> queryResults = []">
-              </action-button>
-            </b-button-group>
-            <b-input-group size="sm" class="w-50 mx-2" prepend="Query">
-              <b-form-select
-                  v-model="queryOptionSelected"
-                  :options="queryOptions">
-              </b-form-select>
-            </b-input-group>
             <action-button
                 type="edit"
                 title="Toggle query editor"
                 @clicked="() => showQueryEditor = !showQueryEditor">
             </action-button>
-            <span v-show="!showQueryResults || !queryResults.length">
               <action-button
-                  type="eye"
-                  title="Show query results"
-                  :disabled="!queryResults.length"
-                  @clicked="() => showQueryResults = true">
+                  type="broom"
+                  title="Remove query results"
+                  @clicked="()=> queryResults = []">
               </action-button>
+            </b-button-group>
             </span>
-            <span v-show="showQueryResults && queryResults.length">
-              <action-button
-                  type="eye-slash"
-                  title="Hide query results"
-                  @clicked="() => showQueryResults = false">
-              </action-button>
-            </span>
+            <div id="runningQueries"
+                 v-if="this.runningQueries"
+                 class="ml-lg-5 querySpinner"
+                 @click.stop="interruptQueries">
+              <span class="fa-layers fa-fw">
+                 <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-30 up-10" style="color: green"></i>
+              </span>
+              <b-popover target="runningQueries"
+                         triggers="hover">
+              <span>
+              Click spinner to interrupt queries.
+              </span>
+            </b-popover>
+            </div>
           </b-button-toolbar>
         </div>
         <query-editor v-if="showQueryEditor"
@@ -150,13 +146,15 @@
   import ActionButton from '@/components/ActionButton';
   import InputTextFile from '@/components/InputTextFile';
   import type { FileInfo } from '@/utils';
+  import { HELP_VXC as HELP } from '@/store';
+  import { mapGetters } from 'vuex';
   import Editor from './Editor';
   import Explanations from './explanations/Explanations';
   import SegmentedModelEditor from './SegmentedModelEditor';
   import QueryEditor from './QueryEditor';
   import QueryResults from './QueryResults';
-  import { fetchSegmentedModels, solve } from './dataSourceProxy';
-  import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto } from './types';
+  import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
+  import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto, ExpressionResultDto } from './types';
 
   const emptySegmentedModel: SegmentedModelDto = {
     name: '',
@@ -191,11 +189,11 @@
         queryOptions: [],
         queryOptionSelected: -1,
         queryResults: [],
-        showQueryResults: false,
+        showQueryResults: true,
         showQueryEditor: false,
-        displayHelp: false,
         dclEditTextWatch: false,
         selectedQueryResult: -1,
+        runningQueries: 0,
       };
     },
     computed: {
@@ -208,6 +206,9 @@
         }
         return null;
       },
+      ...mapGetters(HELP.MODULE, [
+        HELP.GET.SHOW_HELP,
+      ]),
     },
     methods: {
       async getUpdatedSegmentedModel() {
@@ -235,11 +236,12 @@
         };
 
         try {
-          const arrayOfResults = await solve(query);
+          this.runningQueries = this.runningQueries + 1;
+          const arrayOfResults: ExpressionResultDto[] = await solve(query);
           if (arrayOfResults.length) {
             // We should not normally get multiple results for a query.
             // If we do, only use the first one.
-            const result = arrayOfResults[0];
+            const result: ExpressionResultDto = arrayOfResults[0];
             this.queryResults = [result].concat(this.queryResults);
             this.showQueryResults = true;
             this.selectedQueryResult = 0;
@@ -251,6 +253,8 @@
           }
         } catch (err) {
           // errors already logged/displayed
+        } finally {
+          this.runningQueries = this.runningQueries > 0 ? this.runningQueries - 1 : 0;
         }
       },
       async download() {
@@ -307,6 +311,9 @@
           this.setupModels(models);
           this.modelSelectionChanged(this.modelOptionSelected);
         }
+      },
+      interruptQueries() {
+        interruptSolver();
       },
     },
     async created() {
@@ -394,6 +401,10 @@
   .help {
     background-color: lightyellow;
     border-bottom-color: green;
+  }
+
+  .querySpinner {
+    cursor: pointer;
   }
 
 </style>

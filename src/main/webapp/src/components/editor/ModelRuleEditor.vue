@@ -4,6 +4,7 @@
         <span v-show="metaIsOpen">
           <editor ref="metadata_ref"
                   type="text"
+                  styleClass="metadata"
                   :editTextWatch="editTextWatch"
                   :value="modelRuleWrapper.modelRule.metadata">
           </editor>

@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
     praisewm-app:
-        image: ${PRAISEWM_IMAGE_NAME:-praisewm:latest}
+        image: ${PRAISEWM_IMAGE_NAME:-worldmodelers.cse.sri.com/praise-wm:latest}
 #        volumes:
 #            - ${PRAISEWM_DATA_DIRECTORY:-~/praisewm/data}:/opt/praisewm/data
         environment:

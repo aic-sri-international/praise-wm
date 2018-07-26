@@ -38,3 +38,17 @@ export type SegmentedModelDto = {
   rules: ModelRuleDto[],
   queries?: string[],
 }
+
+export type ExplanationTree = {
+  header?: string,
+  footer?: string,
+  subExplanations: ExplanationTree[],
+}
+
+export type ExpressionResultDto = {
+  query: string,
+  queryDuration: number,
+  completionDate: string,
+  answers: string[],
+  explanationTree: ExplanationTree,
+}
