@@ -41,6 +41,11 @@ async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
   return Promise.resolve(result);
 }
 
+async function interruptSolver() {
+  const result = await http.post(toApiUrl('interruptSolver'), {});
+  return Promise.resolve(result);
+}
+
 async function toFormattedPageModel(modelPages: ModelPagesDto): Promise<FormattedPageModelDto> {
   const result = await http.post(toApiUrl('formatModelPages'), modelPages);
   return Promise.resolve(result);
@@ -56,6 +61,7 @@ export {
   fetchExamples,
   fetchSegmentedModels,
   solve,
+  interruptSolver,
   toFormattedPageModel,
   fromFormattedPageModel,
 };

@@ -99,11 +99,20 @@
               </action-button>
             </b-button-group>
             </span>
-            <span v-if="this.runningQueries" class="ml-lg-5">
+            <div id="runningQueries"
+                 v-if="this.runningQueries"
+                 class="ml-lg-5 querySpinner"
+                 @click.stop="interruptQueries">
               <span class="fa-layers fa-fw">
                  <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-30 up-10" style="color: green"></i>
               </span>
-            </span>
+              <b-popover target="runningQueries"
+                         triggers="hover">
+              <span>
+              Click spinner to interrupt queries.
+              </span>
+            </b-popover>
+            </div>
           </b-button-toolbar>
         </div>
         <query-editor v-if="showQueryEditor"
@@ -144,7 +153,7 @@
   import SegmentedModelEditor from './SegmentedModelEditor';
   import QueryEditor from './QueryEditor';
   import QueryResults from './QueryResults';
-  import { fetchSegmentedModels, solve } from './dataSourceProxy';
+  import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
   import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto, ExpressionResultDto } from './types';
 
   const emptySegmentedModel: SegmentedModelDto = {
@@ -303,6 +312,9 @@
           this.modelSelectionChanged(this.modelOptionSelected);
         }
       },
+      interruptQueries() {
+        interruptSolver();
+      },
     },
     async created() {
       this.loadModelsFromServer();
@@ -389,6 +401,10 @@
   .help {
     background-color: lightyellow;
     border-bottom-color: green;
+  }
+
+  .querySpinner {
+    cursor: pointer;
   }
 
 </style>

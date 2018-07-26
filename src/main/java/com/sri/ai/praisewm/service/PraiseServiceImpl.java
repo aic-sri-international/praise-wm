@@ -9,6 +9,7 @@ import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
+import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
 import com.sri.ai.praisewm.service.praise.PageModelLoader;
 import com.sri.ai.praisewm.service.praise.SegmentedModelLoader;
 import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
@@ -17,7 +18,11 @@ import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +31,9 @@ public class PraiseServiceImpl implements PraiseService, Service {
   private SegmentedModelLoader segmentedModelLoader;
   private PageModelLoader pageModelLoader;
   private ProceduralAttachments proceduralAttachments;
+  private Map<Integer, HOGMMultiQueryProblemSolver> activeSolverMap =
+      Collections.synchronizedMap(new HashMap<>());
+  private AtomicInteger nextSolver = new AtomicInteger();
 
   @Override
   public void start(ServiceManager serviceManager) {
@@ -39,6 +47,17 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
   public void stop() {
     segmentedModelLoader.stop();
+    interruptSolvers();
+  }
+
+  private void interruptSolvers() {
+    for (HOGMMultiQueryProblemSolver solver : activeSolverMap.values()) {
+      try {
+        solver.interrupt();
+      } catch (Throwable e) {
+        LOG.warn("Error trying to stop HOGMMultiQueryProblemSolver", e);
+      }
+    }
   }
 
   public List<ModelPagesDto> getExamplePages() {
@@ -71,10 +90,15 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
     List<HOGMProblemResult> hogmProblemResults;
 
+    int solverId = nextSolver.incrementAndGet();
+    activeSolverMap.put(solverId, queryRunner);
+
     try {
       hogmProblemResults = queryRunner.getResults();
     } catch (Exception e) {
       throw new ProcessingException("Cannot solve query", e.getMessage(), e);
+    } finally {
+      activeSolverMap.remove(solverId);
     }
 
     List<ExpressionResultDto> results = new ArrayList<>();
@@ -99,5 +123,12 @@ public class PraiseServiceImpl implements PraiseService, Service {
         });
 
     return results;
+  }
+
+  @Override
+  public void interruptSolver(SolverInterruptDto solverInterruptDto) {
+    LOG.info("Calling interruptSolver..");
+    interruptSolvers();
+    LOG.info("Returned from call to interruptSolver");
   }
 }
