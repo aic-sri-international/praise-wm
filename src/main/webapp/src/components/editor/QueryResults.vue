@@ -3,7 +3,7 @@
     <div class="query-results-border" v-for="(item, index) in items">
       <b-btn size="sm" @click.stop="onItemClicked(item, index)"
              :variant="item.selected ? 'success' : 'outline-secondary'"
-             style="width: 100%">{{formatResult(item)}}</b-btn>
+             style="width: 100%">{{formatResult(item, index)}}</b-btn>
     </div>
   </div>
 </template>
@@ -62,7 +62,7 @@
           }, []);
         });
       },
-      formatResult(r: ExpressionResultDto) {
+      formatResult(r: ExpressionResultDto, index: number) {
         let answer;
         // only use the 1st entry
         if (Array.isArray(r.answers)) {
@@ -74,7 +74,8 @@
             return answer;
           }
           const time = moment(r.completionDate).format('h:mm:ss a');
-          return `Prob. of ${r.query}: ${answer} (${r.queryDuration} ms, ${time})`;
+
+          return `[${this.results.length - index}] Prob. of ${r.query}: ${answer} (${r.queryDuration} ms, ${time})`;
         }
         return r;
       },
