@@ -4,6 +4,7 @@
 /build
 /data
 /node
+/tmp
 
 /keystore.jks
 # idea module files

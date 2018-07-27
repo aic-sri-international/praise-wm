@@ -52,9 +52,6 @@
   .item {
     cursor: pointer;
   }
-  .bold {
-    font-weight: bold;
-  }
   ul {
     padding-left: .5em;
     line-height: 1.5em;

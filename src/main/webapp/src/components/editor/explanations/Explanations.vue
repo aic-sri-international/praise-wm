@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="title">
+      <div class="title" @click.stop="$emit('toggle-wrap')">
         Explanation
       </div>
     <ul>

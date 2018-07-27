@@ -71,6 +71,10 @@ declare module 'moment' {
   declare module.exports: any;
 }
 
+declare module 'split.js' {
+  declare module.exports: any;
+}
+
 declare module 'vuelidate' {
   declare module.exports: any;
 }
