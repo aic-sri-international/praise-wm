@@ -1,6 +1,6 @@
 <template>
   <div class="top-level-container">
-    <div class="left-column">
+    <div id="segModelEditorViewLeftCol" class="left-column">
       <div>
         <b-form-textarea id="segmentedModelDescription"
                          class="mb-2" v-model="segmentedModel.description"
@@ -129,10 +129,13 @@
       </div>
       <div class="left-column-bottom"></div>
     </div>
-    <div class="right-column">
+    <div id="segModelEditorViewRightCol" class="right-column">
       <img src="../../../static/images/South_Sudan_food_security.jpg">
-      <div class="explanations mt-2">
-        <explanations :explanation-tree="explanationTree"></explanations>
+      <div class="explanations">
+        <explanations
+            :explanation-tree="explanationTree"
+            :style="explanationsStyle"
+            @toggle-wrap="changeExplanationsStyle"></explanations>
       </div>
     </div>
     <input-text-file ref="input_ref" @change="inputFileChanged"
@@ -142,6 +145,7 @@
 
 <script>
   // @flow
+  import Split from 'split.js';
   import cloneDeep from 'lodash/cloneDeep';
   import ActionButton from '@/components/ActionButton';
   import InputTextFile from '@/components/InputTextFile';
@@ -194,6 +198,9 @@
         dclEditTextWatch: false,
         selectedQueryResult: -1,
         runningQueries: 0,
+        explanationsStyle: {
+          whiteSpace: 'wrap',
+        },
       };
     },
     computed: {
@@ -211,6 +218,13 @@
       ]),
     },
     methods: {
+      changeExplanationsStyle() {
+        if (this.explanationsStyle.whiteSpace === 'nowrap') {
+          this.explanationsStyle.whiteSpace = 'wrap';
+        } else {
+          this.explanationsStyle.whiteSpace = 'nowrap';
+        }
+      },
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
@@ -319,8 +333,45 @@
     async created() {
       this.loadModelsFromServer();
     },
+    mounted() {
+      if (this.splitter$ !== undefined) {
+        this.splitter$.destroy();
+      }
+      this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
+        elementStyle(dimension, size, gutterSize) {
+          return {
+            'flex-basis': `calc(${size}% - ${gutterSize}px)`,
+          };
+        },
+        gutterStyle(dimension, gutterSize) {
+          return {
+            'flex-basis': `${gutterSize}px`,
+          };
+        },
+      });
+    },
+    beforeDestroy() {
+      this.splitter$.destroy();
+    },
   };
 </script>
+
+<style>
+  .gutter {
+    background-color: #eee;
+
+    background-repeat: no-repeat;
+    background-position: 50%;
+  }
+
+  .gutter.gutter-vertical {
+    background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
+  }
+
+  .gutter.gutter-horizontal {
+    background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
+  }
+</style>
 
 <style scoped>
   .top-level-container {
@@ -382,6 +433,12 @@
     overflow: auto
   }
 
+
+  img {
+    max-width: 250px;
+    height: auto;
+  }
+
   .explanations {
     border: thin double lightgrey;
     min-height: 20px;
@@ -389,13 +446,8 @@
     text-align: left;
     padding: 10px;
     position: relative;
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     overflow: auto;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
   }
 
   .help {
