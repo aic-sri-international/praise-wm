@@ -37,8 +37,8 @@ const getters = {
 const store: VuexSideBarStore = {
   namespaced: true,
   state: {
-    isCollapsed: false,
-    style: { ...sideBarStyles.expanded },
+    isCollapsed: true,
+    style: { ...sideBarStyles.collapsed },
   },
   getters,
   mutations,

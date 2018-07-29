@@ -62,7 +62,12 @@ declare module 'element-ui' {
 declare module 'lodash/cloneDeep' {
   declare module.exports: any;
 }
-
+declare module 'lodash/uniqBy' {
+  declare module.exports: any;
+}
+declare module 'lodash/identity' {
+  declare module.exports: any;
+}
 declare module 'lodash/isEqual' {
   declare module.exports: any;
 }
