@@ -10,32 +10,23 @@
                          max-rows="20"
                          wrap="off">
         </b-form-textarea>
-        <b-popover target="segmentedModelDescription"
-                   triggers=""
-                   :show="showHelp">
-          <span class="help">
-          Describes the model.
-          </span>
+        <b-popover target="segmentedModelDescription" triggers="" :show="showHelp">
+          <span class="help">Describes the model.</span>
         </b-popover>
       </div>
       <div id="segmentedEditor" class="segmentedEditor">
         <div class="dcl-editor">
-          <editor id="dclEditor" ref="dcl_editor_ref"
-                  :editTextWatch="dclEditTextWatch"
+          <editor id="dclEditor" ref="dcl_editor_ref" :editTextWatch="dclEditTextWatch"
                   type="hogm" :value="segmentedModel.declarations">
           </editor>
         </div>
-        <b-popover target="dclEditor"
-                   triggers=""
-                   :show="showHelp">
+        <b-popover target="dclEditor" triggers="" :show="showHelp">
           <span class="help">Global model declarations section.</span>
         </b-popover>
         <segmented-model-editor id="segmented-model-editor" ref="seg_model_editor_ref"
                                 :rules="segmentedModel.rules">
         </segmented-model-editor>
-        <b-popover target="segmentedEditor"
-                   triggers=""
-                   :show="showHelp">
+        <b-popover target="segmentedEditor" triggers="" :show="showHelp">
           <span class="help">
             Right-click within a rule section to display a context menu. The context menu
             allows you to toggle the display of metadata for the rule, insert a new rule,
@@ -45,81 +36,52 @@
       </div>
       <div class="modelControlsContainer">
         <div class="modelControlsPanel">
-          <b-button-toolbar>
-            <b-input-group size="sm" class="w-50 mx-1" prepend="Model">
+          <div style="display: flex; flex-direction: row">
+            <b-input-group size="sm" class="ml-1" prepend="Model">
               <b-form-select
                   @input="modelSelectionChanged"
                   v-model="modelOptionSelected"
                   :options="modelOptions">
               </b-form-select>
             </b-input-group>
-            <span class="ml-1">
-              <b-button-group size="sm">
-                <action-button
-                    type="open"
-                    title="Open Model"
-                    @clicked="()=>$refs.input_ref.click()">
-                </action-button>
-                <action-button
-                    type="download"
-                    title="Download Model"
-                    @clicked="download">
-                </action-button>
-              <action-button
-                  type="sync"
-                  title="Reload models from server"
-                  @clicked="loadModelsFromServer">
-              </action-button>
-            </b-button-group>
-          </span>
-          </b-button-toolbar>
-          <b-button-toolbar>
-            <b-input-group size="sm" class="w-50 mx-1" prepend="Query">
-              <b-form-select
-                  v-model="queryOptionSelected"
-                  :options="queryOptions">
-              </b-form-select>
-            </b-input-group>
-            <span class="ml-1">
-            <b-button-group size="sm">
-              <action-button
-                  type="play"
-                  title="Run the query"
-                  @clicked="runQuery">
-              </action-button>
+            <span class="ml-1"></span>
             <action-button
-                type="edit"
-                title="Toggle query editor"
-                @clicked="() => showQueryEditor = !showQueryEditor">
+                type="open"
+                title="Open Model"
+                @clicked="()=>$refs.input_ref.click()">
             </action-button>
-              <action-button
-                  type="broom"
-                  title="Remove query results"
-                  @clicked="()=> queryResults = []">
-              </action-button>
-            </b-button-group>
-            </span>
-            <div id="runningQueries"
-                 v-if="this.runningQueries"
-                 class="ml-lg-5 querySpinner"
-                 @click.stop="interruptQueries">
-              <span class="fa-layers fa-fw">
-                 <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-30 up-10" style="color: green"></i>
-              </span>
-              <b-popover target="runningQueries"
-                         triggers="hover">
-              <span>
-              Click spinner to interrupt queries.
-              </span>
-            </b-popover>
-            </div>
-          </b-button-toolbar>
+            <action-button
+                type="download"
+                title="Download Model"
+                @clicked="download">
+            </action-button>
+            <action-button
+                type="sync"
+                title="Reload models from server"
+                @clicked="loadModelsFromServer">
+            </action-button>
+          </div>
+          <div style="display: flex; flex-direction: row">
+            <editable-datalist
+                ref="queryOption_ref"
+                class="ml-1"
+                label="Query"
+                placeholder="Please enter a query ..."
+                :options="queryOptions">
+            </editable-datalist>
+            <span class="ml-1"></span>
+            <action-button
+                type="play"
+                title="Run the query"
+                @clicked="runQuery">
+            </action-button>
+            <action-button
+                type="broom"
+                title="Remove query results"
+                @clicked="()=> queryResults = []">
+            </action-button>
+          </div>
         </div>
-        <query-editor v-if="showQueryEditor"
-                      class="query-editor"
-                      :queries="currentQueries"
-                      @queriesChanged="(qs) => {updateQueryOptions(qs); showQueryEditor = false}">
-        </query-editor>
         <query-results v-if="showQueryResults && queryResults.length"
                        class="query-results mt-2 mb-2"
                        :selectedIx="selectedQueryResult"
@@ -127,19 +89,21 @@
                        :results="queryResults">
         </query-results>
       </div>
-      <div class="left-column-bottom"></div>
-    </div>
-    <div id="segModelEditorViewRightCol" class="right-column">
-      <img src="../../../static/images/South_Sudan_food_security.jpg">
-      <div class="explanations">
-        <explanations
-            :explanation-tree="explanationTree"
-            :style="explanationsStyle"
-            @toggle-wrap="changeExplanationsStyle"></explanations>
+      <div id="runningQueries" v-if="this.runningQueries" class="querySpinner"
+           @click.stop="interruptQueries">
+        <span class="fa-layers fa-fw">
+           <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-80" style="color: green"></i>
+        </span>
+        <b-popover target="runningQueries" triggers="hover">
+          <span>Click spinner to interrupt queries.</span>
+        </b-popover>
       </div>
     </div>
-    <input-text-file ref="input_ref" @change="inputFileChanged"
-                     accept=".json"></input-text-file>
+    <div id="segModelEditorViewRightCol" class="right-column">
+      <Map></Map>
+      <explanations id="explanations" :explanation-tree="explanationTree"></explanations>
+    </div>
+    <input-text-file ref="input_ref" @change="inputFileChanged" accept=".json"></input-text-file>
   </div>
 </template>
 
@@ -147,7 +111,10 @@
   // @flow
   import Split from 'split.js';
   import cloneDeep from 'lodash/cloneDeep';
+  import uniqBy from 'lodash/uniqBy';
+  import identity from 'lodash/identity';
   import ActionButton from '@/components/ActionButton';
+  import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
   import type { FileInfo } from '@/utils';
   import { HELP_VXC as HELP } from '@/store';
@@ -155,10 +122,15 @@
   import Editor from './Editor';
   import Explanations from './explanations/Explanations';
   import SegmentedModelEditor from './SegmentedModelEditor';
-  import QueryEditor from './QueryEditor';
   import QueryResults from './QueryResults';
+  import Map from './Map';
   import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
-  import type { SegmentedModelDto, ModelRuleDto, ModelQueryDto, ExpressionResultDto } from './types';
+  import type {
+    SegmentedModelDto,
+    ModelRuleDto,
+    ModelQueryDto,
+    ExpressionResultDto,
+  } from './types';
 
   const emptySegmentedModel: SegmentedModelDto = {
     name: '',
@@ -179,9 +151,10 @@
       ActionButton,
       InputTextFile,
       SegmentedModelEditor,
-      QueryEditor,
       QueryResults,
+      Map,
       Explanations,
+      EditableDatalist,
     },
     data() {
       return {
@@ -191,22 +164,14 @@
         segmentedModel: emptySegmentedModel,
 
         queryOptions: [],
-        queryOptionSelected: -1,
         queryResults: [],
         showQueryResults: true,
-        showQueryEditor: false,
         dclEditTextWatch: false,
         selectedQueryResult: -1,
         runningQueries: 0,
-        explanationsStyle: {
-          whiteSpace: 'wrap',
-        },
       };
     },
     computed: {
-      currentQueries() {
-        return this.queryOptions.map(e => e.text);
-      },
       explanationTree() {
         if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
           return this.queryResults[this.selectedQueryResult].explanationTree;
@@ -218,13 +183,6 @@
       ]),
     },
     methods: {
-      changeExplanationsStyle() {
-        if (this.explanationsStyle.whiteSpace === 'nowrap') {
-          this.explanationsStyle.whiteSpace = 'wrap';
-        } else {
-          this.explanationsStyle.whiteSpace = 'nowrap';
-        }
-      },
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
@@ -233,20 +191,22 @@
           description: this.segmentedModel.description.trim(),
           declarations,
           rules,
-          queries: this.currentQueries,
+          queries: [...this.queryOptions],
         };
       },
       async runQuery() {
-        if (this.queryOptionSelected === -1) {
-          this.showQueryEditor = true;
+        const selectedQuery = this.$refs.queryOption_ref.getCurrentOption();
+        if (!selectedQuery) {
           return;
         }
+        this.$refs.queryOption_ref.showList(false);
+        this.$refs.queryOption_ref.addCurrentEntry();
         const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
         const model: string = `${sm.declarations || ''}\n${sm.rules.map(mr => mr.rule).join('\n')}\n`;
 
         const query: ModelQueryDto = {
           model,
-          query: this.queryOptions[this.queryOptionSelected].text,
+          query: selectedQuery,
         };
 
         try {
@@ -275,21 +235,11 @@
         const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
         this.$$.downloadFile(sm, `${sm.name}.json`);
       },
-      updateQueryOptions(queries: string[]) {
-        const queryOptions = [];
-        if (queries) {
-          for (let i = 0; i < queries.length; i += 1) {
-            queryOptions.push({ value: i, text: queries[i] });
-          }
-        }
-        this.queryOptions = queryOptions;
-        this.queryOptionSelected = queryOptions.length ? 0 : -1;
-      },
       modelSelectionChanged(modelIx: number) {
         const smd: SegmentedModelDto = this.segmentedModels[modelIx];
         this.segmentedModel = cloneDeep(smd);
         this.dclEditTextWatch = !this.dclEditTextWatch;
-        this.updateQueryOptions(smd.queries);
+        this.queryOptions = uniqBy(smd.queries, identity);
         this.queryResults = [];
       },
       setupModels(models: SegmentedModelDto[]) {
@@ -338,16 +288,7 @@
         this.splitter$.destroy();
       }
       this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
-        elementStyle(dimension, size, gutterSize) {
-          return {
-            'flex-basis': `calc(${size}% - ${gutterSize}px)`,
-          };
-        },
-        gutterStyle(dimension, gutterSize) {
-          return {
-            'flex-basis': `${gutterSize}px`,
-          };
-        },
+        sizes: [80, 20],
       });
     },
     beforeDestroy() {
@@ -365,14 +306,13 @@
   }
 
   .gutter.gutter-vertical {
-    background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
   }
 
   .gutter.gutter-horizontal {
-    background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
   }
 </style>
-
 <style scoped>
   .top-level-container {
     height: 100%;
@@ -383,15 +323,12 @@
 
   .left-column {
     height: 100%;
-    width: 70%;
     display: flex;
     flex-direction: column;
   }
 
   .right-column {
     height: 100%;
-    width: 30%;
-    padding-left: 10px;
     display: flex;
     flex-direction: column;
   }
@@ -412,18 +349,9 @@
     flex: 0 0 auto;
   }
 
-  .left-column-bottom {
-    flex: 2 2 auto;
-  }
-
   .dcl-editor {
     border: thin double lightgrey;
     padding: 10px;
-  }
-
-  .query-editor {
-    border: thin double lightgrey;
-    padding: 4px;
   }
 
   .query-results {
@@ -433,29 +361,15 @@
     overflow: auto
   }
 
-
-  img {
-    max-width: 250px;
-    height: auto;
-  }
-
-  .explanations {
-    border: thin double lightgrey;
-    min-height: 20px;
-    min-width: 20px;
-    text-align: left;
-    padding: 10px;
-    position: relative;
-    /*white-space: nowrap;*/
-    overflow: auto;
-  }
-
   .help {
     background-color: lightyellow;
     border-bottom-color: green;
   }
 
   .querySpinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
     cursor: pointer;
   }
 

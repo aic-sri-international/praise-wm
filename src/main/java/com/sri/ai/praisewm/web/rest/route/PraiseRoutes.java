@@ -42,7 +42,7 @@ public class PraiseRoutes extends AbstractRouteGroup {
         (req, res) -> {
           SolverInterruptDto solverInterruptDto = SparkUtil.fromJson(req, SolverInterruptDto.class);
           praiseService.interruptSolver(solverInterruptDto);
-          return "";
+          return SparkUtil.respondNoContent(res);
         });
 
     // convert to a paged model format file

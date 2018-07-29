@@ -1,6 +1,6 @@
 <template>
-  <div>
-      <div class="title" @click.stop="$emit('toggle-wrap')">
+  <div class="explanations" :style="titleStyle">
+      <div class="title" @click.stop="wrap = !wrap">
         Explanation
       </div>
     <ul>
@@ -25,6 +25,16 @@
         type: Object,
       },
     },
+    data() {
+      return {
+        wrap: false,
+      };
+    },
+    computed: {
+      titleStyle() {
+        return { whiteSpace: this.wrap ? 'normal' : 'nowrap' };
+      },
+    },
   };
 </script>
 
@@ -42,4 +52,16 @@
     line-height: 1.5em;
     list-style-type: none;
   }
+
+  .explanations {
+    border: thin double lightgrey;
+    min-height: 20px;
+    min-width: 20px;
+    text-align: left;
+    padding: 10px;
+    position: relative;
+    overflow: auto;
+    cursor: pointer;
+  }
+
 </style>

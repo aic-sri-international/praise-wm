@@ -3,7 +3,7 @@
     <div class="query-results-border" v-for="(item, index) in items">
       <b-btn size="sm" @click.stop="onItemClicked(item, index)"
              :variant="item.selected ? 'success' : 'outline-secondary'"
-             style="width: 100%">{{formatResult(item, index)}}</b-btn>
+             class="msg-text">{{formatResult(item, index)}}</b-btn>
     </div>
   </div>
 </template>
@@ -84,4 +84,9 @@
 </script>
 
 <style scoped>
+  .msg-text {
+    width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
 </style>

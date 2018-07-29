@@ -9,12 +9,12 @@
       </model-rule-editor>
     </div>
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
-      <div class="context-menu">
-        <li @click="onToggleMetadata">Toggle Metadata</li>
-        <li @click="onToggleAllMetadata">Toggle All Metadata</li>
-        <li @click="onInsertModelRule(true)">Insert Rule Above</li>
-        <li @click="onInsertModelRule(false)">Insert Rule Below</li>
-        <li @click="onDeleteModelRule">Delete Rule</li>
+      <div>
+        <li class="ctx-item" @click="onToggleMetadata">Toggle Metadata</li>
+        <li class="ctx-item" @click="onToggleAllMetadata">Toggle All Metadata</li>
+        <li class="ctx-item" @click="onInsertModelRule(true)">Insert Rule Above</li>
+        <li class="ctx-item" @click="onInsertModelRule(false)">Insert Rule Below</li>
+        <li class="ctx-item" @click="onDeleteModelRule">Delete Rule</li>
       </div>
     </context-menu>
   </div>
@@ -111,14 +111,4 @@
 </script>
 
 <style scoped>
-  .context-menu {
-    margin-left: 4px;
-  }
-  #context-menu li:hover, li:focus {
-    color: inherit;
-    background-color: #e9e9e9;
-    text-decoration: none;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
 </style>
