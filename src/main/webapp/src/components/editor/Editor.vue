@@ -98,6 +98,6 @@
 <style>
   .ace_metadata_style {
     font-style: italic;
-    color: #105202 !important;
+    color: #0066CC !important;
   }
 </style>
