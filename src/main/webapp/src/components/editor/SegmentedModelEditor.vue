@@ -11,7 +11,8 @@
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
       <div>
         <li class="ctx-item" @click="onToggleMetadata">Toggle Metadata</li>
-        <li class="ctx-item" @click="onToggleAllMetadata">Toggle All Metadata</li>
+        <li class="ctx-item" @click="onOpenAllMetadata(true)">Open All Metadata</li>
+        <li class="ctx-item" @click="onOpenAllMetadata(false)">Close All Metadata</li>
         <li class="ctx-item" @click="onInsertModelRule(true)">Insert Rule Above</li>
         <li class="ctx-item" @click="onInsertModelRule(false)">Insert Rule Below</li>
         <li class="ctx-item" @click="onDeleteModelRule">Delete Rule</li>
@@ -62,7 +63,7 @@
       wrapModelRules(mrs: ModelRuleDto[]) : ModelRuleWrapper[] {
         return mrs.map(mr => ({
           modelRule: mr,
-          toggleMetadata: false,
+          openMetadata: false,
           emitData: false,
         }));
       },
@@ -73,13 +74,13 @@
         this.mrws = this.wrapModelRules(mrs);
       },
       onToggleMetadata() {
-        this.mrws[this.lastRightClickData.index].toggleMetadata
-            = !this.mrws[this.lastRightClickData.index].toggleMetadata;
+        this.mrws[this.lastRightClickData.index].openMetadata
+            = !this.mrws[this.lastRightClickData.index].openMetadata;
       },
-      onToggleAllMetadata() {
+      onOpenAllMetadata(open: boolean) {
         this.mrws.forEach(((mrw) => {
           // eslint-disable-next-line no-param-reassign
-          mrw.toggleMetadata = !mrw.toggleMetadata;
+          mrw.openMetadata = open;
         }));
       },
       onInsertModelRule(isAbove: boolean) {

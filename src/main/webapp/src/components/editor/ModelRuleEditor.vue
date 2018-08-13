@@ -1,7 +1,7 @@
 <template>
   <div>
       <div class="rule-border" >
-        <span v-show="metaIsOpen">
+        <span v-show="modelRuleWrapper.openMetadata">
           <editor ref="metadata_ref"
                   type="text"
                   styleClass="metadata"
@@ -46,16 +46,15 @@
           required: true,
           default: false,
         },
-        toggleMetadata: {
+        openMetadata: {
           type: Boolean,
-          required: true,
+          required: false,
           default: false,
         },
       },
     },
     data() {
       return {
-        metaIsOpen: false,
         editTextWatch: false,
       };
     },
@@ -71,9 +70,6 @@
       emitData() {
         return this.modelRuleWrapper.emitData;
       },
-      toggleMetadata() {
-        return this.modelRuleWrapper.toggleMetadata;
-      },
     },
     watch: {
       modelRuleWrapper() {
@@ -81,9 +77,6 @@
       },
       emitData() {
         this.$emit('modelRuleData', this.getModelRule());
-      },
-      toggleMetadata() {
-        this.metaIsOpen = !this.metaIsOpen;
       },
     },
   };

@@ -40,16 +40,30 @@ class HikariDS {
 
   private String getJdbcUrl() {
     String url = pw.asString("database.url");
+    String host = pw.asString("database.host");
+    String port = pw.asString("database.port");
 
     String envHost = pw.asString("database.host.env");
-    String host = System.getenv(envHost);
-    if (host != null) {
-      int start = url.indexOf("//");
-      int end = url.indexOf(':', start);
-      url = url.substring(0, start + 2) + host + url.substring(end);
-      LOG.info("Database URL: '{}'", url);
+    String altHost = System.getenv(envHost);
+    if (altHost != null) {
+      host = altHost;
     }
+
+    url = replaceUrlToken(url, "_HOST_", host);
+    url = replaceUrlToken(url, "_PORT_", port);
+
+    LOG.info("Database URL: '{}'", url);
+
     return url;
+  }
+
+  private String replaceUrlToken(String url, String token, String replacement) {
+    String urlActual = url.replace(token, replacement);
+    if (urlActual.equals(url)) {
+      throw new IllegalArgumentException(
+          String.format("database.url property does not contain expected token: %s", token));
+    }
+    return urlActual;
   }
 
   HikariDataSource getDataSource() {

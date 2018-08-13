@@ -53,18 +53,20 @@ file("src/main/resources/${group}.cfg").withReader {
 
     String urlPropName = "database.url"
     String url  = "${project.ext.cfg[urlPropName]}"
-    String envHost  = "${project.ext.cfg['database.host.env']}"
+    String host  = "${project.ext.cfg["database.host"]}"
+    String port  = "${project.ext.cfg["database.port"]}"
 
+    String envHost  = "${project.ext.cfg['database.host.env']}"
     if (envHost != null) {
-        String host = System.getenv(envHost);
-        if (host != null) {
-            int start = url.indexOf("//");
-            int end = url.indexOf(':', start);
-            url = url.substring(0, start + 2) + host + url.substring(end);
-            project.ext.cfg[urlPropName] = url;
-            println "Database URL: '${project.ext.cfg[urlPropName]}'";
+        String altHost = System.getenv(envHost);
+        if (altHost != null) {
+            host = altHost;
         }
     }
+    url = url.replace("_HOST_", host);
+    url = url.replace("_PORT_", port);
+    project.ext.cfg[urlPropName] = url;
+    println "Database URL: '${project.ext.cfg[urlPropName]}'";
 }
 
 apply from: 'gradle/mapstruct.gradle'
