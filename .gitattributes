@@ -5,3 +5,4 @@ gradlew text eol=lf
 
 # eslint is set to generate an error if eol is not lf
 *.js text eol=lf
+*.vue text eol=lf
