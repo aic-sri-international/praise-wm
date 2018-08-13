@@ -23,6 +23,15 @@ All examples will use the shorter of the two.
 
 Areas that are specific to an O/S will be listed in *italics* and prefaced by the name of the O/S.
 
+*Windows*  **Permissions Issues**
+
+If using Windows 10, unless running as Administrator, you may encounter errors during a Gradle setup task.
+
+You can get around this problem by running IntelliJ IDEA as administrator and running the gradle tasks from an IntelliJ terminal console:
+
+To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
+
+
 ## Setup
 
 1.  Run the following from the command line
@@ -34,6 +43,8 @@ Areas that are specific to an O/S will be listed in *italics* and prefaced by th
         ./gradlew yarn_readme
 
     The above command will generate HTML from this and related markdown files and then launch the documentation in your default browser.
+
+    *Windows*: If the browser does not launch, open project-root/build/md-docs/README.html.
 
 
 1. [MySql](docs/mysql.md)
