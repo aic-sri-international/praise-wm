@@ -6,7 +6,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.sri.ai.praisewm.service.SecurityServiceImpl;
 import com.sri.ai.praisewm.util.JsonConverter;
-import com.sri.ai.praisewm.web.rest.util.HttpStatus;
+import org.eclipse.jetty.websocket.api.StatusCode;
 import java.util.List;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -33,7 +33,7 @@ public abstract class WebSocketSessionManager {
           String.format(
               "%s not found as a query parameter for websocket session onConnect",
               SecurityServiceImpl.SECURITY_HEADER_KEY);
-      session.close(HttpStatus.BAD_REQUEST, err);
+      session.close(StatusCode.POLICY_VIOLATION, err);
     } else {
       Session existingSession = sessionMap.get(sessionId);
 
@@ -42,7 +42,7 @@ public abstract class WebSocketSessionManager {
             String.format(
                 "Closing old session to switch to new session %s",
                 SecurityServiceImpl.SECURITY_HEADER_KEY);
-        existingSession.close(HttpStatus.OK, reason);
+        existingSession.close(StatusCode.NORMAL, reason);
       }
 
       // Set to no timeout. The SecurityService handles all session timeouts.

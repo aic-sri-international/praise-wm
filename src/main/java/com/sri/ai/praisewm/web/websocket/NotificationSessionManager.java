@@ -13,7 +13,7 @@ import com.sri.ai.praisewm.event.notification.SessionLogoutEvent;
 import com.sri.ai.praisewm.event.notification.SessionTimeoutEvent;
 import com.sri.ai.praisewm.service.SecurityService;
 import com.sri.ai.praisewm.service.SessionInfo;
-import com.sri.ai.praisewm.web.rest.util.HttpStatus;
+import org.eclipse.jetty.websocket.api.StatusCode;
 import java.time.Instant;
 import java.util.Arrays;
 import org.eclipse.jetty.websocket.api.Session;
@@ -133,7 +133,7 @@ public class NotificationSessionManager extends WebSocketSessionManager {
 
         if (isSessionClose) {
           session.close(
-              isSessionTimeout ? HttpStatus.REQUEST_TIMEOUT : HttpStatus.OK,
+              isSessionTimeout ? StatusCode.TRY_AGAIN_LATER : StatusCode.NORMAL,
               ((SessionCloseEvent) notificationEvent).getText());
         }
       } else if (notificationEvent.getBroadcast() == Broadcast.EXCLUSIVE) {

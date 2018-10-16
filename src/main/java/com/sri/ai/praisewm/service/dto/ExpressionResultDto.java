@@ -1,6 +1,6 @@
 package com.sri.ai.praisewm.service.dto;
+import com.sri.ai.util.explanation.tree.ExplanationTree;
 
-import com.sri.ai.util.ExplanationTree;
 import java.time.Instant;
 import java.util.List;
 

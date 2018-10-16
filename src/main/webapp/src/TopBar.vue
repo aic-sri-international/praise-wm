@@ -53,6 +53,7 @@
   let intervalId;
 
   export default {
+    name: 'TopBar',
     data() {
       return {
         time: null,
