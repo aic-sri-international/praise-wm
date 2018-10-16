@@ -46,7 +46,7 @@ function readTextFile(file: File) : Promise<FileInfo> {
         basename,
         extension,
         text,
-        // eslint-disable-next-line flowtype-errors/show-errors
+        // $FlowFixMe
         lastModified: file.lastModified,
       };
       resolve(result);

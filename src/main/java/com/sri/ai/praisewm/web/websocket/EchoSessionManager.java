@@ -3,7 +3,7 @@ package com.sri.ai.praisewm.web.websocket;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.sri.ai.praisewm.event.notification.SessionCloseEvent;
-import com.sri.ai.praisewm.web.rest.util.HttpStatus;
+import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -33,7 +33,7 @@ public class EchoSessionManager extends WebSocketSessionManager {
     public void closeSession(SessionCloseEvent closeEvent) {
       Session session = getSessionMap().remove(closeEvent.getSessionId());
       if (session != null) {
-        session.close(HttpStatus.OK, closeEvent.getText());
+        session.close(StatusCode.NORMAL, closeEvent.getText());
       }
     }
   }
