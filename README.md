@@ -1,4 +1,4 @@
-# praisewm
+# praise-wm
 
 ## Table of Contents
 
@@ -10,7 +10,7 @@
 1.  [Version Updates](#version-updates)
 
 ## Preface
-This document covers the praisewm project setup and its development tools.
+This document covers the praise-wm project setup and its development tools.
 
 [Gradle][] is used as the build tool and is pre-installed within the project.
 
@@ -53,11 +53,11 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 1.  Run the following from the command line
 
         ./gradlew yarnSetup yarn deploy
-1.  Start the praisewm application
+1.  Start the praise-wm application
 
         java -jar build/libs/praisewm-1.0-all.jar
 
-1. Access the praisewm application using a browser
+1. Access the praise-wm application using a browser
 
         https://localhost:4567
 
@@ -65,7 +65,7 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 
     1. **yarnSetup** will download and install [Node.js](https://nodejs.org/en/) and [Yarn](https://yarnpkg.com/en/) into your project. As a final step in the node installation, a directory called *node* will be created within your project's home directory that contains a link to the node executable. The directory should never be checked into the version control repository.
     1. **yarn** will download and install all project-specific 3rd party client libraries
-    1. **deploy** will perform a clean build and test the praisewm application.
+    1. **deploy** will perform a clean build, tests the praise-wm application, and creates the build/libs/praisewm-\<version\>-all.jar shadow jar.
 
 1. [IDE Configuration](docs/IntelliJ_IDEA.md)
 
@@ -73,7 +73,7 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 [Client Toolset](docs/client_toolset.md)
 [Server Toolset](docs/server_toolset.md)
 
-The [WebPack DevServer](docs/webpack_dev_server.md) expects praisewm to be running under SSL.
+The [WebPack DevServer](docs/webpack_dev_server.md) expects praise-wm to be running under SSL.
 
 JavaScript uses the [Airbnb Javascript Style Guide][].
 
@@ -102,7 +102,7 @@ A curated list of [Vue resources][].
     1. Runs flywayMigrate
     1. Creates JOOQ classes
     1. Compiles Java classes and process resources
-    1. Builds the shadow jar
+    1. Builds the shadow jar *build/libs/praisewm-\<version\>-all.jar*
     1. Runs server unit tests
 1. **flywayClean** - Drops all objects in the configured database schemas. Run if needed due to developer modifications to existing flyway scripts.
 1. **clean** - Deletes the java build directory

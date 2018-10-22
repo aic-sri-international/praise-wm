@@ -19,40 +19,41 @@ Stop the MySQL container:
 
 The first time you run the *up* command, the MySQL image will be downloaded and installed. Subsequent start-ups will be much faster. The *-d* option will run the container in the background.
 
-## Running the praisewm Container
+## Running the praise-wm Container
 
-To run praisewm in a Docker container, you must first build a Docker image that contains the praisewm application. The command will perform a clean build of the application and then install a Docker image.
-
-The following command must be run from the command line and MySQL must already be running. Running it from without IntelliJ as a Gradle task will not work.
-
-        ./gradlew buildDocker
-
-Start the praisewm container:
+Start the praise-wm container:
 
     docker-compose -f src/main/docker/praisewm.yml up -d
 
-Stop the praisewm container:
+Stop the praise-wm container:
 
     docker-compose -f src/main/docker/praisewm.yml down
 
-Unless you already have the openjdk Docker image installed, it will be downloaded and installed the first time you run the *up* command. Subsequent start-ups will be faster. The *-d* option will run the container in the background.
+The first time you run the *up* command it will download the Docker images and install them in your local Docker cache.
+
+A new praise-wm Docker image is created automatically by the [praise-wm GitLab Pipeline][] each time files are pushed into the repository. To get the most current version from the repository, you must run the following command which will download the most current version if it differs from what is in your local Docker cache.
+
+    docker-compose -f src/main/docker/praisewm.yml pull praisewm-app
+
+##### Environmental Variable Overrides for praisewm.yml
+[praisewm.yml][] supports the following environmental variables that you can set prior to starting the container:
+
+    PRAISEWM_IMAGE_NAME - Override the repository path to the praise-wm image
+
+The default uses the image created for the main branch. To use an image from an alternate branch, set PRAISEWM_IMAGE_NAME to the default path in [praisewm.yml][] substituting the name of the branch for the *latest* tag.
+
+    PRAISEWM_DATA_DIRECTORY - Currently commented-out due to issues encountered on Windows O/S.
+
+By default, the praise-wm docker container would create a mount point of *~/praisewm/data* that is used by the praise-wm server for access to external data files. The server will also write its log files to a *logs* subdirectory. To change the mount point, set the environmental variable *PRAISEWM_DATA_DIRECTORY* to a complete path to a directory on your system. If the directory does not yet exist, it will be created on startup.
+
+See [praisewm.yml][] for details.
 
 ## Starting/Stopping All Containers with a single command.
 
     docker-compose -f src/main/docker/app.yml up -d
     docker-compose -f src/main/docker/app.yml down
 
-If the containers do not seem to start correctly, run the *up* command without the *-d* option so that you can see the program initialization output. If you see that *MySQL* is still initializing when the *praisewm* application starts, increase the *PRAISEWM_SLEEP* time in [app.yml].
-
-`NOTE`: By default, the praisewm docker container will create a mount point of *~/praisewm/data* that is used by the praisewm server for access to external data files. The server will also write its log files to a *logs* subdirectory. To change the mount point, set the environmental variable *PRAISEWM_DATA_DIRECTORY* to a complete path to a directory on your system. If the directory does not yet exist, it will be created on startup.
-
-
-## Using Deployed Docker Images.
-
-If using a docker image of praisewm that has been deployed to a remote repository, be sure to set the environmental variable *PRAISEWM_IMAGE_NAME* to the correct image name prior to running [praisewm.yml].
-
-See [uploadImage.sh] for the image name used for Artifactory.
-
+If the containers do not seem to start correctly, run the *up* command without the *-d* option so that you can see the program initialization output. If you see that *MySQL* is still initializing when the *praise-wm* application starts, increase the *PRAISEWM_SLEEP* time in [app.yml].
 
 ## Docker Commands
 List all containers:
@@ -77,6 +78,7 @@ Delete a container:
 
 [A Docker Cheat Sheet][]
 
+[praise-wm GitLab Pipeline]: ../.gitlab-ci.yml
 [Install Docker]: https://docs.docker.com/engine/installation/
 [Install Docker Compose]: https://docs.docker.com/compose/install/
 [app.yml]: ../src/main/docker/app.yml

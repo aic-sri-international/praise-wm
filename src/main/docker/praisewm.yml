@@ -3,6 +3,14 @@ version: '2.1'
 services:
     praisewm-app:
         image: ${PRAISEWM_IMAGE_NAME:-worldmodelers.cse.sri.com/praise-wm:latest}
+
+# Uncomment the following volumes section to have the directory used by the server for praise
+# model files accessible outside the Docker container.
+#
+# If running on Windows, before running docker-compose, set the env variable PRAISEWM_DATA_DIRECTORY
+# to a complete path to a directory within your <root>\Users\<username> directory and set the env variable
+# COMPOSE_CONVERT_WINDOWS_PATHS=1. For more information see https://docs.docker.com/compose/reference/envvars/
+
 #        volumes:
 #            - ${PRAISEWM_DATA_DIRECTORY:-~/praisewm/data}:/opt/praisewm/data
         environment:
