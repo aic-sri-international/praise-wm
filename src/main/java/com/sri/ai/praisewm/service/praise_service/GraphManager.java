@@ -38,12 +38,9 @@ public class GraphManager {
           graphVariableSet.setName(variable.getName());
 
           if (setOfValues instanceof SetOfEnumValues) {
-            List<String> enums;
-            SetOfEnumValues values = (SetOfEnumValues) setOfValues;
-            enums = new ArrayList<>();
-            Iterator<Value> iter = values.iterator();
-            while (iter.hasNext()) {
-              enums.add(iter.next().stringValue());
+            List<String> enums = new ArrayList<>();
+            for (Value value : setOfValues) {
+              enums.add(value.stringValue());
             }
             graphVariableSet.setEnums(enums);
           } else if (setOfValues instanceof SetOfIntegerValues) {
