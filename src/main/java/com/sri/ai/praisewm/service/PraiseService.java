@@ -2,6 +2,8 @@ package com.sri.ai.praisewm.service;
 
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
+import com.sri.ai.praisewm.service.dto.GraphRequestDto;
+import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
@@ -13,11 +15,13 @@ public interface PraiseService {
 
   List<SegmentedModelDto> getSegmentedModels();
 
-  List<ExpressionResultDto> solveProblem(ModelQueryDto modelQuery);
+  List<ExpressionResultDto> solveProblem(String sessionId, ModelQueryDto modelQuery);
 
   FormattedPageModelDto toFormattedPageModel(ModelPagesDto modelPages);
 
   ModelPagesDto fromFormattedPageModel(FormattedPageModelDto formattedPageModel);
 
   void interruptSolver(SolverInterruptDto solverInterruptDto);
+
+  GraphRequestResultDto buildGraph(String sessionId, GraphRequestDto graphRequestDto);
 }

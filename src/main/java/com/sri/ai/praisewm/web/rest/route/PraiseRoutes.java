@@ -1,11 +1,17 @@
 package com.sri.ai.praisewm.web.rest.route;
 
+import static com.sri.ai.praisewm.service.SecurityServiceImpl.getSessionId;
+
 import com.sri.ai.praisewm.service.PraiseService;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
+import com.sri.ai.praisewm.service.dto.GraphRequestDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
+import com.sri.ai.praisewm.util.FilesUtil;
 import com.sri.ai.praisewm.web.rest.util.SparkUtil;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /** PraiseRoutes. */
 public class PraiseRoutes extends AbstractRouteGroup {
@@ -18,6 +24,14 @@ public class PraiseRoutes extends AbstractRouteGroup {
 
   @Override
   public void addRoutes() {
+    post(
+        "/buildGraph",
+        (req, res) -> {
+          GraphRequestDto graphRequest = SparkUtil.fromJson(req, GraphRequestDto.class);
+          return SparkUtil.respondObjectOrNotFound(
+              res, praiseService.buildGraph(getSessionId(req), graphRequest));
+        });
+
     // get examples
     get(
         "/examples",
@@ -33,7 +47,8 @@ public class PraiseRoutes extends AbstractRouteGroup {
         "/solve",
         (req, res) -> {
           ModelQueryDto modelQuery = SparkUtil.fromJson(req, ModelQueryDto.class);
-          return SparkUtil.respondObjectOrNotFound(res, praiseService.solveProblem(modelQuery));
+          return SparkUtil.respondObjectOrNotFound(
+              res, praiseService.solveProblem(getSessionId(req), modelQuery));
         });
 
     // solve a Praise probabilistic model
@@ -63,5 +78,18 @@ public class PraiseRoutes extends AbstractRouteGroup {
           return SparkUtil.respondObjectOrNotFound(
               res, praiseService.fromFormattedPageModel(formattedModelPages));
         });
+  }
+
+  static class Image {
+    private String image;
+
+    public Image() {
+      Path imageFile = Paths.get("./SampleLineChart.png");
+      this.image = FilesUtil.imageFileToBase64DataImage(imageFile);
+    }
+
+    public String getImage() {
+      return image;
+    }
   }
 }

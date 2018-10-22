@@ -1,11 +1,16 @@
-package com.sri.ai.praisewm.service;
+package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMMultiQueryProblemSolver;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
 import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
+import com.sri.ai.praisewm.service.PraiseService;
+import com.sri.ai.praisewm.service.Service;
+import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
 import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
+import com.sri.ai.praisewm.service.dto.GraphRequestDto;
+import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
 import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
@@ -22,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +40,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
   private Map<Integer, HOGMMultiQueryProblemSolver> activeSolverMap =
       Collections.synchronizedMap(new HashMap<>());
   private AtomicInteger nextSolver = new AtomicInteger();
+  private GraphManager graphManager;
 
   @Override
   public void start(ServiceManager serviceManager) {
@@ -43,6 +50,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
         new SegmentedModelLoader(serviceManager.getConfiguration(), serviceManager.getEventBus());
+    graphManager = new GraphManager(serviceManager);
   }
 
   public void stop() {
@@ -79,7 +87,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
     return PageModelLoader.fromFormattedPageModel(formattedPageModel);
   }
 
-  public List<ExpressionResultDto> solveProblem(ModelQueryDto modelQuery) {
+  public List<ExpressionResultDto> solveProblem(String sessionId, ModelQueryDto modelQuery) {
     ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
     ExpressoConfiguration
         .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
@@ -102,6 +110,8 @@ public class PraiseServiceImpl implements PraiseService, Service {
     }
 
     List<ExpressionResultDto> results = new ArrayList<>();
+    // Only return graph results with the first result entry
+    AtomicBoolean isFirstResult = new AtomicBoolean(true);
 
     hogmProblemResults.forEach(
         result -> {
@@ -119,10 +129,19 @@ public class PraiseServiceImpl implements PraiseService, Service {
                   .setAnswers(answers)
                   .setExplanationTree(result.getExplanation())
                   .setQueryDuration(result.getMillisecondsToCompute())
-                  .setCompletionDate(Instant.now()));
+                  .setCompletionDate(Instant.now())
+                  .setGraphQueryResultDto(
+                      isFirstResult.getAndSet(false)
+                          ? graphManager.setGraphQueryResult(sessionId, result)
+                          : null));
         });
 
     return results;
+  }
+
+  @Override
+  public GraphRequestResultDto buildGraph(String sessionId, GraphRequestDto graphRequestDto) {
+    return graphManager.handleGraphRequest(sessionId, graphRequestDto);
   }
 
   @Override
