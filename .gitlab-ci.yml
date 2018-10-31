@@ -58,7 +58,7 @@ buildServer:
 deployAny:
   stage: deployAny
   tags:
-    - privileged
+    - shared
   script:
     - cp -vf build/libs/praisewm*all.jar .
     - cp -vf gencerts/keystore.jks .
@@ -68,7 +68,7 @@ deployAny:
 deployMaster:
   stage: deployMaster
   tags:
-    - privileged
+    - shared
   script:
     - docker pull $REGISTRY_URI:$BUILD_TAG
     - docker tag $REGISTRY_URI:$BUILD_TAG $REGISTRY_URI:latest
