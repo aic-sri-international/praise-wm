@@ -41,7 +41,7 @@ sample1:
     - ps -ef
     - ls -la *    
  
- sample2:
+sample2:
   stage: sample2
   tags:
     - default
