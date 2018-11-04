@@ -35,7 +35,7 @@ A new praise-wm Docker image is created automatically by the [praise-wm GitLab P
 
     docker-compose -f src/main/docker/praisewm.yml pull praisewm-app
 
-##### Environmental Variable Overrides for praisewm.yml
+#### Environmental Variable Overrides for praisewm.yml
 [praisewm.yml][] supports the following environmental variables that you can set prior to starting the container:
 
     PRAISEWM_IMAGE_NAME - Override the repository path to the praise-wm image
