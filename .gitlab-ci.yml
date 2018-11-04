@@ -17,14 +17,25 @@ cache:
     - .gradle
 
 stages:
+  - sample
   - buildClient
   - buildServer
   - deployAny
   - deployMaster
 
-buildClient:
+sample:
+  stage: sample
+  tags:
+    - runner-default
+  script:
+    - ps -ef
+    - ls -la *
+  
+.buildClient:
   stage: buildClient
   image: node:8.11.2
+  tags:
+   - shared
   script:
     - cd src/main/webapp
     - yarn
@@ -36,8 +47,10 @@ buildClient:
       - src/main/webapp/dist
     expire_in: 1 hour
 
-buildServer:
+.buildServer:
   stage: buildServer
+  tags:
+    - shared
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
@@ -55,20 +68,20 @@ buildServer:
       - build/libs
     expire_in: 1 week
 
-deployAny:
+.deployAny:
   stage: deployAny
   tags:
-    - privileged
+    - shared
   script:
     - cp -vf build/libs/praisewm*all.jar .
     - cp -vf gencerts/keystore.jks .
     - docker build -f src/main/docker/Dockerfile -t $REGISTRY_URI:$BUILD_TAG .
     - docker push $REGISTRY_URI:$BUILD_TAG
 
-deployMaster:
+.deployMaster:
   stage: deployMaster
   tags:
-    - privileged
+    - shared
   script:
     - docker pull $REGISTRY_URI:$BUILD_TAG
     - docker tag $REGISTRY_URI:$BUILD_TAG $REGISTRY_URI:latest
