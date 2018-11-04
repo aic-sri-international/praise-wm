@@ -24,6 +24,8 @@ stages:
 
 buildClient:
   stage: buildClient
+  tags:
+    - shared
   image: node:8.11.2
   script:
     - cd src/main/webapp
@@ -38,6 +40,8 @@ buildClient:
 
 buildServer:
   stage: buildServer
+  tags:
+    - shared
   image: openjdk:8-jdk-alpine
   dependencies:
     - buildClient
