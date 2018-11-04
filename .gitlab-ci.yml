@@ -29,7 +29,6 @@ sample:
   stage: sample
   tags:
     - shared
-
   script:
     - ps -ef
     - ls -la *
@@ -38,7 +37,6 @@ sample1:
   stage: sample1
   tags:
     - privileged
-
   script:
     - ps -ef
     - ls -la *    
@@ -47,7 +45,6 @@ sample1:
   stage: sample2
   tags:
     - default
-
   script:
     - ps -ef
     - ls -la *     
