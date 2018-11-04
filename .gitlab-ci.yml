@@ -17,20 +17,11 @@ cache:
     - .gradle
 
 stages:
-  - sample
   - buildClient
   - buildServer
   - deployAny
   - deployMaster
 
-sample:
-  stage: sample
-  tags:
-    - runner-default
-  script:
-    - ps -ef
-    - ls -la *
-  
 .buildClient:
   stage: buildClient
   image: node:8.11.2
@@ -71,7 +62,7 @@ sample:
 .deployAny:
   stage: deployAny
   tags:
-    - shared
+    - privileged
   script:
     - cp -vf build/libs/praisewm*all.jar .
     - cp -vf gencerts/keystore.jks .
@@ -81,7 +72,7 @@ sample:
 .deployMaster:
   stage: deployMaster
   tags:
-    - shared
+    - privileged
   script:
     - docker pull $REGISTRY_URI:$BUILD_TAG
     - docker tag $REGISTRY_URI:$BUILD_TAG $REGISTRY_URI:latest
