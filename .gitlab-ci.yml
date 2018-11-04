@@ -25,6 +25,9 @@ stages:
 
 sample:
   stage: sample
+  tags:
+    - shared
+
   script:
     - ps -ef
     - ls -la *
