@@ -18,6 +18,8 @@ cache:
 
 stages:
   - sample
+  - sample1
+  - sample2
   - buildClient
   - buildServer
   - deployAny
@@ -31,6 +33,24 @@ sample:
   script:
     - ps -ef
     - ls -la *
+
+sample2:
+  stage: sample2
+  tags:
+    - privileged
+
+  script:
+    - ps -ef
+    - ls -la *    
+ 
+ sample3:
+  stage: sample3
+  tags:
+    - default
+
+  script:
+    - ps -ef
+    - ls -la *     
   
 .buildClient:
   stage: buildClient
