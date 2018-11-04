@@ -34,8 +34,8 @@ sample:
     - ps -ef
     - ls -la *
 
-sample2:
-  stage: sample2
+sample1:
+  stage: sample1
   tags:
     - privileged
 
@@ -43,8 +43,8 @@ sample2:
     - ps -ef
     - ls -la *    
  
- sample3:
-  stage: sample3
+ sample2:
+  stage: sample2
   tags:
     - default
 
