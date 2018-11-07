@@ -5,7 +5,7 @@ import java.util.List;
 public class GraphQueryResultDto {
   // Not empty
   // The 1st entry in the list is the xm variable used to create the imageData
-  // The graph creation is supported for others in the list
+  // Graph creation is supported for others in the list
   private List<String> xmVariables;
 
   // Not empty
