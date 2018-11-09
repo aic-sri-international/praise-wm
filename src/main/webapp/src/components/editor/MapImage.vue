@@ -17,7 +17,7 @@
 
 <script>
   export default {
-    name: 'Map',
+    name: 'MapImage',
     data() {
       return {
         showMap: true,

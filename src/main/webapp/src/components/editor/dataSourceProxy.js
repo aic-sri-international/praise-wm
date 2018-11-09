@@ -1,5 +1,4 @@
 // @flow
-// import isMock from '@/dataConfig';
 import { http, toApiUrl } from '@/services/http';
 import type {
   ModelPagesDto,
@@ -11,17 +10,6 @@ import type {
 
 async function fetchExamples(): Promise<ModelPagesDto[]> {
   let result: ModelPagesDto[] = [];
-
-  // if (isMock.editor) {
-  //   try {
-  //     result = getExamples();
-  //     return Promise.resolve(result);
-  //   } catch (err) {
-  //     // eslint-disable-next-line no-console
-  //     console.error(err);
-  //     return Promise.reject();
-  //   }
-  // }
 
   // $FlowFixMe
   result = await http.get(toApiUrl('examples'));

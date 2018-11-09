@@ -26,6 +26,7 @@
     "vue": "^2.5.16",
     "vue-context-menu": "^2.0.6",
     "vue-router": "^3.0.1",
+    "vue-slider-component": "^2.8.0",
     "vue-snotify": "^3.0.4",
     "vue-tippy": "^2.0.11",
     "vue-toasted": "^1.1.24",

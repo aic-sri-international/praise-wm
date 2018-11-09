@@ -3,7 +3,6 @@ package com.sri.ai.praisewm.service.praise_service;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.graph2d.api.functions.Function.function;
 import static com.sri.ai.util.graph2d.api.functions.Functions.functions;
-import static com.sri.ai.util.graph2d.api.graph.GraphSetMaker.graphSetMaker;
 import static com.sri.ai.util.graph2d.api.variables.SetOfVariables.setOfVariables;
 import static com.sri.ai.util.graph2d.api.variables.Value.value;
 import static com.sri.ai.util.graph2d.api.variables.Variable.enumVariable;
@@ -14,17 +13,19 @@ import static com.sri.ai.util.graph2d.core.values.SetOfIntegerValues.setOfIntege
 
 import com.sri.ai.util.graph2d.api.functions.Function;
 import com.sri.ai.util.graph2d.api.functions.Functions;
-import com.sri.ai.util.graph2d.api.graph.GraphSetMaker;
+import com.sri.ai.util.graph2d.api.variables.SetOfValues;
 import com.sri.ai.util.graph2d.api.variables.Unit;
 import com.sri.ai.util.graph2d.api.variables.Variable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-public class SampleGraphQuery {
-  private final GraphSetMaker graphSetMaker;
+public class SampleGraphQueryResult {
+  private final Functions functions;
+  private final Map<Variable, SetOfValues> mapOfVariableToSetOfValues;
   private final List<Variable> xmVariables;
 
-  public SampleGraphQuery() {
+  public SampleGraphQueryResult() {
     Variable continent = enumVariable("Continent");
     Variable age = integerVariable("Age", Unit.YEAR);
     Variable occupation = enumVariable("Occupation");
@@ -59,22 +60,23 @@ public class SampleGraphQuery {
             setOfVariables(continent, age, occupation),
             (assignment) -> value(incomeFunction.evaluate(assignment).doubleValue() * 0.75));
 
-    Functions functions = functions(incomeFunction, expenseFunction);
+    functions = functions(incomeFunction, expenseFunction);
 
-    graphSetMaker = graphSetMaker();
-
-    graphSetMaker.setFunctions(functions);
-    graphSetMaker.setFromVariableToSetOfValues(
+    mapOfVariableToSetOfValues =
         map(
             continent, setOfEnumValues("North America", "Africa", "Europe"),
             age, setOfIntegerValues(18, 99),
-            occupation, setOfEnumValues("Driver", "CEO", "Doctor")));
+            occupation, setOfEnumValues("Driver", "CEO", "Doctor"));
 
     xmVariables = Collections.singletonList(age);
   }
 
-  public GraphSetMaker getGraphSetMaker() {
-    return graphSetMaker;
+  public Functions getFunctions() {
+    return functions;
+  }
+
+  public Map<Variable, SetOfValues> getMapOfVariableToSetOfValues() {
+    return mapOfVariableToSetOfValues;
   }
 
   public List<Variable> getXmVariables() {

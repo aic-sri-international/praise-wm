@@ -67,7 +67,7 @@ export type GraphRequestDto = {
 export type GraphQueryResultDto = {
   // The 1st entry in the list is the xm variable name used to create the
   // imageData Graph creation is supported for others in the list
-  xmVariables?: string[],
+  xmVariables: string[],
   graphVariableSets: GraphVariableSet[],
   imageData: string,
 }
@@ -78,5 +78,5 @@ export type ExpressionResultDto = {
   completionDate: string,
   answers: string[],
   explanationTree: ExplanationTree,
-  graphQueryResultDto: GraphQueryResultDto,
+  graphQueryResultDto?: GraphQueryResultDto,
 }
