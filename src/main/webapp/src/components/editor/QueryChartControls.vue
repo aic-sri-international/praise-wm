@@ -82,6 +82,8 @@
             gvs.enums = [c.sliderChanged];
           } else if (gvs.enums && !c.isSlider && c.ddSelection) {
             gvs.enums = [c.ddSelection];
+          } else if (gvs.enums) {
+            gvs.enums = [gvs.enums[0]];
           }
           request.graphVariableSets.push(gvs);
         });
