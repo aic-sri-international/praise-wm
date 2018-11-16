@@ -297,7 +297,7 @@
         this.splitter$.destroy();
       }
       this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
-        sizes: [75, 25],
+        sizes: [65, 35],
       });
     },
     beforeDestroy() {

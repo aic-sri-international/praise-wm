@@ -46,6 +46,8 @@ export type ExplanationTree = {
 }
 
 export type GraphVariableRangeDto = {
+  unitName: string,
+  unitSymbol: string,
   first: number,
   last: number,
   step: number,
@@ -64,11 +66,17 @@ export type GraphRequestDto = {
   graphVariableSets: GraphVariableSet[],
 }
 
-export type GraphQueryResultDto = {
+export type GraphRequestResultDto = {
+  imageData: string,
+}
+
+export type GraphQueryVariableResults = {
   // The 1st entry in the list is the xm variable name used to create the
   // imageData Graph creation is supported for others in the list
   xmVariables: string[],
   graphVariableSets: GraphVariableSet[],
+}
+export type GraphQueryResultDto = GraphQueryVariableResults & {
   imageData: string,
 }
 

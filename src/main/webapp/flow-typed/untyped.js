@@ -65,6 +65,9 @@ declare module 'element-ui' {
 declare module 'lodash/cloneDeep' {
   declare module.exports: any;
 }
+declare module 'lodash/debounce' {
+  declare module.exports: any;
+}
 declare module 'lodash/uniqBy' {
   declare module.exports: any;
 }

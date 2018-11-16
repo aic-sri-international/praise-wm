@@ -6,6 +6,8 @@ import type {
   FormattedPageModelDto,
   SegmentedModelDto,
   ExpressionResultDto,
+  GraphRequestDto,
+  GraphRequestResultDto,
 } from './types';
 
 async function fetchExamples(): Promise<ModelPagesDto[]> {
@@ -29,6 +31,11 @@ async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
   return Promise.resolve(result);
 }
 
+async function fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
+  const result = await http.post(toApiUrl('buildGraph'), request);
+  return Promise.resolve(result);
+}
+
 async function interruptSolver() {
   const result = await http.post(toApiUrl('interruptSolver'), {});
   return Promise.resolve(result);
@@ -49,6 +56,7 @@ export {
   fetchExamples,
   fetchSegmentedModels,
   solve,
+  fetchGraph,
   interruptSolver,
   toFormattedPageModel,
   fromFormattedPageModel,

@@ -13,6 +13,7 @@ import com.sri.ai.util.graph2d.api.graph.GraphPlot;
 import com.sri.ai.util.graph2d.api.graph.GraphSet;
 import com.sri.ai.util.graph2d.api.graph.GraphSetMaker;
 import com.sri.ai.util.graph2d.api.variables.SetOfValues;
+import com.sri.ai.util.graph2d.api.variables.Unit;
 import com.sri.ai.util.graph2d.api.variables.Value;
 import com.sri.ai.util.graph2d.api.variables.Variable;
 import com.sri.ai.util.graph2d.core.values.SetOfEnumValues;
@@ -74,9 +75,20 @@ public class GraphManager {
                 "Unsupported SetOfValues type:" + setOfValues.getClass().getName());
           }
 
+          if (graphVariableSet.getRange() != null) {
+            setUnitValues(variable, graphVariableSet.getRange());
+          }
           list.add(graphVariableSet);
         });
     return list;
+  }
+
+  private static void setUnitValues(Variable variable, GraphVariableRangeDto graphVariableRangeDto) {
+    Unit unit = variable.getUnit();
+    if (unit != null) {
+      graphVariableRangeDto.setUnitName(unit.getName());
+      graphVariableRangeDto.setUnitSymbol(unit.getSymbol());
+    }
   }
 
   private static SetOfValues buildSetOfValuesForVariable(
@@ -165,6 +177,15 @@ public class GraphManager {
   }
 
   public GraphQueryResultDto setGraphQueryResult(String sessionId, HOGMProblemResult result) {
+    try {
+      return setGraphQueryResult_internal(sessionId, result);
+    } catch (Exception ex) {
+      LOG.error("Cannot generate graph", ex);
+    }
+    return null;
+  }
+
+  private GraphQueryResultDto setGraphQueryResult_internal(String sessionId, HOGMProblemResult result) {
     // @TODO replace the following with data from the HOGMProblemResult once it is available
     SampleGraphQueryResult sampleResult = new SampleGraphQueryResult();
 
@@ -172,7 +193,7 @@ public class GraphManager {
         new GraphCacheEntry(
             sampleResult.getFunctions(),
             sampleResult.getMapOfVariableToSetOfValues(),
-            sampleResult.getXmVariables());
+            getPossibleXmVariables(sampleResult.getMapOfVariableToSetOfValues()));
 
     GraphQueryResultDto graphQueryResultDto = new GraphQueryResultDto();
     graphQueryResultDto.setXmVariables(
@@ -202,5 +223,21 @@ public class GraphManager {
     handleGraphRequest(sessionId, graphRequestDto);
 
     return graphQueryResultDto;
+  }
+
+  private static List<Variable> getPossibleXmVariables(Map<Variable, SetOfValues> mapOfVariableToSetOfValues) {
+    List<Variable> xmVariables = new ArrayList<>();
+
+    for (Map.Entry<Variable, SetOfValues> entry : mapOfVariableToSetOfValues.entrySet()) {
+      if (entry.getValue() instanceof SetOfIntegerValues || entry.getValue() instanceof SetOfRealValues) {
+        xmVariables.add(entry.getKey());
+      }
+    }
+    if (xmVariables.isEmpty()) {
+      throw new IllegalArgumentException("At least one of the SetOfValues must be a numeric type: "
+          + mapOfVariableToSetOfValues);
+    }
+
+    return xmVariables;
   }
 }

@@ -1,18 +1,20 @@
 <template>
   <div>
     <transition name="fade" v-on:after-leave="showIcon = true">
-      <div v-if="showChart" class="top-level-container">
+      <div v-show="showChart" class="top-level-container">
         <div>
           <img @click.stop="showChart = !showChart" :src="graphQueryResult.imageData">
-          <query-chart-controls direction="horizontal"
-                                :graph-variable-sets="horizontalVariableSets">
+          <query-chart-controls
+              ref="queryChartControls_ref"
+              @controlChanged="onControlChanged"
+              :graph-query-variable-results="graphQueryVariableResults">
           </query-chart-controls>
         </div>
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
       <transition name="fade" v-on:after-leave="showChart = true">
-        <span v-if="showIcon">
+        <span v-show="showIcon">
           <i class="fas fa-chart-line chartIcon"></i>
         </span>
       </transition>
@@ -22,8 +24,15 @@
 
 <script>
   // @flow
+  import debounce from 'lodash/debounce';
   import QueryChartControls from './QueryChartControls';
-  import type { GraphVariableSet, GraphQueryResultDto } from './types';
+  import type {
+    GraphQueryResultDto,
+    GraphRequestDto,
+    GraphRequestResultDto,
+    GraphQueryVariableResults,
+  } from './types';
+  import { fetchGraph } from './dataSourceProxy';
 
   export default {
     name: 'QueryChartResult',
@@ -37,26 +46,57 @@
     },
     data() {
       return {
+        imageData: null,
+        graphQueryVariableResults: null,
         showChart: false,
         showIcon: false,
       };
     },
     methods: {
-      getVariableSets(isXm: boolean): GraphVariableSet[] {
+      initialize() {
         // eslint-disable-next-line prefer-destructuring
         const graphQueryResult: GraphQueryResultDto = this.graphQueryResult;
-        const xmVariable: string = graphQueryResult.xmVariables[0];
-        return graphQueryResult.graphVariableSets
-          .filter(s => (isXm ? s.name === xmVariable : s.name !== xmVariable));
+        const gqvr: GraphQueryVariableResults = {
+          xmVariables: [...graphQueryResult.xmVariables],
+          graphVariableSets: [...graphQueryResult.graphVariableSets],
+        };
+
+        this.imageData = graphQueryResult.imageData;
+        this.graphQueryVariableResults = gqvr;
+      },
+      async fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
+        try {
+          return await fetchGraph(request);
+        } catch (err) {
+          // errors already logged/displayed
+          return { imageData: '' };
+        }
+      },
+      queryForNewGraph() {
+      // eslint-disable-next-line no-console
+        console.log('query for new graph');
+      },
+      onControlChanged() {
+        console.log('onControlChanged');
+        if (!this.debounced$) {
+          this.debounced$ = debounce(this.queryForNewGraph, 2000, { trailing: true });
+        }
+        this.debounced$();
       },
     },
-    computed: {
-      horizontalVariableSets(): GraphVariableSet[] {
-        return [...this.getVariableSets(true), ...this.getVariableSets(false)];
+    watch: {
+      graphQueryResult() {
+        if (this.debounced$) {
+          this.debounced$.cancel();
+        }
+        this.initialize();
       },
     },
     mounted() {
       this.$nextTick(() => { this.showChart = true; });
+    },
+    created() {
+      this.initialize();
     },
   };
 </script>

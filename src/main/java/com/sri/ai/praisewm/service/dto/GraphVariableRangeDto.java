@@ -3,12 +3,32 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.Objects;
 
 public class GraphVariableRangeDto {
+  private String unitName;
+  private String unitSymbol;
   private double first;
   private double last;
   private double step;
 
   // no-arg constructor for JSON conversion
   public GraphVariableRangeDto() {}
+
+  public String getUnitName() {
+    return unitName;
+  }
+
+  public GraphVariableRangeDto setUnitName(String unitName) {
+    this.unitName = unitName;
+    return this;
+  }
+
+  public String getUnitSymbol() {
+    return unitSymbol;
+  }
+
+  public GraphVariableRangeDto setUnitSymbol(String unitSymbol) {
+    this.unitSymbol = unitSymbol;
+    return this;
+  }
 
   public double getFirst() {
     return first;
@@ -45,15 +65,17 @@ public class GraphVariableRangeDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    GraphVariableRangeDto that = (GraphVariableRangeDto) o;
-    return Double.compare(that.first, first) == 0 &&
-        Double.compare(that.last, last) == 0 &&
-        Double.compare(that.step, step) == 0;
+    GraphVariableRangeDto rangeDto = (GraphVariableRangeDto) o;
+    return Double.compare(rangeDto.first, first) == 0 &&
+        Double.compare(rangeDto.last, last) == 0 &&
+        Double.compare(rangeDto.step, step) == 0 &&
+        Objects.equals(unitName, rangeDto.unitName) &&
+        Objects.equals(unitSymbol, rangeDto.unitSymbol);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(first, last, step);
+    return Objects.hash(unitName, unitSymbol, first, last, step);
   }
 
   @Override
