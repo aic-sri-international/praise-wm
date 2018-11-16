@@ -1,6 +1,6 @@
 package com.sri.ai.praisewm.service.dto;
-import com.sri.ai.util.explanation.tree.ExplanationTree;
 
+import com.sri.ai.util.explanation.tree.ExplanationTree;
 import java.time.Instant;
 import java.util.List;
 
@@ -10,6 +10,7 @@ public class ExpressionResultDto {
   private Instant completionDate;
   private List<String> answers;
   private ExplanationTree explanationTree;
+  private GraphQueryResultDto graphQueryResultDto;
 
   // no-arg constructor for JSON conversion
   public ExpressionResultDto() {}
@@ -59,6 +60,15 @@ public class ExpressionResultDto {
     return this;
   }
 
+  public GraphQueryResultDto getGraphQueryResultDto() {
+    return graphQueryResultDto;
+  }
+
+  public ExpressionResultDto setGraphQueryResultDto(GraphQueryResultDto graphQueryResultDto) {
+    this.graphQueryResultDto = graphQueryResultDto;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "ExpressionResultDto{"
@@ -73,6 +83,8 @@ public class ExpressionResultDto {
         + answers
         + ", explanationTree="
         + explanationTree
+        + ", graphQueryResultDto="
+        + graphQueryResultDto
         + '}';
   }
 }

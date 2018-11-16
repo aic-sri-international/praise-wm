@@ -12,10 +12,10 @@ declare module 'vue-router' {
   declare module.exports: any;
 }
 
-declare module 'vue-toasted' {
+declare module 'vue2-filters' {
   declare module.exports: any;
 }
-declare module 'vue2-filters' {
+declare module 'vue-slider-component' {
   declare module.exports: any;
 }
 declare module 'vue-snotify' {
@@ -25,6 +25,9 @@ declare module 'vue-snotify/styles/material.css' {
   declare module.exports: any;
 }
 declare module 'vue-tippy' {
+  declare module.exports: any;
+}
+declare module 'vue-toasted' {
   declare module.exports: any;
 }
 
@@ -60,6 +63,9 @@ declare module 'element-ui' {
 }
 
 declare module 'lodash/cloneDeep' {
+  declare module.exports: any;
+}
+declare module 'lodash/debounce' {
   declare module.exports: any;
 }
 declare module 'lodash/uniqBy' {

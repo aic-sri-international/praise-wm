@@ -1,5 +1,6 @@
 package com.sri.ai.praisewm.service;
 
+import com.sri.ai.praisewm.service.praise_service.PraiseServiceImpl;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

@@ -89,7 +89,7 @@
                        :results="queryResults">
         </query-results>
       </div>
-      <div id="runningQueries" v-if="this.runningQueries" class="querySpinner"
+      <div id="runningQueries" v-if="runningQueries" class="querySpinner"
            @click.stop="interruptQueries">
         <span class="fa-layers fa-fw">
            <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-80" style="color: green"></i>
@@ -100,7 +100,8 @@
       </div>
     </div>
     <div id="segModelEditorViewRightCol" class="right-column">
-      <Map></Map>
+      <map-image v-if="!graphQueryResult"></map-image>
+      <query-chart-result v-else :graph-query-result="graphQueryResult"></query-chart-result>
       <explanations id="explanations" :explanation-tree="explanationTree"></explanations>
     </div>
     <input-text-file ref="input_ref" @change="inputFileChanged" accept=".json"></input-text-file>
@@ -123,7 +124,8 @@
   import Explanations from './explanations/Explanations';
   import SegmentedModelEditor from './SegmentedModelEditor';
   import QueryResults from './QueryResults';
-  import Map from './Map';
+  import QueryChartResult from './QueryChartResult';
+  import MapImage from './MapImage';
   import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
   import type {
     SegmentedModelDto,
@@ -152,7 +154,8 @@
       InputTextFile,
       SegmentedModelEditor,
       QueryResults,
-      Map,
+      QueryChartResult,
+      MapImage,
       Explanations,
       EditableDatalist,
     },
@@ -175,6 +178,12 @@
       explanationTree() {
         if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
           return this.queryResults[this.selectedQueryResult].explanationTree;
+        }
+        return null;
+      },
+      graphQueryResult() {
+        if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
+          return this.queryResults[this.selectedQueryResult].graphQueryResultDto;
         }
         return null;
       },
@@ -288,7 +297,7 @@
         this.splitter$.destroy();
       }
       this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
-        sizes: [80, 20],
+        sizes: [65, 35],
       });
     },
     beforeDestroy() {

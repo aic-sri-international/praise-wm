@@ -1,5 +1,4 @@
 // @flow
-// import isMock from '@/dataConfig';
 import { http, toApiUrl } from '@/services/http';
 import type {
   ModelPagesDto,
@@ -7,21 +6,12 @@ import type {
   FormattedPageModelDto,
   SegmentedModelDto,
   ExpressionResultDto,
+  GraphRequestDto,
+  GraphRequestResultDto,
 } from './types';
 
 async function fetchExamples(): Promise<ModelPagesDto[]> {
   let result: ModelPagesDto[] = [];
-
-  // if (isMock.editor) {
-  //   try {
-  //     result = getExamples();
-  //     return Promise.resolve(result);
-  //   } catch (err) {
-  //     // eslint-disable-next-line no-console
-  //     console.error(err);
-  //     return Promise.reject();
-  //   }
-  // }
 
   // $FlowFixMe
   result = await http.get(toApiUrl('examples'));
@@ -38,6 +28,11 @@ async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
 
 async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
   const result = await http.post(toApiUrl('solve'), model);
+  return Promise.resolve(result);
+}
+
+async function fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
+  const result = await http.post(toApiUrl('buildGraph'), request);
   return Promise.resolve(result);
 }
 
@@ -61,6 +56,7 @@ export {
   fetchExamples,
   fetchSegmentedModels,
   solve,
+  fetchGraph,
   interruptSolver,
   toFormattedPageModel,
   fromFormattedPageModel,

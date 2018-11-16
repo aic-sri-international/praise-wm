@@ -42,6 +42,7 @@ import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCirc
 import faSync from '@fortawesome/fontawesome-free-solid/faSync';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 import faMap from '@fortawesome/fontawesome-free-solid/faMap';
+import faChartLine from '@fortawesome/fontawesome-free-solid/faChartLine';
 
 
 // The following are used in ActionButton
@@ -84,3 +85,4 @@ fontawesome.library.add(faQuestion);
 fontawesome.library.add(faSync);
 fontawesome.library.add(faSpinner);
 fontawesome.library.add(faMap);
+fontawesome.library.add(faChartLine);
