@@ -3,7 +3,7 @@
     <transition name="fade" v-on:after-leave="showIcon = true">
       <div v-show="showChart" class="top-level-container">
         <div>
-          <img @click.stop="showChart = !showChart" :src="graphQueryResult.imageData">
+          <img @click.stop="showChart = !showChart" :src="imageData">
           <query-chart-controls
               ref="queryChartControls_ref"
               @controlChanged="onControlChanged"
@@ -72,12 +72,12 @@
           return { imageData: '' };
         }
       },
-      queryForNewGraph() {
-      // eslint-disable-next-line no-console
-        console.log('query for new graph');
+      async queryForNewGraph() {
+        const request: GraphRequestDto = this.$refs.queryChartControls_ref.buildGraphRequest();
+        const graph: GraphRequestResultDto = await fetchGraph(request);
+        this.imageData = graph.imageData;
       },
       onControlChanged() {
-        console.log('onControlChanged');
         if (!this.debounced$) {
           this.debounced$ = debounce(this.queryForNewGraph, 2000, { trailing: true });
         }

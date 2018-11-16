@@ -76,6 +76,7 @@ export type GraphQueryVariableResults = {
   xmVariables: string[],
   graphVariableSets: GraphVariableSet[],
 }
+
 export type GraphQueryResultDto = GraphQueryVariableResults & {
   imageData: string,
 }

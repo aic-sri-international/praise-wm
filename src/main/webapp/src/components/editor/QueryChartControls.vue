@@ -13,7 +13,7 @@
       <div v-else :style="control.style" >
         <b-input-group size="sm" class="ml-1" :prepend="control.gvs.name">
           <b-form-select
-              @input="()=>onDropdownSelectionChanged(index)"
+              @input="()=>onDropdownSelectionChanged()"
               v-model="control.ddSelection"
               :options="control.gvs.enums">
           </b-form-select>
@@ -25,14 +25,19 @@
 
 <script>
   // @flow
+  import cloneDeep from 'lodash/cloneDeep';
   import GraphVariableSetSlider from './GraphVariableSetSlider';
-  import type { GraphVariableSet, GraphQueryVariableResults } from './types';
+  import type {
+    GraphVariableSet,
+    GraphQueryVariableResults,
+    GraphRequestDto,
+} from './types';
 
   type Control = {
     gvs: GraphVariableSet,
     sliderChanged: any,
     isSlider: boolean,
-    ddSelection: string,
+    ddSelection: ?string,
     style: string,
   };
 
@@ -54,9 +59,33 @@
       };
     },
     methods: {
-      buildGraphRequest() {
-        // Build the query using the variables in the same order as initial query
-        // const sets: GraphVariableSet[] = this.graphVariableSets;
+      getCurrentXm() {
+        // The first entry in the xm array is the initial xm for the graph
+        // We currently do not support changing it
+        const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
+        return gqvr.xmVariables[0];
+      },
+      buildGraphRequest() : GraphRequestDto {
+        const request: GraphRequestDto = {
+          xmVariable: this.getCurrentXm(),
+          graphVariableSets: [],
+        };
+
+        this.controls.forEach((c) => {
+          const gvs: GraphVariableSet = cloneDeep(c.gvs);
+          if (gvs.range && c.sliderChanged) {
+            // eslint-disable-next-line prefer-destructuring
+            gvs.range.first = c.sliderChanged[0];
+            // eslint-disable-next-line prefer-destructuring
+            gvs.range.last = c.sliderChanged[1];
+          } else if (gvs.enums && c.sliderChanged) {
+            gvs.enums = [c.sliderChanged];
+          } else if (gvs.enums && !c.isSlider && c.ddSelection) {
+            gvs.enums = [c.ddSelection];
+          }
+          request.graphVariableSets.push(gvs);
+        });
+        return request;
       },
       getVariableSets(isXm: boolean, xmName: string): GraphVariableSet[] {
         const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
@@ -64,9 +93,7 @@
           .filter(s => (isXm ? s.name === xmName : s.name !== xmName));
       },
       initialize() {
-        const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
-        // The first entry in the xm array is the initial xm for the graph
-        const xmVariable: string = gqvr.xmVariables[0];
+        const xmVariable: string = this.getCurrentXm();
         // Show the current xm at the top
         const sets: GraphVariableSet[] = [
           ...this.getVariableSets(true, xmVariable),
@@ -120,7 +147,7 @@
             gvs,
             isSlider: currentIsSlider,
             sliderChanged: null,
-            ddSelection: getFirstEnum(),
+            ddSelection: currentIsSlider ? null : getFirstEnum(),
             style: getStyle(),
           };
         };
@@ -130,12 +157,9 @@
       onSliderChanged(controlIx: number, value: any) {
         const control : Control = this.controls[controlIx];
         control.sliderChanged = value;
-        console.info(`onSliderChanged: ${JSON.stringify(control, null, 4)}`);
         this.$emit('controlChanged');
       },
-      onDropdownSelectionChanged(controlIx: number) {
-        const control : Control = this.controls[controlIx];
-        console.log(`onDropdownSelectionChanged: ${JSON.stringify(control, null, 4)}`);
+      onDropdownSelectionChanged() {
         this.$emit('controlChanged');
       },
     },
