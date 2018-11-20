@@ -121,11 +121,11 @@ Run the following to display a list of all gradle tasks:
 
  Update the appropriate property in [gradle.properties][] and run its associated task:
 
- | Product  | Property                        | Command line        |
- |:---------|:-------------------------------|:---------------------|
- | gradle   | gradle_version                  | ./gradlew wrapper   |
- | node     | gradle_node_plugin_node_version | ./gradlew nodeSetup |
- | yarn     | gradle_node_plugin_yarn_version | ./gradlew yarnSetup |
+| Product | Property  | Command line |
+| -------- | ---------- | --------- |
+| gradle   | gradle_version | ./gradlew wrapper |
+| node     | gradle_node_plugin_node_version | ./gradlew nodeSetup |
+| yarn     | gradle_node_plugin_yarn_version | ./gradlew yarnSetup |
 
 [Gradle]: https://gradle.org/
 [Airbnb Javascript Style Guide]: https://github.com/airbnb/javascript
