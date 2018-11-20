@@ -27,8 +27,6 @@ buildClient:
   tags:
     - shared
   image: node:8.11.2
-  tags:
-   - shared
   script:
     - cd src/main/webapp
     - yarn
