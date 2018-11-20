@@ -167,12 +167,15 @@ public class GraphManager {
       LOG.warn("Multiple GraphPlots generated, only the first will be used");
     } else if (graphPlots.isEmpty()) {
       LOG.error("GraphPlot did not get generated");
-    } else {
+    }
+
+    if (!graphPlots.isEmpty()) {
       GraphPlot graphPlot = graphPlots.get(0);
       result.setImageData(FilesUtil.imageFileToBase64DataImage(graphPlot.getImageFile().toPath()));
       entry.getGraphQueryResultDto().setImageData(result.getImageData());
       entry.setLastRequest(graphRequestDto);
     }
+
     return result;
   }
 
