@@ -51,6 +51,7 @@ buildServer:
     - name: mysql:5.7.18
       alias: praisewm
   script:
+    - echo -e "\norg.gradle.daemon=false" >> ./gradle.properties
     - ./gradlew
     - ./gradlew compileJava
     - ./gradlew copyClientResourcesNoBuild
