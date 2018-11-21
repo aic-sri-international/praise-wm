@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:8-jre-slim
 
 ENV PRAISEWM_SLEEP=0 \
     JAVA_OPTS="-Xms500m -Xmx1g"
