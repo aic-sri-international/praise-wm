@@ -11,7 +11,7 @@ FROM openjdk:8-jre-slim
 RUN sed -i 's/^assistive_technologies=/#&/' /etc/java-*-openjdk/accessibility.properties
 
 ENV PRAISEWM_SLEEP=0 \
-    JAVA_OPTS="-Xms500m -Xmx1g"
+    JAVA_OPTS="-Xms500m -Xmx1g -Djava.awt.headless=true"
 
 WORKDIR /opt/praisewm
 
