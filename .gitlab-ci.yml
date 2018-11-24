@@ -11,6 +11,7 @@ variables:
   FLOW_BIN: 'node_modules/flow-bin/flow-linux64-v0.70.0/flow'
   REGISTRY_URI: 'worldmodelers.cse.sri.com/praise-wm'
   BUILD_TAG: '$CI_COMMIT_REF_NAME'
+  JAVA_OPTIONS: "-Djava.awt.headless=true"
 
 cache:
   paths:

@@ -79,7 +79,7 @@
       },
       onControlChanged() {
         if (!this.debounced$) {
-          this.debounced$ = debounce(this.queryForNewGraph, 2000, { trailing: true });
+          this.debounced$ = debounce(this.queryForNewGraph, 250, { trailing: true });
         }
         this.debounced$();
       },
