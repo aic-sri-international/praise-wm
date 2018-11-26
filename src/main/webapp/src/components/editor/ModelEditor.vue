@@ -211,7 +211,14 @@
         };
 
         try {
+          const removeImageData = (results) => {
+            if (Array.isArray(results) && results.length > 0 && results[0].graphQueryResultDto) {
+            // eslint-disable-next-line no-param-reassign
+              delete results[0].graphQueryResultDto.imageData;
+            }
+          };
           const result = await solve(query);
+          removeImageData(result);
           curPage.queryResults = [result].concat(curPage.queryResults);
         } catch (err) {
           // errors already logged/displayed
