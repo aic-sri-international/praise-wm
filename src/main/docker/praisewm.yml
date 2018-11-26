@@ -1,20 +1,19 @@
-version: '2.1'
+version: '2.4'
 
 services:
     praisewm-app:
         image: ${PRAISEWM_IMAGE_NAME:-worldmodelers.cse.sri.com/praise-wm:latest}
+        container_name: praisewm
 
-# Uncomment the following volumes section to have the praisewm log and models
-# directories accessible outside the Docker container.
+# The following is an example of setting PRAISEWM_DATA_DIRECTORY to a Windows specific
+# path.
 #
-# If running on Windows 10, and you want to use a Windows-specific source path for your volume
-# mount, you will also need to set the environmental variable COMPOSE_CONVERT_WINDOWS_PATHS to
-# 1. The following example will permanently set the environmental variables, after which, you
-# would need to exit the Windows console window and run the docker-compose command from a
-# new console window:
+# The 'setx' command will permanently set the variable in your Windows environment.
+# You must exit the console window from which you run the commands and run the
+# docker-compose command from a new console window so that the variables are
+# accessible from the environment:
 #    setx COMPOSE_CONVERT_WINDOWS_PATHS 1
 #    setx PRAISEWM_DATA_DIRECTORY c:/data/praisewm
-#
 # You can use any complete Windows path that you'd like for PRAISEWM_DATA_DIRECTORY
 # as long as you have appropriate Windows access permissions, however, you may 
 # encounter problems if the path contains spaces. The praisewm server will
@@ -22,8 +21,8 @@ services:
 #
 # For more information see https://docs.docker.com/compose/reference/envvars/
 
-#        volumes:
-#           - ${PRAISEWM_DATA_DIRECTORY:-~/praisewm/data}:/opt/praisewm/data
+        volumes:
+           - ${PRAISEWM_DATA_DIRECTORY:-~/praisewm/data}:/opt/praisewm/data
         environment:
             - PRAISEWM_DATABASE_HOST=praisewm-mysql
         ports:

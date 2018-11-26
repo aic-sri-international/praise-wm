@@ -1,4 +1,6 @@
-version: '2.1'
+version: '2.4'
+# NOTE: The extends keyword may not yet be supported in version 3
+# See: https://github.com/moby/moby/issues/31101
 
 services:
     praisewm-app:

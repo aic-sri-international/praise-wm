@@ -1,8 +1,9 @@
-version: '2.1'
+version: '2.4'
 
 services:
     praisewm-mysql:
         image: mysql:5.7.18
+        container_name: mysql-praisewm
         # volumes:
         #     - ~/volumes/praisewm/mysql/:/var/lib/mysql/
         environment:
