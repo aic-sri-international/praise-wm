@@ -5,8 +5,6 @@
 1. [Install Docker][]
 1. [Install Docker Compose][]
 
-`Windows:` *For all Docker commands in the following sections: Do not use cygwin, powershell or the command prompt. Use the Docker Quickstart Terminal.*
-
 ## Running the MySQL Container
 
 Start the MySQL container:
