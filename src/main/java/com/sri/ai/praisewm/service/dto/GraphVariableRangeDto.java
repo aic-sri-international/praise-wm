@@ -3,7 +3,9 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.Objects;
 
 public class GraphVariableRangeDto {
+  // Could be null
   private String unitName;
+  // Could be null
   private String unitSymbol;
   private double first;
   private double last;

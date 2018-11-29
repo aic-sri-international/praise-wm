@@ -46,8 +46,8 @@ export type ExplanationTree = {
 }
 
 export type GraphVariableRangeDto = {
-  unitName: string,
-  unitSymbol: string,
+  unitName?: string,
+  unitSymbol?: string,
   first: number,
   last: number,
   step: number,

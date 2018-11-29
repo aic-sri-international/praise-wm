@@ -8,7 +8,6 @@ import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableRangeDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableSet;
 import com.sri.ai.praisewm.util.FilesUtil;
-import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.util.graph2d.api.graph.GraphPlot;
 import com.sri.ai.util.graph2d.api.graph.GraphSet;
 import com.sri.ai.util.graph2d.api.graph.GraphSetMaker;
@@ -28,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,16 +85,16 @@ public class GraphManager {
 
   private static void setUnitValues(Variable variable, GraphVariableRangeDto graphVariableRangeDto) {
     Unit unit = variable.getUnit();
-    if (unit != null) {
+    if (unit != null && unit.getName() != null && !unit.getName().equals(Unit.NONE.getName())) {
       graphVariableRangeDto.setUnitName(unit.getName());
-      graphVariableRangeDto.setUnitSymbol(unit.getSymbol());
+      graphVariableRangeDto.setUnitSymbol(StringUtils.trimToNull(unit.getSymbol()));
     }
   }
 
   private static SetOfValues buildSetOfValuesForVariable(
       Variable variable,
       GraphVariableSet graphVariableSet) {
-      SetOfValues setOfValues = null;
+      SetOfValues setOfValues;
 
       graphVariableSet.setName(variable.getName());
 
