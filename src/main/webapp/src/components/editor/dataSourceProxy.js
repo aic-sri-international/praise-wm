@@ -10,6 +10,11 @@ import type {
   GraphRequestResultDto,
 } from './types';
 
+export const alternateServer = {
+  enable: false,
+  url: 'http://localhost:7654',
+};
+
 async function fetchExamples(): Promise<ModelPagesDto[]> {
   let result: ModelPagesDto[] = [];
 
@@ -27,7 +32,15 @@ async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
 }
 
 async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
-  const result = await http.post(toApiUrl('solve'), model);
+  const path = 'solve';
+  let url;
+
+  if (alternateServer.enable) {
+    url = `${alternateServer.url}/api/${path}`;
+  } else {
+    url = toApiUrl(path);
+  }
+  const result = await http.post(url, model);
   return Promise.resolve(result);
 }
 
