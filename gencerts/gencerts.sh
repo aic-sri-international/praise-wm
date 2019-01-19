@@ -11,6 +11,21 @@
 #  ALTNAME=DNS:myhost.org ./gencerts.sh
 #  ALTNAME=IP:10.1.4.218 ./gencerts.sh
 
+
+# Make sure this script does not get run by accident, require the user to manually delete the artifacts
+
+for file in keystore.jks rootCA.crt
+do
+  if [ -f "$file" ]; then
+    echo "$file already exists - it must be deleted prior to running this script"
+    exit 1
+  fi
+done
+
+# The rootCA and client certs will expire after this time period.
+#
+CERT_LIFE_IN_DAYS=3650
+
 # Environmental Variables and their default values if not set prior to running this script:
 : "${ALTNAME:=DNS:praisewm.org}"
 : "${BASENAME:=praisewm}"
@@ -28,7 +43,7 @@ SUBJECT="/C=${S_C}/ST=${S_ST}/L=${S_L}/O=${S_O}/OU=${S_OU}/CN=${S_CN}"
 openssl genrsa -out rootCA.key 4096
 
 # Create a self-signed root CA certificate
-openssl req -x509 -new -nodes  -days 3650 -out rootCA.crt -key rootCA.key -subj "${SUBJECT}"
+openssl req -x509 -new -nodes -days ${CERT_LIFE_IN_DAYS}  -out rootCA.crt -key rootCA.key -subj "${SUBJECT}"
 
 # Create server certificate key
 openssl genrsa -out ${BASENAME}.key 4096
@@ -38,7 +53,7 @@ openssl req -new -subj "${SUBJECT}" -key ${BASENAME}.key -out ${BASENAME}.csr
 
 # Sign the certificate with the root CA
 
-openssl x509 -req -in ${BASENAME}.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -days 365 -out ${BASENAME}.crt  -extensions extensions -extfile <(cat <<-EOF
+openssl x509 -req -in ${BASENAME}.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -days ${CERT_LIFE_IN_DAYS} -out ${BASENAME}.crt  -extensions extensions -extfile <(cat <<-EOF
 [ extensions ]
 basicConstraints=CA:FALSE
 subjectKeyIdentifier=hash
@@ -58,3 +73,6 @@ keytool -importkeystore -srcstoretype PKCS12 -srckeystore keystore.p12 -srcstore
 
 #for iOS client you have to convert  ${BASENAME}.crt in  DER format and install ${BASENAME}.cer in Signal-iOS
 #openssl x509 -in ${BASENAME}.crt -out ${BASENAME}.cer -outform DER
+
+# Removing all files we created that we do not need
+rm -f ${BASENAME}.crt ${BASENAME}.csr ${BASENAME}.key keystore.p12 rootCA.key rootCA.srl

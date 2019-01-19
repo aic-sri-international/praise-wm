@@ -1,7 +1,8 @@
 package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.expresso.ExpressoConfiguration;
-import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMMultiQueryProblemSolver;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.sampling.HOGMMultiQuerySamplingProblemSolver;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
 import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
 import com.sri.ai.praisewm.service.PraiseService;
@@ -27,7 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
   private SegmentedModelLoader segmentedModelLoader;
   private PageModelLoader pageModelLoader;
   private ProceduralAttachments proceduralAttachments;
-  private Map<Integer, HOGMMultiQueryProblemSolver> activeSolverMap =
+  private Map<Integer, HOGMMultiQuerySamplingProblemSolver> activeSolverMap =
       Collections.synchronizedMap(new HashMap<>());
   private AtomicInteger nextSolver = new AtomicInteger();
   private GraphManager graphManager;
@@ -59,11 +60,11 @@ public class PraiseServiceImpl implements PraiseService, Service {
   }
 
   private void interruptSolvers() {
-    for (HOGMMultiQueryProblemSolver solver : activeSolverMap.values()) {
+    for (HOGMMultiQuerySamplingProblemSolver solver : activeSolverMap.values()) {
       try {
         solver.interrupt();
       } catch (Throwable e) {
-        LOG.warn("Error trying to stop HOGMMultiQueryProblemSolver", e);
+        LOG.warn("Error trying to stop HOGMMultiQuerySamplingProblemSolver", e);
       }
     }
   }
@@ -88,55 +89,58 @@ public class PraiseServiceImpl implements PraiseService, Service {
   }
 
   public List<ExpressionResultDto> solveProblem(String sessionId, ModelQueryDto modelQuery) {
-    ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
-    ExpressoConfiguration
-        .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
+        ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
+        ExpressoConfiguration
+            .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
 
-    HOGMMultiQueryProblemSolver queryRunner =
-        new HOGMMultiQueryProblemSolver(modelQuery.getModel(), modelQuery.getQuery());
+    HOGMMultiQuerySamplingProblemSolver queryRunner =
+        new HOGMMultiQuerySamplingProblemSolver(
+            modelQuery.getModel(),
+            Collections.singletonList(modelQuery.getQuery()),
+            v -> modelQuery.getNumberOfDiscreteValues(),
+            modelQuery.getNumberOfInitialSamples(),
+            new Random());
+
     queryRunner.setProceduralAttachments(proceduralAttachments);
 
-    List<HOGMProblemResult> hogmProblemResults;
+    List<? extends HOGMProblemResult> hogmProblemResults;
 
     int solverId = nextSolver.incrementAndGet();
     activeSolverMap.put(solverId, queryRunner);
 
     try {
       hogmProblemResults = queryRunner.getResults();
+      if (hogmProblemResults.isEmpty()) {
+        throw new RuntimeException("Solver did not return any results");
+      }
     } catch (Exception e) {
       throw new ProcessingException("Cannot solve query", e.getMessage(), e);
     } finally {
       activeSolverMap.remove(solverId);
     }
 
-    List<ExpressionResultDto> results = new ArrayList<>();
-    // Only return graph results with the first result entry
-    AtomicBoolean isFirstResult = new AtomicBoolean(true);
+    try {
+      List<ExpressionResultDto> results = new ArrayList<>();
+      List<String> answers = new ArrayList<>();
+      HOGMProblemResult hpResult = hogmProblemResults.get(0);
+      Expression result = hpResult.getResult();
+      if (result != null) {
+        answers.add(queryRunner.simplifyAnswer(result, hpResult.getQueryExpression()).toString());
+      }
+      hpResult.getErrors().forEach(error -> answers.add("Error: " + error.getErrorMessage()));
 
-    hogmProblemResults.forEach(
-        result -> {
-          List<String> answers = new ArrayList<>();
-          if (result.getResult() != null) {
-            answers.add(
-                queryRunner
-                    .simplifyAnswer(result.getResult(), result.getQueryExpression())
-                    .toString());
-          }
-          result.getErrors().forEach(error -> answers.add("Error: " + error.getErrorMessage()));
-          results.add(
-              new ExpressionResultDto()
-                  .setQuery(result.getQueryString())
-                  .setAnswers(answers)
-                  .setExplanationTree(result.getExplanation())
-                  .setQueryDuration(result.getMillisecondsToCompute())
-                  .setCompletionDate(Instant.now())
-                  .setGraphQueryResultDto(
-                      isFirstResult.getAndSet(false)
-                          ? graphManager.setGraphQueryResult(sessionId, result)
-                          : null));
-        });
-
-    return results;
+      results.add(
+          new ExpressionResultDto()
+              .setQuery(hpResult.getQueryString())
+              .setAnswers(answers)
+              .setExplanationTree(hpResult.getExplanation())
+              .setQueryDuration(hpResult.getMillisecondsToCompute())
+              .setCompletionDate(Instant.now())
+              .setGraphQueryResultDto(graphManager.setGraphQueryResult(sessionId, result)));
+      return results;
+    } catch (Exception e) {
+      throw new ProcessingException("Cannot solve query", e.getMessage(), e);
+    }
   }
 
   @Override

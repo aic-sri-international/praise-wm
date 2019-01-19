@@ -1,5 +1,11 @@
 // @flow
 
+// eslint-disable-next-line
+export const modelQueryDtoDefaults = {
+  numberOfInitialSamples: 1000,
+  numberOfDiscreteValues: 25,
+};
+
 export type ModelPageDto = {
   model: string,
   queries: string[],
@@ -13,6 +19,8 @@ export type ModelPagesDto = {
 export type ModelQueryDto = {
   query: string,
   model: string,
+  numberOfInitialSamples: number,
+  numberOfDiscreteValues: number,
 };
 
 export type FormattedPageModelDto = {

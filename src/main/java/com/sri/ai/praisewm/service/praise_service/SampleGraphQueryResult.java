@@ -1,21 +1,21 @@
 package com.sri.ai.praisewm.service.praise_service;
 
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.graph2d.api.functions.Function.function;
-import static com.sri.ai.util.graph2d.api.functions.Functions.functions;
-import static com.sri.ai.util.graph2d.api.variables.SetOfVariables.setOfVariables;
-import static com.sri.ai.util.graph2d.api.variables.Value.value;
-import static com.sri.ai.util.graph2d.api.variables.Variable.enumVariable;
-import static com.sri.ai.util.graph2d.api.variables.Variable.integerVariable;
-import static com.sri.ai.util.graph2d.api.variables.Variable.realVariable;
-import static com.sri.ai.util.graph2d.core.values.SetOfEnumValues.setOfEnumValues;
-import static com.sri.ai.util.graph2d.core.values.SetOfIntegerValues.setOfIntegerValues;
+import static com.sri.ai.util.function.api.functions.Function.function;
+import static com.sri.ai.util.function.api.functions.Functions.functions;
+import static com.sri.ai.util.function.api.values.Value.value;
+import static com.sri.ai.util.function.api.variables.SetOfVariables.setOfVariables;
+import static com.sri.ai.util.function.api.variables.Variable.enumVariable;
+import static com.sri.ai.util.function.api.variables.Variable.integerVariable;
+import static com.sri.ai.util.function.api.variables.Variable.realVariable;
+import static com.sri.ai.util.function.core.values.SetOfEnumValues.setOfEnumValues;
+import static com.sri.ai.util.function.core.values.SetOfIntegerValues.setOfIntegerValues;
 
-import com.sri.ai.util.graph2d.api.functions.Function;
-import com.sri.ai.util.graph2d.api.functions.Functions;
-import com.sri.ai.util.graph2d.api.variables.SetOfValues;
-import com.sri.ai.util.graph2d.api.variables.Unit;
-import com.sri.ai.util.graph2d.api.variables.Variable;
+import com.sri.ai.util.function.api.functions.Function;
+import com.sri.ai.util.function.api.functions.Functions;
+import com.sri.ai.util.function.api.variables.SetOfValues;
+import com.sri.ai.util.function.api.variables.Unit;
+import com.sri.ai.util.function.api.variables.Variable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

@@ -1,8 +1,7 @@
 <template>
   <div>
-    <vue-slider @callback="(v)=>$emit('sliderChanged', v)"
+    <vue-slider ref="vueSlider_ref" @callback="(v)=>$emit('sliderChanged', v)"
                 v-bind="slider"
-                v-if="showSlider"
                 v-model="slider.value">
     </vue-slider>
   </div>
@@ -30,7 +29,6 @@
     },
     data() {
       return {
-        showSlider: false,
         slider: {
           value: null,
           width: 'auto',
@@ -40,6 +38,7 @@
           max: 0,
           interval: 1,
           disabled: false,
+          lazy: true,
           eventType: 'auto',
           show: true,
           tooltip: 'always',
@@ -124,16 +123,9 @@
         this.setOptions();
       },
     },
-    mounted() {
-      // We seem to need this to get the slider to set its bounds correctly
-      // however, it can still be an issue if the entire slider is not
-      // able to be visible in its contained parent.
-      setTimeout(() => {
-        this.$nextTick(() => {
-          this.showSlider = true;
-          this.$nextTick(() => window.dispatchEvent(new Event('resize')));
-        }, 100);
-      });
+    updated() {
+      // This is needed to assure that the slider tooltip/buttons are correctly position on the slider
+      this.$refs.vueSlider_ref.refresh();
     },
     created() {
       this.setOptions();

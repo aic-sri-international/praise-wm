@@ -4,11 +4,11 @@
       <div v-show="showChart" class="top-level-container">
         <div>
           <img @click.stop="showChart = !showChart" :src="imageData">
-          <query-chart-controls
-              ref="queryChartControls_ref"
+          <query-graph-controls
+              ref="queryGraphControls_ref"
               @controlChanged="onControlChanged"
               :graph-query-variable-results="graphQueryVariableResults">
-          </query-chart-controls>
+          </query-graph-controls>
         </div>
       </div>
     </transition>
@@ -25,7 +25,7 @@
 <script>
   // @flow
   import debounce from 'lodash/debounce';
-  import QueryChartControls from './QueryChartControls';
+  import QueryGraphControls from './QueryGraphControls';
   import type {
     GraphQueryResultDto,
     GraphRequestDto,
@@ -37,7 +37,7 @@
   export default {
     name: 'QueryChartResult',
     components: {
-      QueryChartControls,
+      QueryGraphControls,
     },
     props: {
       graphQueryResult: {
@@ -73,7 +73,7 @@
         }
       },
       async queryForNewGraph() {
-        const request: GraphRequestDto = this.$refs.queryChartControls_ref.buildGraphRequest();
+        const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
         const graph: GraphRequestResultDto = await fetchGraph(request);
         this.imageData = graph.imageData;
       },
@@ -91,9 +91,18 @@
         }
         this.initialize();
       },
+      showChart(newValue: boolean) {
+        if (newValue) {
+          this.$nextTick(() => {
+            // This is needed to have any query control sliders correctly position
+            // themselves if a query result is returned while the controls are not visible
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
+      },
     },
     mounted() {
-      this.$nextTick(() => { this.showChart = true; });
+      this.showChart = true;
     },
     created() {
       this.initialize();
