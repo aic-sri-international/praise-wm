@@ -1,32 +1,32 @@
 <template>
   <div class="top-level-container">
-    <div id="segModelEditorViewLeftCol" class="left-column">
+    <div class="left-column" id="segModelEditorViewLeftCol">
       <div>
-        <b-form-textarea id="segmentedModelDescription"
-                         class="mb-2" v-model="segmentedModel.description"
+        <b-form-textarea class="mb-2"
+                         id="segmentedModelDescription" max-rows="20"
                          placeholder="Enter a description for the model"
                          rows="1"
                          size="sm"
-                         max-rows="20"
+                         v-model="segmentedModel.description"
                          wrap="off">
         </b-form-textarea>
-        <b-popover target="segmentedModelDescription" triggers="" :show="showHelp">
+        <b-popover :show="showHelp" target="segmentedModelDescription" triggers="">
           <span class="help">Describes the model.</span>
         </b-popover>
       </div>
-      <div id="segmentedEditor" class="segmentedEditor">
+      <div class="segmentedEditor" id="segmentedEditor">
         <div class="dcl-editor">
-          <editor id="dclEditor" ref="dcl_editor_ref" :editTextWatch="dclEditTextWatch"
-                  type="hogm" :value="segmentedModel.declarations">
+          <editor :editTextWatch="dclEditTextWatch" :value="segmentedModel.declarations" id="dclEditor"
+                  ref="dcl_editor_ref" type="hogm">
           </editor>
         </div>
-        <b-popover target="dclEditor" triggers="" :show="showHelp">
+        <b-popover :show="showHelp" target="dclEditor" triggers="">
           <span class="help">Global model declarations section.</span>
         </b-popover>
-        <segmented-model-editor id="segmented-model-editor" ref="seg_model_editor_ref"
-                                :rules="segmentedModel.rules">
+        <segmented-model-editor :rules="segmentedModel.rules" id="segmented-model-editor"
+                                ref="seg_model_editor_ref">
         </segmented-model-editor>
-        <b-popover target="segmentedEditor" triggers="" :show="showHelp">
+        <b-popover :show="showHelp" target="segmentedEditor" triggers="">
           <span class="help">
             Right-click within a rule section to display a context menu. The context menu
             allows you to toggle the display of metadata for the rule, insert a new rule,
@@ -37,60 +37,71 @@
       <div class="modelControlsContainer">
         <div class="modelControlsPanel">
           <div style="display: flex; flex-direction: row">
-            <b-input-group size="sm" class="ml-1" prepend="Model">
+            <b-input-group class="ml-1" prepend="Model" size="sm">
               <b-form-select
+                  :options="modelOptions"
                   @input="modelSelectionChanged"
-                  v-model="modelOptionSelected"
-                  :options="modelOptions">
+                  v-model="modelOptionSelected">
               </b-form-select>
             </b-input-group>
             <span class="ml-1"></span>
             <action-button
-                type="open"
+                @clicked="()=>$refs.input_ref.click()"
                 title="Open Model"
-                @clicked="()=>$refs.input_ref.click()">
+                type="open">
             </action-button>
             <action-button
-                type="download"
+                @clicked="download"
                 title="Download Model"
-                @clicked="download">
+                type="download">
             </action-button>
             <action-button
-                type="sync"
+                @clicked="loadModelsFromServer"
                 title="Reload models from server"
-                @clicked="loadModelsFromServer">
+                type="sync">
             </action-button>
           </div>
           <div style="display: flex; flex-direction: row">
             <editable-datalist
-                ref="queryOption_ref"
+                :options="queryOptions"
                 class="ml-1"
                 label="Query"
                 placeholder="Please enter a query ..."
-                :options="queryOptions">
+                ref="queryOption_ref">
             </editable-datalist>
             <span class="ml-1"></span>
             <action-button
-                type="play"
+                @clicked="runQuery"
                 title="Run the query"
-                @clicked="runQuery">
+                type="play">
             </action-button>
             <action-button
-                type="broom"
+                @clicked="()=> queryResults = []"
                 title="Remove query results"
-                @clicked="()=> queryResults = []">
+                type="broom">
             </action-button>
           </div>
+          <div class="query-solver-options">
+            <span class="query-solver-options-text">Initial samples</span>
+            <vue-numeric-input id="vue_numeric_input_1" controls-type="updown"
+                v-model="numberOfInitialSamples" @blur="assureValidNumber"
+                                size="120px" :min="1" :max="1000000" :step="1"></vue-numeric-input>
+            <span class="query-solver-option-divider"></span>
+            <span class="query-solver-options-text">Initial descrete values</span>
+            <vue-numeric-input id="vue_numeric_input_2" controls-type="updown"
+                               v-model="numberOfDiscreteValues" @blur="assureValidNumber"
+                               size="95px" :min="2" :max="1000" :step="1"></vue-numeric-input>
+          </div>
         </div>
-        <query-results v-if="showQueryResults && queryResults.length"
-                       class="query-results mt-2 mb-2"
+        <query-results :results="queryResults"
                        :selectedIx="selectedQueryResult"
                        @selectionChanged="(ix)=> selectedQueryResult = ix"
-                       :results="queryResults">
+                       class="query-results mt-2 mb-2"
+                       v-if="showQueryResults && queryResults.length">
         </query-results>
       </div>
-      <div id="runningQueries" v-if="runningQueries" class="querySpinner"
-           @click.stop="interruptQueries">
+      <div @click.stop="interruptQueries" class="querySpinner" id="runningQueries"
+           v-if="runningQueries">
         <span class="fa-layers fa-fw">
            <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-80" style="color: green"></i>
         </span>
@@ -99,12 +110,15 @@
         </b-popover>
       </div>
     </div>
-    <div id="segModelEditorViewRightCol" class="right-column">
-      <map-image v-if="!graphQueryResult"></map-image>
-      <query-chart-result v-else :graph-query-result="graphQueryResult"></query-chart-result>
-      <explanations id="explanations" :explanation-tree="explanationTree"></explanations>
+    <div class="right-column" id="segModelEditorViewRightCol">
+      <!--@TODO update when the HOGM solver can return map related query results-->
+      <query-map-result :graph-query-result="undefined"
+                        v-if="displayMap"></query-map-result>
+      <query-chart-result :graph-query-result="graphQueryResult" v-else></query-chart-result>
+      <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
+      <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->
     </div>
-    <input-text-file ref="input_ref" @change="inputFileChanged" accept=".json"></input-text-file>
+    <input-text-file @change="inputFileChanged" accept=".json" ref="input_ref"></input-text-file>
   </div>
 </template>
 
@@ -114,6 +128,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import uniqBy from 'lodash/uniqBy';
   import identity from 'lodash/identity';
+  import VueNumericInput from 'vue-numeric-input';
   import ActionButton from '@/components/ActionButton';
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
@@ -125,8 +140,10 @@
   import SegmentedModelEditor from './SegmentedModelEditor';
   import QueryResults from './QueryResults';
   import QueryChartResult from './QueryChartResult';
+  import QueryMapResult from './QueryMapResult';
   import MapImage from './MapImage';
   import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
+  import { modelQueryDtoDefaults } from './types';
   import type {
     SegmentedModelDto,
     ModelRuleDto,
@@ -158,6 +175,8 @@
       MapImage,
       Explanations,
       EditableDatalist,
+      QueryMapResult,
+      VueNumericInput,
     },
     data() {
       return {
@@ -172,9 +191,15 @@
         dclEditTextWatch: false,
         selectedQueryResult: -1,
         runningQueries: 0,
+        numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
+        numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
       };
     },
     computed: {
+      displayMap() {
+        // @TODO update when the HOGM solver can return map related query results
+        return !(this.graphQueryResult && this.graphQueryResult.imageData);
+      },
       explanationTree() {
         if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
           return this.queryResults[this.selectedQueryResult].explanationTree;
@@ -192,6 +217,11 @@
       ]),
     },
     methods: {
+      assureValidNumber(event: Object) {
+        if (!event.target.value) {
+          event.target.focus();
+        }
+      },
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
@@ -216,6 +246,8 @@
         const query: ModelQueryDto = {
           model,
           query: selectedQuery,
+          numberOfInitialSamples: this.numberOfInitialSamples,
+          numberOfDiscreteValues: this.numberOfDiscreteValues,
         };
 
         try {
@@ -293,12 +325,21 @@
       this.loadModelsFromServer();
     },
     mounted() {
+      const sendResizeEvent = () => {
+        // The Map component needs to get a window's resize event so that it can recompute
+        // map coordinates and UI display.
+        window.dispatchEvent(new Event('resize'));
+      };
       if (this.splitter$ !== undefined) {
         this.splitter$.destroy();
       }
       this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
         sizes: [65, 35],
+        onDragEnd() {
+          sendResizeEvent();
+        },
       });
+      sendResizeEvent();
     },
     beforeDestroy() {
       this.splitter$.destroy();
@@ -320,6 +361,14 @@
 
   .gutter.gutter-horizontal {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
+  }
+
+  #vue_numeric_input_1.vue-numeric-input.updown .btn {
+    background: #6fbbff !important;
+  }
+
+  #vue_numeric_input_2.vue-numeric-input.updown .btn {
+    background: #6fbbff !important;
   }
 </style>
 <style scoped>
@@ -382,4 +431,18 @@
     cursor: pointer;
   }
 
+  .query-solver-options {
+    display: flex;
+    flex-direction: row;
+    margin-top: 0.5rem;
+    margin-left: 0.25rem;
+  }
+  .query-solver-options-text {
+    margin-top: 0.1rem;
+    font-size: 0.95rem;
+    margin-right: 0.5rem;
+  }
+  .query-solver-option-divider {
+    margin-right: 0.75rem;
+  }
 </style>

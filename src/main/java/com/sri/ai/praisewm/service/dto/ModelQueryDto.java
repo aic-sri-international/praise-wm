@@ -3,6 +3,8 @@ package com.sri.ai.praisewm.service.dto;
 public class ModelQueryDto {
   private String query;
   private String model;
+  private Integer numberOfInitialSamples;
+  private Integer numberOfDiscreteValues;
 
   // no-arg constructor for JSON conversion
   public ModelQueryDto() {}
@@ -25,8 +27,31 @@ public class ModelQueryDto {
     return this;
   }
 
+  public Integer getNumberOfInitialSamples() {
+    return numberOfInitialSamples;
+  }
+
+  public ModelQueryDto setNumberOfInitialSamples(Integer numberOfInitialSamples) {
+    this.numberOfInitialSamples = numberOfInitialSamples;
+    return this;
+  }
+
+  public Integer getNumberOfDiscreteValues() {
+    return numberOfDiscreteValues;
+  }
+
+  public ModelQueryDto setNumberOfDiscreteValues(Integer numberOfDiscreteValues) {
+    this.numberOfDiscreteValues = numberOfDiscreteValues;
+    return this;
+  }
+
   @Override
   public String toString() {
-    return "ModelQuery{" + "query='" + query + '\'' + ", model='" + model + '\'' + '}';
+    return "ModelQueryDto{" +
+        "query='" + query + '\'' +
+        ", model='" + model + '\'' +
+        ", numberOfInitialSamples=" + numberOfInitialSamples +
+        ", numberOfDiscreteValues=" + numberOfDiscreteValues +
+        '}';
   }
 }

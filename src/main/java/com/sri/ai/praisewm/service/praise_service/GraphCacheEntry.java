@@ -2,9 +2,9 @@ package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
-import com.sri.ai.util.graph2d.api.functions.Functions;
-import com.sri.ai.util.graph2d.api.variables.SetOfValues;
-import com.sri.ai.util.graph2d.api.variables.Variable;
+import com.sri.ai.util.function.api.functions.Functions;
+import com.sri.ai.util.function.api.variables.SetOfValues;
+import com.sri.ai.util.function.api.variables.Variable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

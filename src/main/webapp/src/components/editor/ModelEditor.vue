@@ -101,6 +101,7 @@
   import type { FileInfo } from '@/utils';
   import AceModelEditor from './aceModelEditor';
   import { fetchExamples, solve, toFormattedPageModel, fromFormattedPageModel } from './dataSourceProxy';
+  import { modelQueryDtoDefaults } from './types';
   import type { ModelPagesDto, ModelPageDto, ModelQueryDto, FormattedPageModelDto } from './types';
 
   export default {
@@ -208,6 +209,8 @@
         const query: ModelQueryDto = {
           model: this.editor$.getValue(),
           query: curPage.queryOptions[curPage.queryOptionSelected].text,
+          numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
+          numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
         };
 
         try {

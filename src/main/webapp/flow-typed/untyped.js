@@ -15,6 +15,9 @@ declare module 'vue-router' {
 declare module 'vue2-filters' {
   declare module.exports: any;
 }
+declare module 'vue-numeric-input' {
+  declare module.exports: any;
+}
 declare module 'vue-slider-component' {
   declare module.exports: any;
 }
@@ -82,9 +85,48 @@ declare module 'moment' {
   declare module.exports: any;
 }
 
+declare module 'ol/Collection' {
+  declare module.exports: any;
+}
+declare module 'ol/Feature' {
+  declare module.exports: any;
+}
+declare module 'ol/Map' {
+  declare module.exports: any;
+}
+declare module 'ol/MapBrowserEvent' {
+  declare module.exports: any;
+}
+declare module 'ol/View' {
+  declare module.exports: any;
+}
+declare module 'ol/layer' {
+  declare module.exports: any;
+}
+declare module 'ol/Overlay' {
+  declare module.exports: any;
+}
+declare module 'ol/proj' {
+  declare module.exports: any;
+}
+declare module 'ol/source' {
+  declare module.exports: any;
+}
+declare module 'ol/style' {
+  declare module.exports: any;
+}
+declare module 'ol/format/GeoJSON' {
+  declare module.exports: any;
+}
+
 declare module 'split.js' {
   declare module.exports: any;
 }
+
+declare module '@turf/centroid' {
+  declare module.exports: any;
+}
+
 
 declare module 'vuelidate' {
   declare module.exports: any;

@@ -1,6 +1,8 @@
 package com.sri.ai.praisewm.service.praise_service;
 
-import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionSamplingFactor;
+import com.sri.ai.praise.core.representation.translation.rodrigoframework.samplinggraph2d.SamplingFactorDiscretizedProbabilityDistributionFunction;
 import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
@@ -8,19 +10,21 @@ import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableRangeDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableSet;
 import com.sri.ai.praisewm.util.FilesUtil;
-import com.sri.ai.util.graph2d.api.graph.GraphPlot;
-import com.sri.ai.util.graph2d.api.graph.GraphSet;
-import com.sri.ai.util.graph2d.api.graph.GraphSetMaker;
-import com.sri.ai.util.graph2d.api.variables.SetOfValues;
-import com.sri.ai.util.graph2d.api.variables.Unit;
-import com.sri.ai.util.graph2d.api.variables.Value;
-import com.sri.ai.util.graph2d.api.variables.Variable;
-import com.sri.ai.util.graph2d.core.values.SetOfEnumValues;
-import com.sri.ai.util.graph2d.core.values.SetOfIntegerValues;
-import com.sri.ai.util.graph2d.core.values.SetOfRealValues;
-import com.sri.ai.util.graph2d.core.variables.EnumVariable;
-import com.sri.ai.util.graph2d.core.variables.IntegerVariable;
-import com.sri.ai.util.graph2d.core.variables.RealVariable;
+import com.sri.ai.util.function.api.functions.Functions;
+import com.sri.ai.util.function.api.values.Value;
+import com.sri.ai.util.function.api.variables.SetOfValues;
+import com.sri.ai.util.function.api.variables.SetOfVariables;
+import com.sri.ai.util.function.api.variables.Unit;
+import com.sri.ai.util.function.api.variables.Variable;
+import com.sri.ai.util.function.core.values.SetOfEnumValues;
+import com.sri.ai.util.function.core.values.SetOfIntegerValues;
+import com.sri.ai.util.function.core.values.SetOfRealValues;
+import com.sri.ai.util.function.core.variables.EnumVariable;
+import com.sri.ai.util.function.core.variables.IntegerVariable;
+import com.sri.ai.util.function.core.variables.RealVariable;
+import com.sri.ai.util.graph2d.api.GraphPlot;
+import com.sri.ai.util.graph2d.api.GraphSet;
+import com.sri.ai.util.graph2d.api.GraphSetMaker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -83,7 +87,8 @@ public class GraphManager {
     return list;
   }
 
-  private static void setUnitValues(Variable variable, GraphVariableRangeDto graphVariableRangeDto) {
+  private static void setUnitValues(
+      Variable variable, GraphVariableRangeDto graphVariableRangeDto) {
     Unit unit = variable.getUnit();
     if (unit != null && unit.getName() != null && !unit.getName().equals(Unit.NONE.getName())) {
       graphVariableRangeDto.setUnitName(unit.getName());
@@ -92,40 +97,43 @@ public class GraphManager {
   }
 
   private static SetOfValues buildSetOfValuesForVariable(
-      Variable variable,
-      GraphVariableSet graphVariableSet) {
-      SetOfValues setOfValues;
+      Variable variable, GraphVariableSet graphVariableSet) {
+    SetOfValues setOfValues;
 
-      graphVariableSet.setName(variable.getName());
+    graphVariableSet.setName(variable.getName());
 
-      if (variable instanceof EnumVariable) {
-        Validate.notEmpty(graphVariableSet.getEnums(),
-            "variable instanceof EnumVariable: invalid GraphVariableSet " + graphVariableSet);
-        setOfValues = SetOfEnumValues.setOfEnumValues(graphVariableSet.getEnums().toArray(new String[0]));
-      } else if (variable instanceof IntegerVariable) {
-        GraphVariableRangeDto rangeDto = graphVariableSet.getRange();
-        Validate.notNull(rangeDto,
-            "variable instanceof IntegerVariable: invalid GraphVariableSet " + graphVariableSet);
-        setOfValues = new SetOfIntegerValues((int) rangeDto.getFirst(), (int) rangeDto.getLast());
-      } else if (variable instanceof RealVariable) {
-        GraphVariableRangeDto rangeDto = graphVariableSet.getRange();
-        Validate.notNull(rangeDto,
-            "variable instanceof RealVariable: invalid GraphVariableSet " + graphVariableSet);
-        setOfValues = new SetOfRealValues(
-            Double.toString(rangeDto.getFirst()),
-            Double.toString(rangeDto.getStep()),
-            Double.toString(rangeDto.getLast()));
-      } else {
-        throw new IllegalArgumentException(
-            "Unsupported Variable type:" + variable.getClass().getName());
-      }
+    if (variable instanceof EnumVariable) {
+      Validate.notEmpty(
+          graphVariableSet.getEnums(),
+          "variable instanceof EnumVariable: invalid GraphVariableSet " + graphVariableSet);
+      setOfValues =
+          SetOfEnumValues.setOfEnumValues(graphVariableSet.getEnums().toArray(new String[0]));
+    } else if (variable instanceof IntegerVariable) {
+      GraphVariableRangeDto rangeDto = graphVariableSet.getRange();
+      Validate.notNull(
+          rangeDto,
+          "variable instanceof IntegerVariable: invalid GraphVariableSet " + graphVariableSet);
+      setOfValues = new SetOfIntegerValues((int) rangeDto.getFirst(), (int) rangeDto.getLast());
+    } else if (variable instanceof RealVariable) {
+      GraphVariableRangeDto rangeDto = graphVariableSet.getRange();
+      Validate.notNull(
+          rangeDto,
+          "variable instanceof RealVariable: invalid GraphVariableSet " + graphVariableSet);
+      setOfValues =
+          new SetOfRealValues(
+              Double.toString(rangeDto.getFirst()),
+              Double.toString(rangeDto.getStep()),
+              Double.toString(rangeDto.getLast()));
+    } else {
+      throw new IllegalArgumentException(
+          "Unsupported Variable type:" + variable.getClass().getName());
+    }
 
     return setOfValues;
   }
 
   private static Map<Variable, SetOfValues> buildNewVariableToSetOfValuesMap(
-      List<GraphVariableSet> graphVariableSets,
-      GraphCacheEntry entry) {
+      List<GraphVariableSet> graphVariableSets, GraphCacheEntry entry) {
     Map<Variable, SetOfValues> map = new LinkedHashMap<>();
 
     for (GraphVariableSet variableSet : graphVariableSets) {
@@ -147,13 +155,32 @@ public class GraphManager {
     return variableSet;
   }
 
+  private static List<Variable> getPossibleXmVariables(
+      Map<Variable, SetOfValues> mapOfVariableToSetOfValues) {
+    List<Variable> xmVariables = new ArrayList<>();
+
+    for (Map.Entry<Variable, SetOfValues> entry : mapOfVariableToSetOfValues.entrySet()) {
+      if (entry.getValue() instanceof SetOfIntegerValues
+          || entry.getValue() instanceof SetOfRealValues) {
+        xmVariables.add(entry.getKey());
+      }
+    }
+    if (xmVariables.isEmpty()) {
+      throw new IllegalArgumentException(
+          "At least one of the SetOfValues must be a numeric type: " + mapOfVariableToSetOfValues);
+    }
+
+    return xmVariables;
+  }
+
   public GraphRequestResultDto handleGraphRequest(
       String sessionId, GraphRequestDto graphRequestDto) {
     GraphRequestResultDto result = new GraphRequestResultDto();
     GraphCacheEntry entry = graphCache.getEntry(sessionId);
     if (graphRequestDto.equals(entry.getLastRequest())) {
       // If it's the same request, return the prior image
-      return new GraphRequestResultDto().setImageData(entry.getGraphQueryResultDto().getImageData());
+      return new GraphRequestResultDto()
+          .setImageData(entry.getGraphQueryResultDto().getImageData());
     }
 
     GraphSetMaker graphSetMaker = GraphSetMaker.graphSetMaker();
@@ -179,24 +206,42 @@ public class GraphManager {
     return result;
   }
 
-  public GraphQueryResultDto setGraphQueryResult(String sessionId, HOGMProblemResult result) {
+  public GraphQueryResultDto setGraphQueryResult(String sessionId, Expression result) {
     try {
-      return setGraphQueryResult_internal(sessionId, result);
+      ExpressionSamplingFactor expressionSamplingFactor = (ExpressionSamplingFactor) result;
+      return setGraphQueryResult_internal(sessionId, expressionSamplingFactor);
     } catch (Exception ex) {
       LOG.error("Cannot generate graph", ex);
     }
     return null;
   }
 
-  private GraphQueryResultDto setGraphQueryResult_internal(String sessionId, HOGMProblemResult result) {
-    // @TODO replace the following with data from the HOGMProblemResult once it is available
-    SampleGraphQueryResult sampleResult = new SampleGraphQueryResult();
+  private Map<Variable, SetOfValues> getMapOfVariableToSetOfValues(
+      SamplingFactorDiscretizedProbabilityDistributionFunction function) {
+    Map<Variable, SetOfValues> variableToSetOfValues = new LinkedHashMap<>();
+
+    SetOfVariables setOfVariables = function.getSetOfInputVariables();
+    ArrayList<? extends Variable> variables = setOfVariables.getVariables();
+    variables.forEach(
+        variable -> {
+          variableToSetOfValues.put(variable, variable.getSetOfValuesOrNull());
+        });
+
+    return variableToSetOfValues;
+  }
+
+  private GraphQueryResultDto setGraphQueryResult_internal(String sessionId,
+                  ExpressionSamplingFactor expressionSamplingFactor) {
+    SamplingFactorDiscretizedProbabilityDistributionFunction function =
+        expressionSamplingFactor.getSamplingFactorDiscretizedProbabilityDistributionFunction();
+    Functions functions = Functions.functions(function);
+    Map<Variable, SetOfValues> variableToSetOfValues = getMapOfVariableToSetOfValues(function);
 
     GraphCacheEntry entry =
         new GraphCacheEntry(
-            sampleResult.getFunctions(),
-            sampleResult.getMapOfVariableToSetOfValues(),
-            getPossibleXmVariables(sampleResult.getMapOfVariableToSetOfValues()));
+            functions,
+            variableToSetOfValues,
+            getPossibleXmVariables(variableToSetOfValues));
 
     GraphQueryResultDto graphQueryResultDto = new GraphQueryResultDto();
     graphQueryResultDto.setXmVariables(
@@ -215,8 +260,7 @@ public class GraphManager {
     graphRequestDto.setXmVariable(graphQueryResultDto.getXmVariables().get(0));
 
     List<GraphVariableSet> list = new ArrayList<>();
-    for (GraphVariableSet s : graphQueryResultDto
-        .getGraphVariableSets()) {
+    for (GraphVariableSet s : graphQueryResultDto.getGraphVariableSets()) {
       list.add(toSingleFirstEntryVariableSet(s));
     }
     graphRequestDto.setGraphVariableSets(list);
@@ -226,21 +270,5 @@ public class GraphManager {
     handleGraphRequest(sessionId, graphRequestDto);
 
     return graphQueryResultDto;
-  }
-
-  private static List<Variable> getPossibleXmVariables(Map<Variable, SetOfValues> mapOfVariableToSetOfValues) {
-    List<Variable> xmVariables = new ArrayList<>();
-
-    for (Map.Entry<Variable, SetOfValues> entry : mapOfVariableToSetOfValues.entrySet()) {
-      if (entry.getValue() instanceof SetOfIntegerValues || entry.getValue() instanceof SetOfRealValues) {
-        xmVariables.add(entry.getKey());
-      }
-    }
-    if (xmVariables.isEmpty()) {
-      throw new IllegalArgumentException("At least one of the SetOfValues must be a numeric type: "
-          + mapOfVariableToSetOfValues);
-    }
-
-    return xmVariables;
   }
 }
