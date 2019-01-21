@@ -65,6 +65,7 @@
   import VueTippy from 'vue-tippy';
   import Snotify from 'vue-snotify';
   import 'vue-snotify/styles/material.css';
+  import VueObserveVisibility from 'vue-observe-visibility';
 
   import {
     USER_VXC as UC,
@@ -93,6 +94,7 @@
     },
   });
   Vue.use(Snotify);
+  Vue.use(VueObserveVisibility);
 
   Vue.filter('formatDateTime', value => (value ? `${moment.utc(value).format('MM/DD/YYYY HH:mm:ss')}Z` : null));
 

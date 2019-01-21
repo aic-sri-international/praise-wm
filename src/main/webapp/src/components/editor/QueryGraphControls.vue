@@ -20,13 +20,15 @@
         </b-input-group>
       </div>
     </div>
-    </div>
+    <canvas v-show="false" ref="canvas_ref"></canvas>
+  </div>
 </template>
 
 <script>
   // @flow
   import cloneDeep from 'lodash/cloneDeep';
   import GraphVariableSetSlider from './GraphVariableSetSlider';
+  import { getRangeLabel } from './types';
   import type {
     GraphVariableSet,
     GraphQueryVariableResults,
@@ -56,14 +58,51 @@
     data() {
       return {
         controls: [],
+        maxSliderTextWidth: null,
       };
     },
     methods: {
+      getTextWidth(text: string) {
+        const canvas: any = this.$refs.canvas_ref;
+        const canvasContext = canvas.getContext('2d');
+        canvasContext.font = '14px sans-serif';
+        const metrics = canvasContext.measureText(text);
+        return metrics.width;
+      },
       getCurrentXm() {
         // The first entry in the xm array is the initial xm for the graph
         // We currently do not support changing it
         const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
         return gqvr.xmVariables[0];
+      },
+      completeControlsInit() {
+        let maxTextWidthFirst = 0;
+        let maxTextWidthLast = 0;
+
+        this.controls.filter((ctrl : Control) => ctrl.isSlider).forEach((ctrl : Control) => {
+          let first = '';
+          let last = '';
+          if (ctrl.gvs.enums) {
+            // eslint-disable-next-line
+            first = ctrl.gvs.enums[0];
+            last = ctrl.gvs.enums[ctrl.gvs.enums.length - 1];
+          } else if (ctrl.gvs.range) {
+            const { range } = ctrl.gvs;
+            first = getRangeLabel(range.first, range.unitSymbol);
+            last = getRangeLabel(range.last, range.unitSymbol);
+          }
+
+          maxTextWidthFirst = Math.max(this.getTextWidth(first), maxTextWidthFirst);
+          maxTextWidthLast = Math.max(this.getTextWidth(last), maxTextWidthLast);
+        });
+
+        const ml = Math.ceil(maxTextWidthFirst / 2);
+        const mr = Math.ceil(maxTextWidthLast / 2);
+
+        this.controls.forEach((ctrl) => {
+          // eslint-disable-next-line
+          ctrl.style += `margin-left: ${ml}px; margin-right: ${mr}px;`;
+        });
       },
       buildGraphRequest() : GraphRequestDto {
         const request: GraphRequestDto = {
@@ -125,7 +164,7 @@
 
             let mt : number = 0;
             let mb : number = 0;
-            const ml = currentIsSlider ? '44' : '40';
+            const ml = '40';
 
             if (currentHasTextOnTop) {
               mt += topTextHeight;
@@ -143,7 +182,13 @@
             }
             mb += controlDividerHeight;
 
-            return `margin-top: ${mt}px; margin-bottom: ${mb}px; margin-left: ${ml}px`;
+            let margins = `margin-top: ${mt}px; margin-bottom: ${mb}px;`;
+  
+            if (!currentIsSlider) {
+              margins += `margin-left: ${ml}px;`;
+            }
+
+            return margins;
           };
           return {
             gvs,
@@ -155,6 +200,7 @@
         };
 
         this.controls = sets.map(toControl);
+        this.completeControlsInit();
       },
       onSliderChanged(controlIx: number, value: any) {
         const control : Control = this.controls[controlIx];
@@ -170,7 +216,7 @@
         this.initialize();
       },
     },
-    created() {
+    mounted() {
       this.initialize();
     },
   };

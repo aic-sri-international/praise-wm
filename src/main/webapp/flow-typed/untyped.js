@@ -18,6 +18,9 @@ declare module 'vue2-filters' {
 declare module 'vue-numeric-input' {
   declare module.exports: any;
 }
+declare module 'vue-observe-visibility' {
+  declare module.exports: any;
+}
 declare module 'vue-slider-component' {
   declare module.exports: any;
 }

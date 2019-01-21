@@ -1,8 +1,12 @@
 <template>
-  <div>
-    <vue-slider ref="vueSlider_ref" @callback="(v)=>$emit('sliderChanged', v)"
+  <div ref="temp_ref" v-observe-visibility="{
+                  callback: visibilityChanged,
+                }">
+    <vue-slider @callback="(v)=>$emit('sliderChanged', v)"
+                ref="vueSlider_ref"
                 v-bind="slider"
-                v-model="slider.value">
+                v-model="slider.value"
+                >
     </vue-slider>
   </div>
 </template>
@@ -10,6 +14,7 @@
 <script>
   // @flow
   import vueSlider from 'vue-slider-component';
+  import { getRangeLabel } from './types';
   import type { GraphVariableSet, GraphVariableRangeDto } from './types';
 
   const defaultColor = '#3498db';
@@ -40,12 +45,12 @@
           disabled: false,
           lazy: true,
           eventType: 'auto',
-          show: true,
+          show: false,
           tooltip: 'always',
           enableCross: false,
           direction: this.direction,
-          formatter: '{value}',
-          piecewiseLabel: false,
+          formatter: null,
+          piecewiseLabel: true,
           data: null,
           tooltipDir: null,
           piecewise: true,
@@ -63,6 +68,14 @@
       };
     },
     methods: {
+      visibilityChanged(isVisible: boolean) {
+        // This is required to have the slider dots and labels display correctly on initial
+        // display without adding restrictions or complexity to parent components.
+        // See 'Exceptions' section of docs: https://github.com/NightCatSama/vue-slider-component
+        if (isVisible && !this.slider.show) {
+          this.slider.show = true;
+        }
+      },
       setOptions() {
         if (this.direction === 'horizontal') {
           this.slider.height = 6;
@@ -102,6 +115,8 @@
           // eslint-disable-next-line prefer-destructuring
           const range: ?GraphVariableRangeDto = params.range;
           if (range) {
+            const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
+
             this.slider.data = null;
             this.slider.value = [range.first, range.last];
             this.slider.min = range.first;
@@ -111,9 +126,7 @@
             this.slider.piecewiseStyle = null;
             this.slider.bgStyle = null;
             this.slider.labelStyle = null;
-            if (range.unitSymbol) {
-              this.slider.formatter = `{value}${range.unitSymbol}`;
-            }
+            this.slider.formatter = formatterFunc(range.unitSymbol);
           }
         }
       },
@@ -122,10 +135,6 @@
       graphVariableSet() {
         this.setOptions();
       },
-    },
-    updated() {
-      // This is needed to assure that the slider tooltip/buttons are correctly position on the slider
-      this.$refs.vueSlider_ref.refresh();
     },
     created() {
       this.setOptions();
