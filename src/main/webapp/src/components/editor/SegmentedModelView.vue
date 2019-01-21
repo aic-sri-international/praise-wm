@@ -85,11 +85,13 @@
             <span class="query-solver-options-text">Initial samples</span>
             <vue-numeric-input id="vue_numeric_input_1" controls-type="updown"
                 v-model="numberOfInitialSamples" @blur="assureValidNumber"
+                               title="Enter a value between 1 and 1000000 inclusive"
                                 size="120px" :min="1" :max="1000000" :step="1"></vue-numeric-input>
             <span class="query-solver-option-divider"></span>
-            <span class="query-solver-options-text">Initial descrete values</span>
+            <span class="query-solver-options-text">Discrete values</span>
             <vue-numeric-input id="vue_numeric_input_2" controls-type="updown"
                                v-model="numberOfDiscreteValues" @blur="assureValidNumber"
+                               title="Enter a value between 2 and 1000 inclusive"
                                size="95px" :min="2" :max="1000" :step="1"></vue-numeric-input>
           </div>
         </div>
