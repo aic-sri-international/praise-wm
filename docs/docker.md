@@ -40,11 +40,11 @@ A new praise-wm Docker image is created automatically by the [praise-wm GitLab P
 
 The default uses the image created for the main branch. To use an image from an alternate branch, set PRAISEWM_IMAGE_NAME to the default path in [praisewm.yml][] substituting the name of the branch for the *latest* tag.
 
-    PRAISEWM_DATA_DIRECTORY - Currently commented-out due to issues encountered on Windows O/S.
+    PRAISEWM_DATA_DIRECTORY - Override the host directory setting that will be used by the container.
 
-By default, the praise-wm docker container would create a mount point of *~/praisewm/data* that is used by the praise-wm server for access to external data files. The server will also write its log files to a *logs* subdirectory. To change the mount point, set the environmental variable *PRAISEWM_DATA_DIRECTORY* to a complete path to a directory on your system. If the directory does not yet exist, it will be created on startup.
+By default, the praise-wm docker container will use *~/praisewm/data*  on the host system for data files. The server will also write its log files to a *logs* subdirectory. To change the mount point, set the environmental variable *PRAISEWM_DATA_DIRECTORY* to a complete path to a directory on your system. If the directory does not yet exist, it will be created on startup.
 
-See [praisewm.yml][] for details.
+See [praisewm.yml][] for details and an example of setting PRAISEWM_DATA_DIRECTORY on Windows 10.
 
 ## Starting/Stopping All Containers with a single command.
 
