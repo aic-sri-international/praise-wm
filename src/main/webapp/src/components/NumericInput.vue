@@ -12,13 +12,13 @@
           <b-btn variant="outline-secondary"
                  :disabled="upArrowIsDisabled"
                  style="color: blue; height:4px;"
-                 @click.stop="onStepClick(true)">
+                 @click.stop="onStepClick($event, true)">
           <i class="fas fa-caret-up" data-fa-transform="up-12"></i>
           </b-btn>
         <b-btn variant="outline-secondary"
                :disabled="downArrowIsDisabled"
                style="color: blue; height:4px; margin-top: 16px; margin-left: -36px"
-               @click.stop="onStepClick(false)">
+               @click.stop="onStepClick($event, false)">
           <i class="fas fa-caret-down" data-fa-transform="up-11"></i>
         </b-btn>
       </div>
@@ -69,7 +69,7 @@
             paddingTop: 0,
             paddingBottom: 0,
             paddingRight: 0,
-            maxWidth: '110px',
+            maxWidth: '130px',
             height: '30px',
           };
         },
@@ -129,7 +129,9 @@
 
         return num;
       },
-      onStepClick(isIncrement: boolean) {
+      onStepClick(event: Object, isIncrement: boolean) {
+        event.target.focus();
+
         const curNum = Number(this.$refs.input.value);
         let result: number;
 

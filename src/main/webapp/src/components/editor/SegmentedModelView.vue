@@ -85,7 +85,7 @@
             <span class="query-solver-options-text">Initial samples</span>
             <numeric-input
                 :min="1"
-                :max="1000000"
+                :max="100000000"
                 :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
                 :value="numberOfInitialSamples"
                 @blur="data => numberOfInitialSamples = data">
