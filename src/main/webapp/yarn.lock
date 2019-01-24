@@ -9321,11 +9321,6 @@ vue-loader@^14.2.2:
     vue-style-loader "^4.0.1"
     vue-template-es2015-compiler "^1.6.0"
 
-vue-numeric-input@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/vue-numeric-input/-/vue-numeric-input-1.0.4.tgz#6bf43886ee13ecc4e5d0953a871cf2c96c81ce98"
-  integrity sha512-F7bJEaiCdtsqvnudcefMwNzccCkKdRKG/jmnTTfXTrIPLvpNgh1k0CHyvmHE0IxH0FkCGuMk7GA0Lbl0h9GpJA==
-
 vue-observe-visibility@^0.4.3:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/vue-observe-visibility/-/vue-observe-visibility-0.4.3.tgz#b2694a83c94b274f566e03a497df51540e2daedc"

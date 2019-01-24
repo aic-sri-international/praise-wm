@@ -83,16 +83,21 @@
           </div>
           <div class="query-solver-options">
             <span class="query-solver-options-text">Initial samples</span>
-            <vue-numeric-input id="vue_numeric_input_1" controls-type="updown"
-                v-model="numberOfInitialSamples" @blur="assureValidNumber"
-                               title="Enter a value between 1 and 1000000 inclusive"
-                                size="120px" :min="1" :max="1000000" :step="1"></vue-numeric-input>
+            <numeric-input
+                :min="1"
+                :max="1000000"
+                :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
+                :value="numberOfInitialSamples"
+                @blur="data => numberOfInitialSamples = data">
+            </numeric-input>
             <span class="query-solver-option-divider"></span>
             <span class="query-solver-options-text">Discrete values</span>
-            <vue-numeric-input id="vue_numeric_input_2" controls-type="updown"
-                               v-model="numberOfDiscreteValues" @blur="assureValidNumber"
-                               title="Enter a value between 2 and 1000 inclusive"
-                               size="95px" :min="2" :max="1000" :step="1"></vue-numeric-input>
+            <numeric-input
+              :min="2"
+              :max="1000"
+              :value="numberOfDiscreteValues"
+              @blur="data => numberOfDiscreteValues = data">
+            </numeric-input>
           </div>
         </div>
         <query-results :results="queryResults"
@@ -130,7 +135,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import uniqBy from 'lodash/uniqBy';
   import identity from 'lodash/identity';
-  import VueNumericInput from 'vue-numeric-input';
+  import NumericInput from '@/components/NumericInput';
   import ActionButton from '@/components/ActionButton';
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
@@ -178,7 +183,7 @@
       Explanations,
       EditableDatalist,
       QueryMapResult,
-      VueNumericInput,
+      NumericInput,
     },
     data() {
       return {
@@ -219,11 +224,6 @@
       ]),
     },
     methods: {
-      assureValidNumber(event: Object) {
-        if (!event.target.value) {
-          event.target.focus();
-        }
-      },
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
@@ -363,14 +363,6 @@
 
   .gutter.gutter-horizontal {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
-  }
-
-  #vue_numeric_input_1.vue-numeric-input.updown .btn {
-    background: #6fbbff !important;
-  }
-
-  #vue_numeric_input_2.vue-numeric-input.updown .btn {
-    background: #6fbbff !important;
   }
 </style>
 <style scoped>
