@@ -114,7 +114,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
         throw new RuntimeException("Solver did not return any results");
       }
     } catch (Exception e) {
-      throw new ProcessingException("Cannot solve query", e.getMessage(), e);
+      throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
     } finally {
       activeSolverMap.remove(solverId);
     }
@@ -127,6 +127,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
       if (result != null) {
         answers.add(queryRunner.simplifyAnswer(result, hpResult.getQueryExpression()).toString());
       }
+
       hpResult.getErrors().forEach(error -> answers.add("Error: " + error.getErrorMessage()));
 
       results.add(
@@ -139,7 +140,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
               .setGraphQueryResultDto(graphManager.setGraphQueryResult(sessionId, result)));
       return results;
     } catch (Exception e) {
-      throw new ProcessingException("Cannot solve query", e.getMessage(), e);
+      throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
     }
   }
 

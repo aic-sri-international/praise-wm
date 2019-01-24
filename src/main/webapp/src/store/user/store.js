@@ -11,6 +11,7 @@ import UC from './constants';
 
 const getters = {
   [UC.GET.USER]: (state: VuexUserState): VuexUserState => ({ ...state }),
+  [UC.GET.IS_LOGGED_IN]: (state: VuexUserState): boolean => state.isLoggedIn,
 };
 
 const store: VuexUserStore = {

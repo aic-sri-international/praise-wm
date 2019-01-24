@@ -8,7 +8,6 @@ import com.sri.ai.praisewm.web.error.AuthorizationException;
 import com.sri.ai.praisewm.web.error.LoginException;
 import com.sri.ai.praisewm.web.error.PathNotDefinedException;
 import com.sri.ai.praisewm.web.error.ProcessingException;
-import com.sri.ai.praisewm.web.rest.ErrorResponseMessage;
 import com.sri.ai.praisewm.web.rest.filter.CorsFilter;
 import com.sri.ai.praisewm.web.rest.util.HttpStatus;
 import com.sri.ai.praisewm.web.websocket.WebSocketConstants;
@@ -28,18 +27,17 @@ import spark.Service;
  * routes, and stops the web service.
  */
 public class WebController {
+  public static final String API_ENDPOINT = "/api/";
+  public static final String ADMIN_ENDPOINT = "/admin/";
   private static final Logger LOG = LoggerFactory.getLogger(WebController.class);
   private static final String[] DEFINED_PATHS = {
-    "/api/", "/admin/", WebSocketConstants.ENDPOINT_PREFIX
+    API_ENDPOINT, ADMIN_ENDPOINT, WebSocketConstants.ENDPOINT_PREFIX
   };
-  // Header sent to client to signify that only the message fields should be display,
-  // and not any HTTP status info, or, optional techMessage
-  private static final String USER_MESSAGE_EXCEPTION = "USER_MESSAGE_EXCEPTION";
+
   private final PropertiesWrapper pw;
   private final Supplier<SecurityService> securityServiceSupplier;
   private final int portIncrement;
   private boolean sparkIsInitialized;
-  private String staticContentFolder;
   private Service sparkService;
   private CorsFilter corsFilter;
 
@@ -50,7 +48,7 @@ public class WebController {
     this.pw = propertiesWrapper;
     this.securityServiceSupplier = securityServiceSupplier;
     this.portIncrement = portIncrement;
-    sparkService = spark.Service.ignite();
+    sparkService = Service.ignite();
     corsFilter = new CorsFilter(sparkService);
   }
 
@@ -92,7 +90,7 @@ public class WebController {
     // Note that the public directory name is not included in the URL.
     // A file /public/css/style.css is made available as http://{host}:{port}/css/style.css
 
-    staticContentFolder = pw.asString("server.staticFolder");
+    String staticContentFolder = pw.asString("server.staticFolder");
     sparkService.staticFiles.location(staticContentFolder);
 
     sparkService.ipAddress(pw.asString("server.host"));
@@ -126,7 +124,7 @@ public class WebController {
               String.format("Internal Server Error while processing route: %s", req.pathInfo());
           setMessage(new ErrorResponseMessage(msg), res).status(HttpStatus.INTERNAL_SERVER_ERROR);
           corsFilter.apply(res);
-          logError(req, res, new IllegalArgumentException(msg));
+          logError(req, res, new IllegalArgumentException(msg), false);
           return res.body();
         });
 
@@ -138,17 +136,21 @@ public class WebController {
           String msg = String.format("Not defined: %s %s", req.requestMethod(), req.pathInfo());
           setMessage(new ErrorResponseMessage(msg), res).status(HttpStatus.NOT_FOUND);
           corsFilter.apply(res);
-          logError(req, res, new IllegalArgumentException(msg));
+          logError(req, res, new IllegalArgumentException(msg), false);
           return res.body();
         });
 
     sparkService.exception(
         PathNotDefinedException.class,
         (exception, req, res) -> {
-          String msg = String.format("Not defined: %s %s", req.requestMethod(), req.pathInfo());
-          setMessage(new ErrorResponseMessage(msg), res).status(HttpStatus.NOT_FOUND);
+          final String redirectPath = "/index.html";
+          res.redirect(redirectPath, HttpStatus.PERMANENT_REDIRECT);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          String msg =
+              String.format(
+                  "Path not defined, method=%s. Client redirected to %s",
+                  req.requestMethod(), redirectPath);
+          logError(req, res, new PathNotDefinedException(msg), false);
         });
 
     sparkService.exception(
@@ -156,10 +158,10 @@ public class WebController {
         (exception, req, res) -> {
           // For some reason, if we don't return something in the body the client will get a
           // CORS error.
-          setMessage(new ErrorResponseMessage("Invalid login"), res)
+          setMessage(new ErrorResponseMessage("Invalid login").setDisplayHttpStatus(false), res)
               .status(HttpStatus.UNAUTHORIZED);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          logError(req, res, exception, false);
         });
 
     sparkService.exception(
@@ -170,7 +172,7 @@ public class WebController {
           setMessage(new ErrorResponseMessage("Not logged in"), res)
               .status(HttpStatus.UNAUTHORIZED);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          logError(req, res, exception, false);
         });
 
     sparkService.exception(
@@ -181,7 +183,7 @@ public class WebController {
           setMessage(new ErrorResponseMessage("Not authorized"), res)
               .status(HttpStatus.UNAUTHORIZED);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          logError(req, res, exception, false);
         });
 
     sparkService.exception(
@@ -193,37 +195,41 @@ public class WebController {
           if (exception.sqlStateClass() == SQLStateClass.C23_INTEGRITY_CONSTRAINT_VIOLATION) {
             userMsg = "Database Constraint Violation";
             techMessage = exception.getMessage();
-            res.header(USER_MESSAGE_EXCEPTION, "true");
           } else {
             userMsg = exception.getMessage();
           }
 
-          setMessage(new ErrorResponseMessage(userMsg).setTechMessage(techMessage), res)
+          setMessage(
+                  new ErrorResponseMessage(userMsg)
+                      .setDisplayHttpStatus(false)
+                      .setTechMessage(techMessage),
+                  res)
               .status(HttpStatus.BAD_REQUEST);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          logError(req, res, exception, false);
         });
 
     sparkService.exception(
         ProcessingException.class,
         (exception, req, res) -> {
-          res.header(USER_MESSAGE_EXCEPTION, "true");
           ErrorResponseMessage erm =
               new ErrorResponseMessage(exception.getDisplayMessage())
+                  .setDisplayHttpStatus(false)
                   .setTechMessage(exception.getTechMessage());
           setMessage(erm, res).status(HttpStatus.INTERNAL_SERVER_ERROR);
           corsFilter.apply(res);
-          logError(req, res, exception);
+          logError(req, res, exception, exception.isLogStackTrace());
         });
   }
 
-  private void logError(Request req, Response res, Exception ex) {
+  private void logError(Request req, Response res, Exception ex, boolean logStackTrace) {
     LOG.error(
         "HttpStatus={}, RemoteIp={}, Path={}, Message={}",
         res.status(),
         req.ip(),
         req.pathInfo(),
-        ex.getMessage());
+        ex.getMessage(),
+        logStackTrace ? ex : null);
   }
 
   private void setFilters() {
@@ -241,6 +247,7 @@ public class WebController {
         });
 
     corsFilter.apply();
+
     sparkService.after((req, res) -> res.header("Content-Encoding", "gzip"));
   }
 

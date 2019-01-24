@@ -70,6 +70,10 @@ export function getWsMaxReconnectAttempts() : number {
   return maxReconnectAttempts;
 }
 
+function appendSessionIdQuery(url: string) {
+  return `${url}?SEC_SESSION_ID=${secSessionId}`;
+}
+
 export function getUrlForWebsocketEndpoint(endpoint : string) : string {
   const loc = window.location;
   const protocol : string = loc.protocol === 'http:' ? 'ws:' : 'wss:';
@@ -77,7 +81,7 @@ export function getUrlForWebsocketEndpoint(endpoint : string) : string {
   // A bit of a kluge to accomodate the WebPack dev server WS proxy
   const wsPort = restPort + (restPort === actualRemoteServerPort ? 1 : 0);
 
-  return `${protocol}//${loc.hostname}:${wsPort}/ws/${endpoint}?SEC_SESSION_ID=${secSessionId}`;
+  return appendSessionIdQuery(`${protocol}//${loc.hostname}:${wsPort}/ws/${endpoint}`);
 }
 
 function getHeaderValue(headers: Headers, key: string) : string {
@@ -106,15 +110,6 @@ function getFilenameFromHeader(headers: Headers) : string {
               + `did not include '${fnmPrefix}' with value: ${headerValue}'`);
 }
 
-function isProcessingException(headers: Headers) {
-  try {
-    const value : string = headers.get('USER_MESSAGE_EXCEPTION');
-    return value === 'true';
-  } catch (err) {
-    return false;
-  }
-}
-
 function saveLoginHeaders(headers : Headers) : void {
   secSessionId = getHeaderValue(headers, 'SEC_SESSION_ID');
 }
@@ -132,6 +127,9 @@ function getHeadersAndBody(body?: any) : HeadersAndBody {
     headers.append('Content-Type', 'application/json');
   } else {
     bodyData = body;
+    if (typeof body === 'string') {
+      headers.append('Content-Type', 'text/plain');
+    }
   }
 
   headers.append('SEC_SESSION_ID', secSessionId);
@@ -139,21 +137,60 @@ function getHeadersAndBody(body?: any) : HeadersAndBody {
   if (bodyData !== undefined && bodyData !== null) {
     return { headers, body: bodyData };
   }
+
   return { headers };
 }
 
-function ErrorResponseException(
-  userMessage: string,
-  techMessage: ?string,
-  displayOnlyUserMessage: boolean,
-) {
-  this.userMessage = userMessage;
-  this.techMessage = techMessage;
-  this.displayOnlyUserMessage = displayOnlyUserMessage;
+function ErrorResponseException(body: Object) {
+  if (body.userMessage) {
+    this.userMessage = body.userMessage;
+    this.techMessage = body.techMessage;
+    this.displayTechMessage = body.displayTechMessage;
+    this.displayHttpStatus = body.displayHttpStatus;
+  } else if (body.message && typeof body.message === 'string') {
+    // The Fetch API using the Chrome browser returns this message if
+    // it cannot connect to the server.
+    // Return a message that is more meaningful to the user.
+    if (body.message.toLowerCase() === 'failed to fetch') {
+      this.userMessage = 'Cannot connect to the server';
+    } else {
+      this.userMessage = body.message;
+    }
+    this.displayHttpStatus = true;
+  } else {
+    this.userMessage = '';
+    this.displayHttpStatus = true;
+  }
 }
+
+const buildMessage = (
+  ex: ErrorResponseException,
+  allInfo: boolean,
+  response: ?Response,
+): string => {
+  let msg = ex.userMessage;
+
+  if ((ex.displayTechMessage || allInfo) && ex.techMessage) {
+    if (msg) {
+      msg += ': ';
+    }
+    msg += ex.techMessage;
+  }
+
+  if ((ex.displayHttpStatus || allInfo) && response) {
+    if (msg) {
+      msg += ': ';
+    }
+
+    msg += `HTTP Status (${response.status}): ${response.statusText}`;
+  }
+
+  return msg;
+};
 
 async function fetchData(params: FetchDataParams) : Promise<Object> {
   let response : ?Response = null;
+  let errRespEx: ErrorResponseException;
 
   try {
     response = await fetch(params.request);
@@ -193,60 +230,28 @@ async function fetchData(params: FetchDataParams) : Promise<Object> {
 
       return body;
     }
-    // An ErrorResponseMessage is returned for all execeptions thrown
-    // from the server that are under programmer control. Some are exceptions
-    // where we only want the 'message' field to be displayed to to the user,
-    // and may also include a 'techMessage' field that should be logged,
-    // but not normally displayed. These exception messages will have a
-    // special flag set in the header.
-    //
-    // noinspection ExceptionCaughtLocallyJS
-    throw new ErrorResponseException(
-      body.message || '',
-      body.techMessage,
-      isProcessingException(response.headers),
-    );
-    // const msg : string = body.message ? `: ${body.message}` : '';
+    errRespEx = new ErrorResponseException(body);
   } catch (e) {
-    let msg = '';
-
-    // The Fetch API fails if it can't make a request, in which case,
-    // it does not return a response object. In our case, this will
-    // probably only happen if the server is not available.
-    // So, return a message that is more meaningful for the user.
-    if (!response && e instanceof TypeError) {
-      if (e.message && e.message.toLowerCase() === 'failed to fetch') {
-        msg = ': Cannot connect to the server';
-      }
-    } else if (e instanceof ErrorResponseException) {
-      msg = `: ${e.userMessage}`;
-      if (e.techMessage) {
-        msg += `: ${e.techMessage}`;
-      }
-    } else if (e.message) {
-      msg = `: ${e.message}`;
-    }
-    const respStatus = response ?
-      `: HTTP Status (${response.status}): ${response.statusText}` : '';
-    let err : string = `Error getting data${respStatus}${msg}`;
-    // eslint-disable-next-line no-console
-    console.error(err);
-
-    if (e instanceof ErrorResponseException && e.displayOnlyUserMessage) {
-      err = e.userMessage;
-    }
-
-    store.commit(vxcFp(N_VXC, N_VXC.SET.ADD_HTTP_ERROR), err);
-    store.commit(
-      vxcFp(N_VXC, N_VXC.SET.ADD_NOTIFICATION_FOR_UI),
-      {
-        date: getDate(),
-        level: messageLevels.ERROR,
-        text: err,
-      },
-    );
-    return Promise.reject(err);
+    errRespEx = new ErrorResponseException(e);
   }
+
+  // eslint-disable-next-line no-console
+  const errAll = buildMessage(errRespEx, true, response);
+  const errAbbr = buildMessage(errRespEx, false, response);
+
+  // eslint-disable-next-line no-console
+  console.error(errAll);
+
+  store.commit(vxcFp(N_VXC, N_VXC.SET.ADD_HTTP_ERROR), errAbbr);
+  store.commit(
+    vxcFp(N_VXC, N_VXC.SET.ADD_NOTIFICATION_FOR_UI),
+    {
+      date: getDate(),
+      level: messageLevels.ERROR,
+      text: errAbbr,
+    },
+  );
+  return Promise.reject(errAll);
 }
 
 export function toApiUrl(path:string) : string {
@@ -257,8 +262,17 @@ export function toAdminUrl(path:string) : string {
   return `${window.location.origin}/admin/${path}`;
 }
 
+function logOutIfNeeded() {
+  const isLoggedIn = store.getters[vxcFp(U_VXC, U_VXC.GET.IS_LOGGED_IN)];
+  if (isLoggedIn) {
+    store.commit(vxcFp(U_VXC, U_VXC.SET.LOGGED_OUT));
+  }
+}
+
 export const http = {
   login(body : { }) : Promise<Object> {
+    // If the user backed-out to the login form they may still be logged in
+    logOutIfNeeded();
     const req : Request = new Request(toApiUrl('login'), {
       method: 'POST',
       mode: 'cors',

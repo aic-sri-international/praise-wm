@@ -15,6 +15,7 @@ public final class HttpStatus {
   public static final int UNAUTHORIZED = 401;
   public static final int NOT_FOUND = 404;
   public static final int REQUEST_TIMEOUT = 408;
+  public static final int PERMANENT_REDIRECT = 308;
   // Resource conflict such as trying to create two users with the same information, deleting
   // root objects (device) when cascade-delete is not supported
   public static final int CONFLICT = 409;

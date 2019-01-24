@@ -5,6 +5,7 @@ const USER_VXC = {
   ADMIN_NAME: 'admin',
   GET: {
     USER: 'user',
+    IS_LOGGED_IN: 'isLoggedIn',
   },
   SET: {
     LOGGED_IN: 'setLoggedIn',
