@@ -11,12 +11,14 @@ buildscript {
         classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:${flyway_core_version}"
         classpath "com.github.jengelman.gradle.plugins:shadow:${shadow_version}"
         classpath "com.moowork.gradle:gradle-node-plugin:${gradle_node_plugin_version}"
+        classpath "net.nemerosa:versioning:2.7.1"
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'application'
+apply plugin: 'net.nemerosa.versioning'
 
 group = 'com.sri.ai.praisewm'
 version = '2.3'
@@ -30,6 +32,27 @@ targetCompatibility = 1.8
 mainClassName = "${group}.Application"
 
 apply plugin: 'com.github.johnrengelman.shadow'
+
+jar {
+    manifest {
+        attributes(
+                'Built-By'       : System.properties['user.name'],
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Revision' : versioning.info.commit,
+                'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}",
+                // All of the following are included due to JFreeChart dependency requirements for graph creation
+                // See: https://stackoverflow.com/questions/7051603/jai-vendorname-null
+                'Specification-Title': "Java Advanced Imaging Image I/O Tools",
+                'Specification-Version': "1.1",
+                'Specification-Vendor': "Sun Microsystems, Inc.",
+                'Implementation-Title': "com.sun.media.imageio",
+                'Implementation-Version': "1.1",
+                'Implementation-Vendor': "Sun Microsystems, Inc."
+        )
+    }
+}
 
 shadowJar {
     // Address problem that prevents jar from being extracted
