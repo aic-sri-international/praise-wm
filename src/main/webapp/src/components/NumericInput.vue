@@ -10,12 +10,14 @@
                @input="updateDigitsValue($event.target.value)"/>
       <div style="display:flex; flex-dimension: column; margin-left: -36px">
           <b-btn variant="outline-secondary"
+                 @blur="onBlur"
                  :disabled="upArrowIsDisabled"
                  style="color: blue; height:4px;"
                  @click.stop="onStepClick($event, true)">
           <i class="fas fa-caret-up" data-fa-transform="up-12"></i>
           </b-btn>
         <b-btn variant="outline-secondary"
+               @blur="onBlur"
                :disabled="downArrowIsDisabled"
                style="color: blue; height:4px; margin-top: 16px; margin-left: -36px"
                @click.stop="onStepClick($event, false)">

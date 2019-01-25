@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.jena.atlas.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,9 @@ public class PraiseServiceImpl implements PraiseService, Service {
         ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
         ExpressoConfiguration
             .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
+
+    LOG.info("About to run HOGM Query: NumberOfDiscreteValues={}, NumberOfInitialSamples={}",
+        modelQuery.getNumberOfDiscreteValues(), modelQuery.getNumberOfInitialSamples());
 
     HOGMMultiQuerySamplingProblemSolver queryRunner =
         new HOGMMultiQuerySamplingProblemSolver(
