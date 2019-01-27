@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.jena.atlas.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,14 +133,16 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
       hpResult.getErrors().forEach(error -> answers.add("Error: " + error.getErrorMessage()));
 
+      String queryText = hpResult.getQueryString();
+
       results.add(
           new ExpressionResultDto()
-              .setQuery(hpResult.getQueryString())
+              .setQuery(queryText)
               .setAnswers(answers)
               .setExplanationTree(hpResult.getExplanation())
               .setQueryDuration(hpResult.getMillisecondsToCompute())
               .setCompletionDate(Instant.now())
-              .setGraphQueryResultDto(graphManager.setGraphQueryResult(sessionId, result)));
+              .setGraphQueryResultDto(graphManager.setGraphQueryResult(sessionId, queryText, result)));
       return results;
     } catch (Exception e) {
       throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);

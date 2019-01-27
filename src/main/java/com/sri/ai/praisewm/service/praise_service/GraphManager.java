@@ -10,6 +10,7 @@ import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableRangeDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableSet;
 import com.sri.ai.praisewm.util.FilesUtil;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.function.api.functions.Functions;
 import com.sri.ai.util.function.api.values.Value;
 import com.sri.ai.util.function.api.variables.SetOfValues;
@@ -156,19 +157,36 @@ public class GraphManager {
   }
 
   private static List<Variable> getPossibleXmVariables(
-      Map<Variable, SetOfValues> mapOfVariableToSetOfValues) {
+      SamplingFactorDiscretizedProbabilityDistributionFunction function, String queryText) {
     List<Variable> xmVariables = new ArrayList<>();
 
-    for (Map.Entry<Variable, SetOfValues> entry : mapOfVariableToSetOfValues.entrySet()) {
-      if (entry.getValue() instanceof SetOfIntegerValues
-          || entry.getValue() instanceof SetOfRealValues) {
-        xmVariables.add(entry.getKey());
+    SetOfVariables setOfVariables = function.getSetOfInputVariables();
+    ArrayList<? extends Variable> variables = setOfVariables.getVariables();
+
+    int queryIndex = Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(variables, v -> {
+      if (v == null) {
+        throw new RuntimeException("Null variable found in setOfVariables, variables=" + variables);
       }
+      String vn = v.getName();
+      if (vn == null) {
+        throw new RuntimeException("Null variable name for variable within variables=" + variables);
+      }
+      return v.getName().equals(queryText);
+    });
+
+    if (queryIndex == -1) {
+      throw new RuntimeException(String.format("Query variable %s not found in variables %s",
+          queryText, variables));
     }
-    if (xmVariables.isEmpty()) {
-      throw new IllegalArgumentException(
-          "At least one of the SetOfValues must be a numeric type: " + mapOfVariableToSetOfValues);
+
+    Functions functions = Functions.functions(function);
+
+    Variable xmVariable = functions.getAllInputVariables().getVariables().get(queryIndex);
+    if (xmVariable == null) {
+      throw new RuntimeException("xmVariable not found for queryIndex=" + queryIndex);
     }
+
+    xmVariables.add(xmVariable);
 
     return xmVariables;
   }
@@ -206,10 +224,10 @@ public class GraphManager {
     return result;
   }
 
-  public GraphQueryResultDto setGraphQueryResult(String sessionId, Expression result) {
+  public GraphQueryResultDto setGraphQueryResult(String sessionId, String queryText, Expression result) {
     try {
       ExpressionSamplingFactor expressionSamplingFactor = (ExpressionSamplingFactor) result;
-      return setGraphQueryResult_internal(sessionId, expressionSamplingFactor);
+      return setGraphQueryResult_internal(sessionId, queryText, expressionSamplingFactor);
     } catch (Exception ex) {
       LOG.error("Cannot generate graph", ex);
     }
@@ -231,17 +249,19 @@ public class GraphManager {
   }
 
   private GraphQueryResultDto setGraphQueryResult_internal(String sessionId,
+                  String queryText,
                   ExpressionSamplingFactor expressionSamplingFactor) {
     SamplingFactorDiscretizedProbabilityDistributionFunction function =
         expressionSamplingFactor.getSamplingFactorDiscretizedProbabilityDistributionFunction();
     Functions functions = Functions.functions(function);
     Map<Variable, SetOfValues> variableToSetOfValues = getMapOfVariableToSetOfValues(function);
 
+
     GraphCacheEntry entry =
         new GraphCacheEntry(
             functions,
             variableToSetOfValues,
-            getPossibleXmVariables(variableToSetOfValues));
+            getPossibleXmVariables(function, queryText));
 
     GraphQueryResultDto graphQueryResultDto = new GraphQueryResultDto();
     graphQueryResultDto.setXmVariables(
