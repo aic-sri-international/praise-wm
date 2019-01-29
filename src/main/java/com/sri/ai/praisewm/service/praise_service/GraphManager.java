@@ -252,7 +252,7 @@ public class GraphManager {
                   String queryText,
                   ExpressionSamplingFactor expressionSamplingFactor) {
     SamplingFactorDiscretizedProbabilityDistributionFunction function =
-        expressionSamplingFactor.getSamplingFactorDiscretizedProbabilityDistributionFunction();
+            expressionSamplingFactor.getDiscretizedConditionalProbabilityDistributionFunction();
     Functions functions = Functions.functions(function);
     Map<Variable, SetOfValues> variableToSetOfValues = getMapOfVariableToSetOfValues(function);
 
