@@ -13,6 +13,15 @@
   import MapBrowserEvent from 'ol/MapBrowserEvent';
   import { props as propConst } from './features';
 
+  const popupTdCommonStyle = 'text-align: left; white-space: nowrap; font-size: .9em';
+  const popupConsts = {
+    // We can't use scoped styles, so in-line the styles
+    tdCommonStyle: popupTdCommonStyle,
+    tdStyle: `style="${popupTdCommonStyle}"`,
+    tdLabelStyle: `style="${popupTdCommonStyle};font-weight: 600"`,
+    trStyle: 'style="line-height: 1.1"',
+  };
+
   export default {
     name: 'OlPopup',
     data() {
@@ -28,17 +37,14 @@
       };
     },
     methods: {
-      onMapClick(event: MapBrowserEvent, getOpacityForFeature: (feature: Feature) => number) {
+      onMapEvent(event: MapBrowserEvent, getOpacityForFeature: (feature: Feature) => number) {
         if (!this.overlay) {
           throw Error('addOverlay must be called before calling onMapClick');
         }
+
         let html = '';
         let isOurs = false;
-        // We can't use scoped styles, so in-line the styles
-        const tdCommonStyle = 'text-align: left; white-space: nowrap; font-size: .9em';
-        const tdStyle = `style="${tdCommonStyle}"`;
-        const tdLabelStyle = `style="${tdCommonStyle};font-weight: 600"`;
-        const trStyle = 'style="line-height: 1.1"';
+
 
         event.map.forEachFeatureAtPixel(event.pixel, (feature: Feature) => {
           if (html) {
@@ -46,21 +52,21 @@
           }
           html += `
           <table>
-            <tr ${trStyle}>
-              <td ${tdLabelStyle}>State:</td>
-              <td ${tdStyle}>${feature.get(propConst.State)}</td>
+            <tr ${popupConsts.trStyle}>
+              <td ${popupConsts.tdLabelStyle}>State:</td>
+              <td ${popupConsts.tdStyle}>${feature.get(propConst.State)}</td>
             </tr>
-            <tr ${trStyle}>
-              <td ${tdLabelStyle}>County:</td>
-              <td ${tdStyle}>${feature.get(propConst.County)}</td>
+            <tr ${popupConsts.trStyle}>
+              <td ${popupConsts.tdLabelStyle}>County:</td>
+              <td ${popupConsts.tdStyle}>${feature.get(propConst.County)}</td>
             </tr>`;
 
           const probability = getOpacityForFeature(feature);
           if (typeof probability === 'number') {
             html += `
-            <tr ${trStyle}>
-              <td ${tdLabelStyle}>Probability:</td>
-              <td ${tdStyle}>${probability}</td>
+            <tr ${popupConsts.trStyle}>
+              <td ${popupConsts.tdLabelStyle}>Probability:</td>
+              <td ${popupConsts.tdStyle}>${probability}</td>
             </tr>`;
           }
 
@@ -74,7 +80,7 @@
         } else {
           this.closePopup();
           this.html = null;
-          this.$emit('clicked-non-feature', event);
+          console.log('mouse pointer moved');
         }
       },
       addOverlay(map: Map) {

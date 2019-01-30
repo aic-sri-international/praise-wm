@@ -103,18 +103,18 @@
         controls, // we do not want any map controls, this will remove the defaults
       });
 
-      const onMapClick = (event: MapBrowserEvent) => {
+      const onMapEvent = (event: MapBrowserEvent) => {
         const getProbability =
             feature => this.featureHandler.getProbabilityForFeature(feature);
 
-        this.$refs.ol_popup_ref.onMapClick(event, getProbability);
+        this.$refs.ol_popup_ref.onMapEvent(event, getProbability);
       };
-      this.map.on('singleclick', onMapClick);
+      this.map.on('pointermove', onMapEvent);
       this.$refs.ol_popup_ref.addOverlay(this.map);
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.updateMapSize);
-      this.map.un('singleclick');
+      this.map.un('pointermove');
       this.map.setTarget(undefined);
     },
   };

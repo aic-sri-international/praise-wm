@@ -1,6 +1,6 @@
 {
   "name": "One numeric variable",
-  "description": "Testing new solver code",
+  "description": "Model with one numeric variable",
   "declarations": "random x : [-10;10];",
   "rules": [
     {

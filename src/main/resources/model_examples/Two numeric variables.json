@@ -1,6 +1,6 @@
 {
   "name": "Two Numeric Variables",
-  "description": "Testing new solver code",
+  "description": "Model with two numeric variables",
   "declarations": "random x : [-10;10];\nconstant b : [-10;10];",
   "rules": [
     {

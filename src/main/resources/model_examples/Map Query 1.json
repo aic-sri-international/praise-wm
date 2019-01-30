@@ -1,0 +1,14 @@
+{
+  "name": "Map Query 1",
+  "description": "Map South Sudan county query 1",
+  "declarations": "sort Counties: 3, Abiemnhom, Abyei, Akobo;\n\nrandom capital: Counties;",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "capital = Abyei;"
+    }
+  ],
+  "queries": [
+    "capital"
+  ]
+}
