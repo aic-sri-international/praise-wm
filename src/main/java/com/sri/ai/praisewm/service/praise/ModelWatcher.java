@@ -34,7 +34,6 @@ public class ModelWatcher {
       DirectoryChanged directoryChanged,
       ModelNameAccessor modelNameAccessor) {
     this.watchDir = watchDir;
-    ModelNameAccessor modelNameAccessor1 = modelNameAccessor;
 
     msgQueueRunnableTask =
         () -> {
