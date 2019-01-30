@@ -83,7 +83,8 @@ export type GraphRequestDto = {
 }
 
 export type GraphRequestResultDto = {
-  imageData: string,
+  imageData?: string,
+  mapRegionNameToValue?: { [string]: number },
 }
 
 export type GraphQueryVariableResults = {
@@ -93,9 +94,7 @@ export type GraphQueryVariableResults = {
   graphVariableSets: GraphVariableSet[],
 }
 
-export type GraphQueryResultDto = GraphQueryVariableResults & {
-  imageData: string,
-}
+export type GraphQueryResultDto = GraphQueryVariableResults & GraphRequestResultDto;
 
 export type ExpressionResultDto = {
   query: string,

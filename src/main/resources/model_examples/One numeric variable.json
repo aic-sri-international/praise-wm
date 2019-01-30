@@ -1,0 +1,14 @@
+{
+  "name": "One numeric variable",
+  "description": "Testing new solver code",
+  "declarations": "random x : [-10;10];",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "x = Normal(0.0, 15.0);"
+    }
+  ],
+  "queries": [
+    "x"
+  ]
+}

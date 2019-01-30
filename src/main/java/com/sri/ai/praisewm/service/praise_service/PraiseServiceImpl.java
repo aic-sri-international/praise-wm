@@ -38,10 +38,11 @@ public class PraiseServiceImpl implements PraiseService, Service {
   private SegmentedModelLoader segmentedModelLoader;
   private PageModelLoader pageModelLoader;
   private ProceduralAttachments proceduralAttachments;
+  // Used to allow us to interrupt active solvers
   private Map<Integer, HOGMMultiQuerySamplingProblemSolver> activeSolverMap =
       Collections.synchronizedMap(new HashMap<>());
   private AtomicInteger nextSolver = new AtomicInteger();
-  private GraphManager graphManager;
+  private QueryFunctionManager queryFunctionManager;
 
   @Override
   public void start(ServiceManager serviceManager) {
@@ -51,7 +52,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
         new SegmentedModelLoader(serviceManager.getConfiguration(), serviceManager.getEventBus());
-    graphManager = new GraphManager(serviceManager);
+    queryFunctionManager = new QueryFunctionManager(serviceManager);
   }
 
   public void stop() {
@@ -88,13 +89,15 @@ public class PraiseServiceImpl implements PraiseService, Service {
     return PageModelLoader.fromFormattedPageModel(formattedPageModel);
   }
 
-  public List<ExpressionResultDto> solveProblem(String sessionId, ModelQueryDto modelQuery) {
-        ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
-        ExpressoConfiguration
-            .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
+  public ExpressionResultDto solveProblem(String sessionId, ModelQueryDto modelQuery) {
+    ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
+    ExpressoConfiguration
+        .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
 
-    LOG.info("About to run HOGM Query: NumberOfDiscreteValues={}, NumberOfInitialSamples={}",
-        modelQuery.getNumberOfDiscreteValues(), modelQuery.getNumberOfInitialSamples());
+    LOG.info(
+        "About to run HOGM Query: NumberOfDiscreteValues={}, NumberOfInitialSamples={}",
+        modelQuery.getNumberOfDiscreteValues(),
+        modelQuery.getNumberOfInitialSamples());
 
     HOGMMultiQuerySamplingProblemSolver queryRunner =
         new HOGMMultiQuerySamplingProblemSolver(
@@ -109,9 +112,13 @@ public class PraiseServiceImpl implements PraiseService, Service {
     List<? extends HOGMProblemResult> hogmProblemResults;
 
     int solverId = nextSolver.incrementAndGet();
+
+    // Save referrence to solver in case the user makes a call to interrupt it
+    // while it's processing.
     activeSolverMap.put(solverId, queryRunner);
 
     try {
+      // Process the solver and get the results
       hogmProblemResults = queryRunner.getResults();
       if (hogmProblemResults.isEmpty()) {
         throw new RuntimeException("Solver did not return any results");
@@ -123,8 +130,11 @@ public class PraiseServiceImpl implements PraiseService, Service {
     }
 
     try {
-      List<ExpressionResultDto> results = new ArrayList<>();
+      ExpressionResultDto expressionResultDto = null;
+
       List<String> answers = new ArrayList<>();
+      // There should only ever one result, if for some reason it ever returns more than
+      // one, just return the first.
       HOGMProblemResult hpResult = hogmProblemResults.get(0);
       Expression result = hpResult.getResult();
       if (result != null) {
@@ -135,15 +145,16 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
       String queryText = hpResult.getQueryString();
 
-      results.add(
+      expressionResultDto =
           new ExpressionResultDto()
               .setQuery(queryText)
               .setAnswers(answers)
               .setExplanationTree(hpResult.getExplanation())
               .setQueryDuration(hpResult.getMillisecondsToCompute())
               .setCompletionDate(Instant.now())
-              .setGraphQueryResultDto(graphManager.setGraphQueryResult(sessionId, queryText, result)));
-      return results;
+              .setGraphQueryResultDto(
+                  queryFunctionManager.processQueryResultFunction(sessionId, queryText, result));
+      return expressionResultDto;
     } catch (Exception e) {
       throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
     }
@@ -151,7 +162,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
   @Override
   public GraphRequestResultDto buildGraph(String sessionId, GraphRequestDto graphRequestDto) {
-    return graphManager.handleGraphRequest(sessionId, graphRequestDto);
+    return queryFunctionManager.handleGraphRequest(sessionId, graphRequestDto, false);
   }
 
   @Override

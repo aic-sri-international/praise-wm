@@ -1,0 +1,14 @@
+{
+  "name": "Two Numeric Variables",
+  "description": "Testing new solver code",
+  "declarations": "random x : [-10;10];\nconstant b : [-10;10];",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "x = Normal(b + 2, 3.0);"
+    }
+  ],
+  "queries": [
+    "x"
+  ]
+}
