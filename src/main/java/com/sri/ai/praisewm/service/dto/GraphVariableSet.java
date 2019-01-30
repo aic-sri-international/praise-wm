@@ -3,10 +3,15 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class it used in both the client's request and the reply payroll
+ */
 public class GraphVariableSet {
   // Required
   private String name;
   // null if graphVariableRangeDto is non-null
+  // If non-null: when sent to the client, the list will contain multiple entries, but will
+  // only contain the selected value when sent from the client.
   private List<String> enums;
   // null if enums is non-null
   private GraphVariableRangeDto range;

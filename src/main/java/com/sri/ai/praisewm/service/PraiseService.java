@@ -15,7 +15,7 @@ public interface PraiseService {
 
   List<SegmentedModelDto> getSegmentedModels();
 
-  List<ExpressionResultDto> solveProblem(String sessionId, ModelQueryDto modelQuery);
+  ExpressionResultDto solveProblem(String sessionId, ModelQueryDto modelQuery);
 
   FormattedPageModelDto toFormattedPageModel(ModelPagesDto modelPages);
 

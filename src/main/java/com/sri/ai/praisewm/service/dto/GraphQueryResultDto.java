@@ -1,6 +1,7 @@
 package com.sri.ai.praisewm.service.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class GraphQueryResultDto {
   // Not empty
@@ -15,6 +16,9 @@ public class GraphQueryResultDto {
 
   // bas64 image with data/mime header
   private String imageData;
+
+  // Map region to value
+  private Map<String, Double> mapRegionNameToValue;
 
   // no-arg constructor for JSON conversion
   public GraphQueryResultDto() {}
@@ -46,6 +50,15 @@ public class GraphQueryResultDto {
     return this;
   }
 
+  public Map<String, Double> getMapRegionNameToValue() {
+    return mapRegionNameToValue;
+  }
+
+  public GraphQueryResultDto setMapRegionNameToValue(Map<String, Double> mapRegionNameToValue) {
+    this.mapRegionNameToValue = mapRegionNameToValue;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "GraphQueryResultDto{"
@@ -55,6 +68,8 @@ public class GraphQueryResultDto {
         + graphVariableSets
         + ", imageData="
         + (imageData == null ? null : imageData.substring(0, 20))
+        + ", mapRegionNameToValue="
+        + mapRegionNameToValue
         + '}';
   }
 }

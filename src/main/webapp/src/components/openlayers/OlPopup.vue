@@ -9,8 +9,9 @@
   // @flow
   import Map from 'ol/Map';
   import Overlay from 'ol/Overlay';
+  import Feature from 'ol/Feature';
   import MapBrowserEvent from 'ol/MapBrowserEvent';
-  import { props as propConst, getOpacityForFeature } from './features';
+  import { props as propConst } from './features';
 
   export default {
     name: 'OlPopup',
@@ -27,7 +28,7 @@
       };
     },
     methods: {
-      onMapClick(event: MapBrowserEvent) {
+      onMapClick(event: MapBrowserEvent, getOpacityForFeature: (feature: Feature) => number) {
         if (!this.overlay) {
           throw Error('addOverlay must be called before calling onMapClick');
         }
@@ -39,7 +40,7 @@
         const tdLabelStyle = `style="${tdCommonStyle};font-weight: 600"`;
         const trStyle = 'style="line-height: 1.1"';
 
-        event.map.forEachFeatureAtPixel(event.pixel, (feature) => {
+        event.map.forEachFeatureAtPixel(event.pixel, (feature: Feature) => {
           if (html) {
             html += '<hr>';
           }
@@ -52,12 +53,18 @@
             <tr ${trStyle}>
               <td ${tdLabelStyle}>County:</td>
               <td ${tdStyle}>${feature.get(propConst.County)}</td>
-            </tr>
+            </tr>`;
+
+          const probability = getOpacityForFeature(feature);
+          if (typeof probability === 'number') {
+            html += `
             <tr ${trStyle}>
-              <td ${tdLabelStyle}>Opacity:</td>
-              <td ${tdStyle}>${getOpacityForFeature(feature)}</td>
-            </tr>
-          </table>`;
+              <td ${tdLabelStyle}>Probability:</td>
+              <td ${tdStyle}>${probability}</td>
+            </tr>`;
+          }
+
+          html += '</table>';
           isOurs = true;
         });
 

@@ -8,6 +8,8 @@
                 v-model="slider.value"
                 >
     </vue-slider>
+    <div v-if="bottomText" style="margin-top: -34px">{{bottomText}}</div>
+    <div v-if="bottomText" style="height: 4px"></div>
   </div>
 </template>
 
@@ -34,6 +36,7 @@
     },
     data() {
       return {
+        bottomText: '',
         slider: {
           value: null,
           width: 'auto',
@@ -117,8 +120,10 @@
           if (range) {
             const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
 
+            this.bottomText = params.name;
             this.slider.data = null;
             this.slider.value = [range.first, range.last];
+            this.slider.disabled = [false, true];
             this.slider.min = range.first;
             this.slider.max = range.last;
             this.slider.interval = range.step;

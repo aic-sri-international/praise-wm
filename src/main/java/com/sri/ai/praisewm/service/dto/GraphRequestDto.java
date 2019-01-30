@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class GraphRequestDto {
   private String xmVariable;
+  // Any enums in the list will be the single value result of a client selection
   private List<GraphVariableSet> graphVariableSets;
 
   // no-arg constructor for JSON conversion

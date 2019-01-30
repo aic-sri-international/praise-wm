@@ -1,9 +1,12 @@
 <template>
+  <!--
+@TODO change below to @click.stop="showChart = !showChart" when we are ready to display explanations component
+-->
   <div>
     <transition name="fade" v-on:after-leave="showIcon = true">
       <div v-show="showChart" class="top-level-container">
         <div>
-          <img @click.stop="showChart = !showChart" :src="imageData">
+          <img @click.stop="showChart = true" :src="imageData">
           <query-graph-controls
               ref="queryGraphControls_ref"
               @controlChanged="onControlChanged"

@@ -1,8 +1,7 @@
 package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionSamplingFactor;
-import com.sri.ai.praise.core.representation.translation.rodrigoframework.samplinggraph2d.SamplingFactorDiscretizedProbabilityDistributionFunction;
+import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
 import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
@@ -11,6 +10,7 @@ import com.sri.ai.praisewm.service.dto.GraphVariableRangeDto;
 import com.sri.ai.praisewm.service.dto.GraphVariableSet;
 import com.sri.ai.praisewm.util.FilesUtil;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.function.api.functions.Function;
 import com.sri.ai.util.function.api.functions.Functions;
 import com.sri.ai.util.function.api.values.Value;
 import com.sri.ai.util.function.api.variables.SetOfValues;
@@ -20,14 +20,14 @@ import com.sri.ai.util.function.api.variables.Variable;
 import com.sri.ai.util.function.core.values.SetOfEnumValues;
 import com.sri.ai.util.function.core.values.SetOfIntegerValues;
 import com.sri.ai.util.function.core.values.SetOfRealValues;
+import com.sri.ai.util.function.core.variables.DefaultAssignment;
+import com.sri.ai.util.function.core.variables.DefaultSetOfVariables;
 import com.sri.ai.util.function.core.variables.EnumVariable;
 import com.sri.ai.util.function.core.variables.IntegerVariable;
 import com.sri.ai.util.function.core.variables.RealVariable;
 import com.sri.ai.util.graph2d.api.GraphPlot;
-import com.sri.ai.util.graph2d.api.GraphSet;
 import com.sri.ai.util.graph2d.api.GraphSetMaker;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,13 +37,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphManager {
-  private static final Logger LOG = LoggerFactory.getLogger(GraphManager.class);
+public class QueryFunctionManager {
+  private static final Logger LOG = LoggerFactory.getLogger(QueryFunctionManager.class);
 
-  private final GraphCache graphCache;
+  private final QueryFunctionCache queryFunctionCache;
 
-  public GraphManager(ServiceManager serviceManager) {
-    this.graphCache = new GraphCache(serviceManager.getEventBus());
+  public QueryFunctionManager(ServiceManager serviceManager) {
+    this.queryFunctionCache = new QueryFunctionCache(serviceManager.getEventBus());
   }
 
   private static List<GraphVariableSet> buildGraphVariableSetList(
@@ -134,7 +134,7 @@ public class GraphManager {
   }
 
   private static Map<Variable, SetOfValues> buildNewVariableToSetOfValuesMap(
-      List<GraphVariableSet> graphVariableSets, GraphCacheEntry entry) {
+      List<GraphVariableSet> graphVariableSets, QueryFunctionCacheEntry entry) {
     Map<Variable, SetOfValues> map = new LinkedHashMap<>();
 
     for (GraphVariableSet variableSet : graphVariableSets) {
@@ -146,37 +146,31 @@ public class GraphManager {
     return map;
   }
 
-  private static GraphVariableSet toSingleFirstEntryVariableSet(GraphVariableSet variableSet) {
-    if (variableSet.getEnums() != null) {
-      return new GraphVariableSet()
-          .setName(variableSet.getName())
-          .setEnums(Collections.singletonList(variableSet.getEnums().get(0)));
-    }
-
-    return variableSet;
-  }
-
-  private static List<Variable> getPossibleXmVariables(
-      SamplingFactorDiscretizedProbabilityDistributionFunction function, String queryText) {
+  private static List<Variable> getPossibleXmVariables(Function function, String queryText) {
     List<Variable> xmVariables = new ArrayList<>();
 
     SetOfVariables setOfVariables = function.getSetOfInputVariables();
     ArrayList<? extends Variable> variables = setOfVariables.getVariables();
 
-    int queryIndex = Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(variables, v -> {
-      if (v == null) {
-        throw new RuntimeException("Null variable found in setOfVariables, variables=" + variables);
-      }
-      String vn = v.getName();
-      if (vn == null) {
-        throw new RuntimeException("Null variable name for variable within variables=" + variables);
-      }
-      return v.getName().equals(queryText);
-    });
+    int queryIndex =
+        Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(
+            variables,
+            v -> {
+              if (v == null) {
+                throw new RuntimeException(
+                    "Null variable found in setOfVariables, variables=" + variables);
+              }
+              String vn = v.getName();
+              if (vn == null) {
+                throw new RuntimeException(
+                    "Null variable name for variable within variables=" + variables);
+              }
+              return v.getName().equals(queryText);
+            });
 
     if (queryIndex == -1) {
-      throw new RuntimeException(String.format("Query variable %s not found in variables %s",
-          queryText, variables));
+      throw new RuntimeException(
+          String.format("Query variable %s not found in variables %s", queryText, variables));
     }
 
     Functions functions = Functions.functions(function);
@@ -191,51 +185,108 @@ public class GraphManager {
     return xmVariables;
   }
 
+  private DefaultAssignment getAssignmentOnNonXAxisVariables(Function function, String query) {
+    SetOfVariables inputVariables = function.getSetOfInputVariables();
+
+    int queryIndex =
+        Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(
+            inputVariables.getVariables(), v -> v.getName().equals(query));
+
+    ArrayList<? extends Variable> nonXAxisVariables = inputVariables.getVariables();
+    nonXAxisVariables.remove(queryIndex);
+    SetOfVariables setOfNonXAxisVariables = new DefaultSetOfVariables(nonXAxisVariables);
+
+    List<? extends Value> values =
+        Util.mapIntoList(nonXAxisVariables, v -> v.getSetOfValuesOrNull().get(0));
+    DefaultAssignment assignmentOnNonXAxisVariables =
+        new DefaultAssignment(setOfNonXAxisVariables, values);
+
+    return assignmentOnNonXAxisVariables;
+  }
+
   public GraphRequestResultDto handleGraphRequest(
-      String sessionId, GraphRequestDto graphRequestDto) {
+      String sessionId, GraphRequestDto graphRequestDto, boolean isFirstCall) {
     GraphRequestResultDto result = new GraphRequestResultDto();
-    GraphCacheEntry entry = graphCache.getEntry(sessionId);
+    QueryFunctionCacheEntry entry = queryFunctionCache.getEntry(sessionId);
     if (graphRequestDto.equals(entry.getLastRequest())) {
-      // If it's the same request, return the prior image
+      // If it's the same request, return the prior image or map data
       return new GraphRequestResultDto()
-          .setImageData(entry.getGraphQueryResultDto().getImageData());
+          .setImageData(entry.getGraphQueryResultDto().getImageData())
+          .setMapRegionNameToValue(entry.getGraphQueryResultDto().getMapRegionNameToValue());
     }
+
+    //    Functions functions = Functions.functions(entry.getFunction());
+    //
+    //    DefaultAssignment assignmentOnNonXAxisVariables
+    //        = getAssignmentOnNonXAxisVariables(entry.getFunction(), entry.getQueryText());
+    //    GraphSetMaker graphSetMaker = GraphSetMaker.graphSetMaker();
+    //
+    //    graphSetMaker.setFunctions(Functions.functions(entry.getFunction()));
+    //    graphSetMaker.setFromVariableToSetOfValues(
+    //        buildNewVariableToSetOfValuesMap(graphRequestDto.getGraphVariableSets(), entry));
+    //    Variable xmVariable = entry.getVariableByName(graphRequestDto.getXmVariable());
+    //
+    //    SetOfVariables inputVariables = entry.getFunction().getSetOfInputVariables();
+    //    List<? extends Value> values = Util.mapIntoList(inputVariables.getVariables(), v ->
+    // v.getSetOfValuesOrNull().get(0));
+    //    DefaultAssignment defaultAssignment = new DefaultAssignment(inputVariables, values);
+    //    GraphPlot graphPlot = graphSetMaker.plot(defaultAssignment, xmVariable);
+    Functions functions = Functions.functions(entry.getFunction());
+
+    // @TODO  isFirstCall==false get map of Variable to Value -> but how is a range handled ?
+    Map<Variable, SetOfValues> variableSetOfValuesMap =
+        buildNewVariableToSetOfValuesMap(graphRequestDto.getGraphVariableSets(), entry);
+
+    List<Variable> nonXAxisVariables = new ArrayList<>(variableSetOfValuesMap.keySet());
+    int queryIndex =
+        Util.getIndexOfFirstSatisfyingPredicateOrMinusOne(
+            nonXAxisVariables, v -> v.getName().equals(entry.getQueryText()));
+    nonXAxisVariables.remove(queryIndex);
+
+    SetOfVariables setOfNonXAxisVariables = new DefaultSetOfVariables(nonXAxisVariables);
+
+    // @TODO how do get get all values, and not just the first ?
+    List<? extends Value> values =
+        Util.mapIntoList(nonXAxisVariables, v -> v.getSetOfValuesOrNull().get(0));
+
+    DefaultAssignment assignmentOnNonXAxisVariables =
+        new DefaultAssignment(setOfNonXAxisVariables, values);
+
+    Variable xmVariable = entry.getCurrentXmVariable();
 
     GraphSetMaker graphSetMaker = GraphSetMaker.graphSetMaker();
-    graphSetMaker.setFunctions(entry.getFunctions());
-    graphSetMaker.setFromVariableToSetOfValues(
-        buildNewVariableToSetOfValuesMap(graphRequestDto.getGraphVariableSets(), entry));
-    Variable xmVariable = entry.getVariableByName(graphRequestDto.getXmVariable());
-    GraphSet graphSet = graphSetMaker.make(xmVariable);
-    List<? extends GraphPlot> graphPlots = graphSet.getGraphPlots();
-    if (graphPlots.size() > 1) {
-      LOG.warn("Multiple GraphPlots generated, only the first will be used");
-    } else if (graphPlots.isEmpty()) {
-      LOG.error("GraphPlot did not get generated");
-    }
+    graphSetMaker.setFunctions(functions);
 
-    if (!graphPlots.isEmpty()) {
-      GraphPlot graphPlot = graphPlots.get(0);
-      result.setImageData(FilesUtil.imageFileToBase64DataImage(graphPlot.getImageFile().toPath()));
-      entry.getGraphQueryResultDto().setImageData(result.getImageData());
-      entry.setLastRequest(graphRequestDto);
+    GraphPlot graphPlot = graphSetMaker.plot(assignmentOnNonXAxisVariables, xmVariable);
+    if (graphPlot.getRegionToValue() != null) {
+      result.setMapRegionNameToValue(graphPlot.getRegionToValue());
     }
+    if (graphPlot.getImageFile() != null) {
+      result.setImageData(FilesUtil.imageFileToBase64DataImage(graphPlot.getImageFile().toPath()));
+    }
+    entry
+        .getGraphQueryResultDto()
+        .setImageData(result.getImageData())
+        .setMapRegionNameToValue(result.getMapRegionNameToValue());
+    entry.setLastRequest(graphRequestDto);
 
     return result;
   }
 
-  public GraphQueryResultDto setGraphQueryResult(String sessionId, String queryText, Expression result) {
+  public GraphQueryResultDto processQueryResultFunction(
+      String sessionId, String queryText, Expression result) {
     try {
-      ExpressionSamplingFactor expressionSamplingFactor = (ExpressionSamplingFactor) result;
-      return setGraphQueryResult_internal(sessionId, queryText, expressionSamplingFactor);
+      ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
+          (ExpressionWithProbabilityFunction) result;
+      return processQueryResultFunction_internal(
+          sessionId, queryText, expressionWithProbabilityFunction);
     } catch (Exception ex) {
       LOG.error("Cannot generate graph", ex);
     }
     return null;
   }
 
-  private Map<Variable, SetOfValues> getMapOfVariableToSetOfValues(
-      SamplingFactorDiscretizedProbabilityDistributionFunction function) {
+  private Map<Variable, SetOfValues> getMapOfVariableToSetOfValues(Function function) {
     Map<Variable, SetOfValues> variableToSetOfValues = new LinkedHashMap<>();
 
     SetOfVariables setOfVariables = function.getSetOfInputVariables();
@@ -248,20 +299,21 @@ public class GraphManager {
     return variableToSetOfValues;
   }
 
-  private GraphQueryResultDto setGraphQueryResult_internal(String sessionId,
-                  String queryText,
-                  ExpressionSamplingFactor expressionSamplingFactor) {
-    SamplingFactorDiscretizedProbabilityDistributionFunction function =
-            expressionSamplingFactor.getDiscretizedConditionalProbabilityDistributionFunction();
-    Functions functions = Functions.functions(function);
+  private GraphQueryResultDto processQueryResultFunction_internal(
+      String sessionId,
+      String queryText,
+      ExpressionWithProbabilityFunction expressionWithProbabilityFunction) {
+    Function function =
+        expressionWithProbabilityFunction
+            .getDiscretizedConditionalProbabilityDistributionFunction();
     Map<Variable, SetOfValues> variableToSetOfValues = getMapOfVariableToSetOfValues(function);
 
-
-    GraphCacheEntry entry =
-        new GraphCacheEntry(
-            functions,
+    QueryFunctionCacheEntry entry =
+        new QueryFunctionCacheEntry(
+            function,
             variableToSetOfValues,
-            getPossibleXmVariables(function, queryText));
+            getPossibleXmVariables(function, queryText),
+            queryText);
 
     GraphQueryResultDto graphQueryResultDto = new GraphQueryResultDto();
     graphQueryResultDto.setXmVariables(
@@ -271,23 +323,19 @@ public class GraphManager {
 
     entry.setGraphQueryResultDto(graphQueryResultDto);
 
-    graphCache.addEntry(sessionId, entry);
+    queryFunctionCache.addEntry(sessionId, entry);
 
-    // Build GraphRequestDto to get the image, then set it into the GraphQueryResultDto
+    // Build GraphRequestDto to get the image or map data, then set it into the GraphQueryResultDto
     // and return it to the caller.
     GraphRequestDto graphRequestDto = new GraphRequestDto();
     // Use the first xmVariable
     graphRequestDto.setXmVariable(graphQueryResultDto.getXmVariables().get(0));
 
-    List<GraphVariableSet> list = new ArrayList<>();
-    for (GraphVariableSet s : graphQueryResultDto.getGraphVariableSets()) {
-      list.add(toSingleFirstEntryVariableSet(s));
-    }
-    graphRequestDto.setGraphVariableSets(list);
+    graphRequestDto.setGraphVariableSets(graphQueryResultDto.getGraphVariableSets());
 
     // handleGraphRequest will set the graph image field for our cached GraphQueryResultDto
     // instance.
-    handleGraphRequest(sessionId, graphRequestDto);
+    handleGraphRequest(sessionId, graphRequestDto, true);
 
     return graphQueryResultDto;
   }

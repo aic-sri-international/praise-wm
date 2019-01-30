@@ -119,7 +119,7 @@
     </div>
     <div class="right-column" id="segModelEditorViewRightCol">
       <!--@TODO update when the HOGM solver can return map related query results-->
-      <query-map-result :graph-query-result="undefined"
+      <query-map-result :graph-query-result="graphQueryResult"
                         v-if="displayMap"></query-map-result>
       <query-chart-result :graph-query-result="graphQueryResult" v-else></query-chart-result>
       <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
@@ -156,6 +156,7 @@
     ModelRuleDto,
     ModelQueryDto,
     ExpressionResultDto,
+    GraphQueryResultDto,
   } from './types';
 
   const emptySegmentedModel: SegmentedModelDto = {
@@ -204,8 +205,8 @@
     },
     computed: {
       displayMap() {
-        // @TODO update when the HOGM solver can return map related query results
-        return !(this.graphQueryResult && this.graphQueryResult.imageData);
+        const gqr : GraphQueryResultDto = this.graphQueryResult;
+        return (gqr && gqr.mapRegionNameToValue) || !(gqr && gqr.imageData);
       },
       explanationTree() {
         if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
@@ -213,7 +214,7 @@
         }
         return null;
       },
-      graphQueryResult() {
+      graphQueryResult() : ?GraphQueryResultDto {
         if (this.selectedQueryResult > -1 && this.queryResults.length > 0) {
           return this.queryResults[this.selectedQueryResult].graphQueryResultDto;
         }
@@ -254,15 +255,10 @@
 
         try {
           this.runningQueries = this.runningQueries + 1;
-          const arrayOfResults: ExpressionResultDto[] = await solve(query);
-          if (arrayOfResults.length) {
-            // We should not normally get multiple results for a query.
-            // If we do, only use the first one.
-            const result: ExpressionResultDto = arrayOfResults[0];
-            this.queryResults = [result].concat(this.queryResults);
-            this.showQueryResults = true;
-            this.selectedQueryResult = 0;
-          }
+          const result: ExpressionResultDto = await solve(query);
+          this.queryResults = [result].concat(this.queryResults);
+          this.showQueryResults = true;
+          this.selectedQueryResult = 0;
 
           if (!this.queryResults.length) {
             this.selectedQueryResult = -1;

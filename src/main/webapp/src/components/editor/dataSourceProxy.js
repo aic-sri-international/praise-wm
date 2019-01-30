@@ -31,7 +31,7 @@ async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
   return Promise.resolve(result);
 }
 
-async function solve(model: ModelQueryDto): Promise<ExpressionResultDto[]> {
+async function solve(model: ModelQueryDto): Promise<ExpressionResultDto> {
   const path = 'solve';
   let url;
 

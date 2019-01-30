@@ -8,27 +8,27 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
-public class GraphCache {
-  private final Map<String, GraphCacheEntry> sessionIdToEntry = new HashMap<>();
+public class QueryFunctionCache {
+  private final Map<String, QueryFunctionCacheEntry> sessionIdToEntry = new HashMap<>();
   private final EventBus eventBus;
 
-  public GraphCache(EventBus eventBus) {
+  public QueryFunctionCache(EventBus eventBus) {
     this.eventBus = eventBus;
     eventBus.register(new SessionCloseEventListener());
   }
 
-  void addEntry(String sessionId, GraphCacheEntry entry) {
+  void addEntry(String sessionId, QueryFunctionCacheEntry entry) {
     synchronized (sessionIdToEntry) {
       sessionIdToEntry.put(Validate.notEmpty(sessionId), entry);
     }
   }
 
-  GraphCacheEntry getEntry(String sessionId) {
-    GraphCacheEntry entry = sessionIdToEntry.get(Validate.notEmpty(sessionId));
+  QueryFunctionCacheEntry getEntry(String sessionId) {
+    QueryFunctionCacheEntry entry = sessionIdToEntry.get(Validate.notEmpty(sessionId));
     if (entry == null) {
       throw new ProcessingException(
-          "Graph is not available, please re-submit the query",
-          "GraphCacheEntry not in map for SessionId: " + sessionId);
+          "Query Result Function is not available, please re-submit the query",
+          "QueryFunctionCacheEntry not in map for SessionId: " + sessionId);
     }
     return entry;
   }

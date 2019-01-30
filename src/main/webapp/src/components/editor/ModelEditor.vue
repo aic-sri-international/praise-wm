@@ -102,7 +102,7 @@
   import AceModelEditor from './aceModelEditor';
   import { fetchExamples, solve, toFormattedPageModel, fromFormattedPageModel } from './dataSourceProxy';
   import { modelQueryDtoDefaults } from './types';
-  import type { ModelPagesDto, ModelPageDto, ModelQueryDto, FormattedPageModelDto } from './types';
+  import type { ModelPagesDto, ModelPageDto, ModelQueryDto, FormattedPageModelDto, ExpressionResultDto } from './types';
 
   export default {
     name: 'modelEditor',
@@ -220,7 +220,10 @@
               delete results[0].graphQueryResultDto.imageData;
             }
           };
-          const result = await solve(query);
+          const singleResult: ExpressionResultDto = await solve(query);
+          // solve use to return an array, which is why we are converting it to an array below
+          // so that the rest of the code will still work as before without further modifications
+          const result = [singleResult];
           removeImageData(result);
           curPage.queryResults = [result].concat(curPage.queryResults);
         } catch (err) {

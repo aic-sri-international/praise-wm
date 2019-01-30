@@ -2,36 +2,48 @@ package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
-import com.sri.ai.util.function.api.functions.Functions;
+import com.sri.ai.util.function.api.functions.Function;
 import com.sri.ai.util.function.api.variables.SetOfValues;
 import com.sri.ai.util.function.api.variables.Variable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.Validate;
 
-public class GraphCacheEntry {
-  private final Functions functions;
+public class QueryFunctionCacheEntry {
+  private final Function function;
   private final Map<Variable, SetOfValues> mapOfVariableToSetOfValues;
   private final List<Variable> xmVariables;
   private GraphQueryResultDto graphQueryResultDto;
   private GraphRequestDto lastRequest;
+  private String queryText;
 
-  public GraphCacheEntry(
-      Functions functions,
+  public QueryFunctionCacheEntry(
+      Function function,
       Map<Variable, SetOfValues> mapOfVariableToSetOfValues,
-      List<Variable> xmVariables) {
-    this.functions = functions;
+      List<Variable> xmVariables,
+      String queryText) {
+    this.function = function;
     this.mapOfVariableToSetOfValues = mapOfVariableToSetOfValues;
     this.xmVariables = xmVariables;
+    this.queryText = queryText;
   }
 
-  public Functions getFunctions() {
-    return functions;
+  public Function getFunction() {
+    return function;
   }
 
   public Map<Variable, SetOfValues> getMapOfVariableToSetOfValues() {
     return mapOfVariableToSetOfValues;
+  }
+
+  public Variable getCurrentXmVariable() {
+    return Validate.notEmpty(xmVariables, "xmVariables variables list is empty").get(0);
+  }
+
+  public String getQueryText() {
+    return queryText;
   }
 
   public List<Variable> getXmVariables() {
@@ -42,7 +54,7 @@ public class GraphCacheEntry {
     return graphQueryResultDto;
   }
 
-  public GraphCacheEntry setGraphQueryResultDto(GraphQueryResultDto graphQueryResultDto) {
+  public QueryFunctionCacheEntry setGraphQueryResultDto(GraphQueryResultDto graphQueryResultDto) {
     this.graphQueryResultDto = graphQueryResultDto;
     return this;
   }
@@ -51,7 +63,7 @@ public class GraphCacheEntry {
     return lastRequest;
   }
 
-  public GraphCacheEntry setLastRequest(GraphRequestDto lastRequest) {
+  public QueryFunctionCacheEntry setLastRequest(GraphRequestDto lastRequest) {
     this.lastRequest = lastRequest;
     return this;
   }

@@ -8,8 +8,10 @@
 <script>
   // @flow
   import getCentroid from '@turf/centroid';
+  import Feature from 'ol/Feature';
   import Map from 'ol/Map';
   import Collection from 'ol/Collection';
+  import MapBrowserEvent from 'ol/MapBrowserEvent';
   import View from 'ol/View';
   import { transform } from 'ol/proj';
   import GeoJSON from 'ol/format/GeoJSON';
@@ -17,21 +19,26 @@
   import { OSM, Vector as VectorSource } from 'ol/source';
   import OlPopup from './OlPopup';
   import featureCollection from './SS_Admin2_2011.4326';
-  import { getStyleFunction } from './features';
+  import { newFeatureCollectionHandler } from './features';
 
   const srcProjection = 'EPSG:4326';
   const destProjection = 'EPSG:3857';
-
 
   export default {
     name: 'OlMap',
     components: {
       OlPopup,
     },
+    props: {
+      mapRegionNameToValue: {
+        type: Object,
+      },
+    },
     data() {
       return {
         map: null,
         featureCollection: null,
+        featureHandler: null,
       };
     },
     methods: {
@@ -40,14 +47,27 @@
           this.map.updateSize();
         }
       },
-      getPolygon() {
-
+    },
+    watch: {
+      mapRegionNameToValue() {
+        this.featureHandler
+            = newFeatureCollectionHandler(this.featureCollection, this.mapRegionNameToValue);
+        // Force the view to redraw the features; replace if there's a better way to do it
+        const view: View = this.map.getView();
+        const oldZoom = view.getZoom();
+        // Small enough so that it probably won't be noticed
+        view.setZoom(oldZoom + 0.0000001);
+        // Reset it
+        setTimeout(() => {
+          view.setZoom(oldZoom);
+        }, 50);
       },
     },
     mounted() {
       window.addEventListener('resize', this.updateMapSize);
-
       this.featureCollection = featureCollection;
+      this.featureHandler =
+          newFeatureCollectionHandler(this.featureCollection, this.mapRegionNameToValue);
       const geoJson: GeoJSON = new GeoJSON();
       const geoJsonFeatures = geoJson.readFeatures(
         featureCollection,
@@ -60,9 +80,11 @@
         features: geoJsonFeatures,
       });
 
+      const getStyle = (feature: Feature) => this.featureHandler.getStyleForFeature(feature);
+
       const vectorLayer = new VectorLayer({
         source: vectorSource,
-        style: getStyleFunction(featureCollection),
+        style: getStyle,
       });
 
       const controls = new Collection();
@@ -80,7 +102,14 @@
         }),
         controls, // we do not want any map controls, this will remove the defaults
       });
-      this.map.on('singleclick', this.$refs.ol_popup_ref.onMapClick);
+
+      const onMapClick = (event: MapBrowserEvent) => {
+        const getProbability =
+            feature => this.featureHandler.getProbabilityForFeature(feature);
+
+        this.$refs.ol_popup_ref.onMapClick(event, getProbability);
+      };
+      this.map.on('singleclick', onMapClick);
       this.$refs.ol_popup_ref.addOverlay(this.map);
     },
     beforeDestroy() {

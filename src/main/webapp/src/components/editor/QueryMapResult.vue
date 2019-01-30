@@ -1,14 +1,21 @@
 <template>
+  <!--
+  @TODO change below to  @closeMap="showMap = false" when we are ready to display explanations component
+  -->
   <div>
     <transition name="fade" v-on:after-leave="showIcon = true">
       <div v-show="showMap" class="top-level-container">
-          <ol-map class="ol-map" @closeMap="showMap = false"></ol-map>
-          <query-graph-controls
-              v-if="graphQueryVariableResults"
-              ref="queryGraphControls_ref"
-              @controlChanged="onControlChanged"
-              :graph-query-variable-results="graphQueryVariableResults">
-          </query-graph-controls>
+          <ol-map
+            class="ol-map"
+            @closeMap="showMap = true"
+            :mapRegionNameToValue="mapRegionNameToValue">
+          </ol-map>
+          <!--<query-graph-controls-->
+              <!--v-if="graphQueryVariableResults"-->
+              <!--ref="queryGraphControls_ref"-->
+              <!--@controlChanged="onControlChanged"-->
+              <!--:graph-query-variable-results="graphQueryVariableResults">-->
+          <!--</query-graph-controls>-->
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
@@ -63,13 +70,19 @@
       },
       updateMapDisplay() {
         // const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        // @TODO use request to set map styles and adjust popup msg ?
+        // @TODO TBD.. probably send a new request to the server
       },
       onControlChanged() {
         if (!this.debounced$) {
           this.debounced$ = debounce(this.updateMapDisplay, 250, { trailing: true });
         }
         this.debounced$();
+      },
+    },
+    computed: {
+      mapRegionNameToValue() {
+        return this.graphQueryResult && this.graphQueryResult.mapRegionNameToValue
+          ? this.graphQueryResult.mapRegionNameToValue : null;
       },
     },
     watch: {
