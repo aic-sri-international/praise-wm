@@ -4,6 +4,7 @@ import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.sampling.HOGMMultiQuerySamplingProblemSolver;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
+import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
 import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
 import com.sri.ai.praisewm.service.PraiseService;
 import com.sri.ai.praisewm.service.Service;
@@ -22,6 +23,7 @@ import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
 import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
+import com.sri.ai.util.function.api.functions.Function;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,6 +147,12 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
       String queryText = hpResult.getQueryString();
 
+     ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
+          (ExpressionWithProbabilityFunction) result;
+      Function function =
+          expressionWithProbabilityFunction
+              .getDiscretizedConditionalProbabilityDistributionFunction();
+
       expressionResultDto =
           new ExpressionResultDto()
               .setQuery(queryText)
@@ -153,7 +161,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
               .setQueryDuration(hpResult.getMillisecondsToCompute())
               .setCompletionDate(Instant.now())
               .setGraphQueryResultDto(
-                  queryFunctionManager.processQueryResultFunction(sessionId, queryText, result));
+                  queryFunctionManager.processQueryResultFunction(sessionId, queryText, function));
       return expressionResultDto;
     } catch (Exception e) {
       throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
