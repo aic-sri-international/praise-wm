@@ -147,7 +147,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
       String queryText = hpResult.getQueryString();
 
-     ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
+      ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
           (ExpressionWithProbabilityFunction) result;
       Function function =
           expressionWithProbabilityFunction

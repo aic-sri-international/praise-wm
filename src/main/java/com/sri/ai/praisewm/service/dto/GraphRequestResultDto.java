@@ -19,8 +19,7 @@ public class GraphRequestResultDto {
     return mapRegionNameToValue;
   }
 
-  public GraphRequestResultDto setMapRegionNameToValue(
-      Map<String, Double> mapRegionNameToValue) {
+  public GraphRequestResultDto setMapRegionNameToValue(Map<String, Double> mapRegionNameToValue) {
     this.mapRegionNameToValue = mapRegionNameToValue;
     return this;
   }

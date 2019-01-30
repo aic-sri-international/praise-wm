@@ -3,9 +3,7 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Class it used in both the client's request and the reply payroll
- */
+/** Class it used in both the client's request and the reply payroll */
 public class GraphVariableSet {
   // Required
   private String name;
@@ -55,9 +53,9 @@ public class GraphVariableSet {
       return false;
     }
     GraphVariableSet that = (GraphVariableSet) o;
-    return Objects.equals(name, that.name) &&
-        Objects.equals(enums, that.enums) &&
-        Objects.equals(range, that.range);
+    return Objects.equals(name, that.name)
+        && Objects.equals(enums, that.enums)
+        && Objects.equals(range, that.range);
   }
 
   @Override

@@ -38,16 +38,12 @@ public class UserRoutes extends AbstractRouteGroup {
             txp.query(
                 jc -> {
                   final Map<Integer, List<SessionInfo>> uToS =
-                      securityService
-                          .getSessionMap()
-                          .values()
-                          .stream()
+                      securityService.getSessionMap().values().stream()
                           .filter(SessionInfo::isWsOpen)
                           .collect(Collectors.groupingBy(SessionInfo::getUserId));
 
                   List<UserDto> dtos =
-                      UserRepository.getUsers(jc)
-                          .stream()
+                      UserRepository.getUsers(jc).stream()
                           .map(
                               u ->
                                   UserMapper.INSTANCE

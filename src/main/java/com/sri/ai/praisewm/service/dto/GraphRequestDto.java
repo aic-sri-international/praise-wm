@@ -38,8 +38,8 @@ public class GraphRequestDto {
       return false;
     }
     GraphRequestDto that = (GraphRequestDto) o;
-    return Objects.equals(xmVariable, that.xmVariable) &&
-        Objects.equals(graphVariableSets, that.graphVariableSets);
+    return Objects.equals(xmVariable, that.xmVariable)
+        && Objects.equals(graphVariableSets, that.graphVariableSets);
   }
 
   @Override

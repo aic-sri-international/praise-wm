@@ -47,11 +47,17 @@ public class ModelQueryDto {
 
   @Override
   public String toString() {
-    return "ModelQueryDto{" +
-        "query='" + query + '\'' +
-        ", model='" + model + '\'' +
-        ", numberOfInitialSamples=" + numberOfInitialSamples +
-        ", numberOfDiscreteValues=" + numberOfDiscreteValues +
-        '}';
+    return "ModelQueryDto{"
+        + "query='"
+        + query
+        + '\''
+        + ", model='"
+        + model
+        + '\''
+        + ", numberOfInitialSamples="
+        + numberOfInitialSamples
+        + ", numberOfDiscreteValues="
+        + numberOfDiscreteValues
+        + '}';
   }
 }

@@ -68,11 +68,11 @@ public class GraphVariableRangeDto {
       return false;
     }
     GraphVariableRangeDto rangeDto = (GraphVariableRangeDto) o;
-    return Double.compare(rangeDto.first, first) == 0 &&
-        Double.compare(rangeDto.last, last) == 0 &&
-        Double.compare(rangeDto.step, step) == 0 &&
-        Objects.equals(unitName, rangeDto.unitName) &&
-        Objects.equals(unitSymbol, rangeDto.unitSymbol);
+    return Double.compare(rangeDto.first, first) == 0
+        && Double.compare(rangeDto.last, last) == 0
+        && Double.compare(rangeDto.step, step) == 0
+        && Objects.equals(unitName, rangeDto.unitName)
+        && Objects.equals(unitSymbol, rangeDto.unitSymbol);
   }
 
   @Override

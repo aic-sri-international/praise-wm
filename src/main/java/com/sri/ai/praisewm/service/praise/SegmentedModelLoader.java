@@ -163,8 +163,7 @@ public class SegmentedModelLoader {
     List<String> filesCopied = new ArrayList<>();
     List<String> filesAlreadyExisted = new ArrayList<>();
 
-    files
-        .stream()
+    files.stream()
         .filter(jsonFilter)
         .forEach(
             filename -> {

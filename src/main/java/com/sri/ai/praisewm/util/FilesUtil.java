@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public final class FilesUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FilesUtil.class);
-  private final static Set<String> SUPPORTED_IMAGE_TYPES = ImmutableSet.of("png", "jpeg", "jpg");
+  private static final Set<String> SUPPORTED_IMAGE_TYPES = ImmutableSet.of("png", "jpeg", "jpg");
 
   public static void createDirectories(Path dirPath, String description) {
     String msg = String.format("%s directory '%s'", description, dirPath);
@@ -36,7 +36,8 @@ public final class FilesUtil {
     String ext = FilenameUtils.getExtension(filepath.getFileName().toString().toLowerCase());
     if (!SUPPORTED_IMAGE_TYPES.contains(ext)) {
       throw new IllegalArgumentException(
-          String.format("%s must have one of the following extensions: %s",
+          String.format(
+              "%s must have one of the following extensions: %s",
               filepath.toString(), SUPPORTED_IMAGE_TYPES));
     }
 

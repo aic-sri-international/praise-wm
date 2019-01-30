@@ -20,9 +20,7 @@ final class PropertiesUtil {
 
   static String format(Properties properties, String title) {
     String props =
-        properties
-            .entrySet()
-            .stream()
+        properties.entrySet().stream()
             .filter((e) -> !e.getKey().toString().toLowerCase().contains("password"))
             .collect(toMap((e) -> e.getKey().toString(), Map.Entry::getValue))
             .entrySet()
@@ -47,8 +45,7 @@ final class PropertiesUtil {
 
     // Add support for end-of-line comments
     String propsBuffer =
-        lines
-            .stream()
+        lines.stream()
             .map(
                 (l) -> {
                   int ix = l.indexOf("#");

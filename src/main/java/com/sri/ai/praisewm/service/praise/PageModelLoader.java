@@ -43,9 +43,7 @@ public class PageModelLoader {
     formattedPagedModel.setName(basename + ".praise");
 
     List<Pair<String, List<String>>> pageContents =
-        modelPages
-            .getPages()
-            .stream()
+        modelPages.getPages().stream()
             .map(mp -> new Pair<>(mp.getModel(), mp.getQueries()))
             .collect(Collectors.toList());
 
@@ -89,8 +87,7 @@ public class PageModelLoader {
             new ElectionAsInIJCAI2016Paper(),
             new Position());
 
-    return examples
-        .stream()
+    return examples.stream()
         .map(ModelPagesMapper.INSTANCE::toModelPagesDto)
         .collect(collectingAndThen(toList(), Collections::unmodifiableList));
   }

@@ -1,7 +1,5 @@
 package com.sri.ai.praisewm.service.praise_service;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
 import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
@@ -148,13 +146,13 @@ public class QueryFunctionManager {
 
   /**
    * Determine the current xmVariable, and any others that could potentially become the xmVariable.
-   * <p>
-   * The first entry in the list is the current xmVariable.
+   *
+   * <p>The first entry in the list is the current xmVariable.
    *
    * @param function the function returned from the HOGM model query.
    * @param queryText the text used for the query
-   * @return list of all possible xmVariables. The first is the current xmVariable, any others
-   * are variables that the user could potentially select from to change the current xmVariable.
+   * @return list of all possible xmVariables. The first is the current xmVariable, any others are
+   *     variables that the user could potentially select from to change the current xmVariable.
    */
   private static List<Variable> getPossibleXmVariables(Function function, String queryText) {
     // Currently there is only one possible xm variable.
@@ -287,8 +285,7 @@ public class QueryFunctionManager {
   public GraphQueryResultDto processQueryResultFunction(
       String sessionId, String queryText, Function function) {
     try {
-      return processQueryResultFunction_internal(
-          sessionId, queryText, function);
+      return processQueryResultFunction_internal(sessionId, queryText, function);
     } catch (Exception ex) {
       LOG.error("Cannot generate graph", ex);
     }
@@ -309,9 +306,7 @@ public class QueryFunctionManager {
   }
 
   private GraphQueryResultDto processQueryResultFunction_internal(
-      String sessionId,
-      String queryText,
-      Function function) {
+      String sessionId, String queryText, Function function) {
     Map<Variable, SetOfValues> variableToSetOfValues = getMapOfVariableToSetOfValues(function);
 
     QueryFunctionCacheEntry entry =
