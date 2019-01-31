@@ -8,8 +8,8 @@
                 v-model="slider.value"
                 >
     </vue-slider>
-    <div v-if="bottomText" style="margin-top: -34px">{{bottomText}}</div>
-    <div v-if="bottomText" style="height: 4px"></div>
+    <div v-if="bottomText" :style="bottomTextStyle">{{bottomText}}</div>
+    <div v-if="bottomText" style="height: 12px"></div>
   </div>
 </template>
 
@@ -40,6 +40,7 @@
     data() {
       return {
         bottomText: '',
+        bottomTextStyle: '',
         slider: {
           value: null,
           width: 'auto',
@@ -82,6 +83,9 @@
           this.slider.show = true;
         }
       },
+      setbottomTextStyle(heightAdjust: number) {
+        this.bottomTextStyle = `margin-top: -${heightAdjust}px`;
+      },
       setOptions() {
         if (this.direction === 'horizontal') {
           this.slider.height = 6;
@@ -96,8 +100,11 @@
           this.slider.tooltipDir = 'top';
         }
         const params: GraphVariableSet = this.graphVariableSet;
+        this.bottomText = params.name;
+
         if (params.enums) {
           this.slider.data = [...params.enums];
+          this.setbottomTextStyle(52);
           // eslint-disable-next-line prefer-destructuring
           this.slider.value = this.slider.data[0];
           this.slider.min = 0;
@@ -121,9 +128,8 @@
           // eslint-disable-next-line prefer-destructuring
           const range: ?GraphVariableRangeDto = params.range;
           if (range) {
+            this.setbottomTextStyle(44);
             const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
-
-            this.bottomText = params.name;
             this.slider.data = null;
             this.slider.value = [range.first, range.last];
             this.slider.disabled = [false, !this.allowUpperRangeValueToChange];

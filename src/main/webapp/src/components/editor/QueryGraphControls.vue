@@ -12,8 +12,8 @@
             :graphVariableSet="control.gvs"
         ></graph-variable-set-slider>
       </div>
-      <div v-else :style="control.style" >
-        <b-input-group size="sm" class="ml-1" :prepend="control.gvs.name">
+      <div v-else :style="control.style">
+        <b-input-group v-if="!(isMapControls && control.isXmVariable)" size="sm" class="ml-1" :prepend="control.gvs.name">
           <b-form-select
               @input="()=>onDropdownSelectionChanged()"
               v-model="control.ddSelection"
