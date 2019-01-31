@@ -148,9 +148,10 @@ public class PraiseServiceImpl implements PraiseService, Service {
     final Expression expression =
         Objects.requireNonNull(
             hpResult.getResult(), "Expression returned from HOGMProblemResult result is null");
-
-    answers.add(queryRunner.simplifyAnswer(expression, hpResult.getQueryExpression()).toString());
-
+    // Comment-out by request
+    //  answers.add(queryRunner.simplifyAnswer(expression, hpResult.getQueryExpression()).toString());
+    // Note that the client requires some text in the answers array.
+    answers.add("Query Completed");
     Validate.isInstanceOf(ExpressionWithProbabilityFunction.class, expression);
     ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
         ((ExpressionWithProbabilityFunction) expression);

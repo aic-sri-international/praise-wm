@@ -74,8 +74,7 @@
             return answer;
           }
           const time = moment(r.completionDate).format('h:mm:ss a');
-
-          return `[${this.results.length - index}] Prob. of ${r.query}: ${answer} (${r.queryDuration} ms, ${time})`;
+          return `[${this.results.length - index}] ${answer} (${r.queryDuration} ms, ${time})`;
         }
         return r;
       },
