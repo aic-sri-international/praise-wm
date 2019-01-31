@@ -33,6 +33,9 @@
       graphVariableSet: {
         type: Object,
       },
+      allowUpperRangeValueToChange: {
+        type: Boolean,
+      },
     },
     data() {
       return {
@@ -123,7 +126,7 @@
             this.bottomText = params.name;
             this.slider.data = null;
             this.slider.value = [range.first, range.last];
-            this.slider.disabled = [false, true];
+            this.slider.disabled = [false, !this.allowUpperRangeValueToChange];
             this.slider.min = range.first;
             this.slider.max = range.last;
             this.slider.interval = range.step;

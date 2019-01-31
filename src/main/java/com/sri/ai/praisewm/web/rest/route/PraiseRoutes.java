@@ -9,6 +9,7 @@ import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
 import com.sri.ai.praisewm.util.FilesUtil;
+import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.util.SparkUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,9 +28,15 @@ public class PraiseRoutes extends AbstractRouteGroup {
     post(
         "/buildGraph",
         (req, res) -> {
-          GraphRequestDto graphRequest = SparkUtil.fromJson(req, GraphRequestDto.class);
-          return SparkUtil.respondObjectOrNotFound(
-              res, praiseService.buildGraph(getSessionId(req), graphRequest));
+          try {
+            GraphRequestDto graphRequest = SparkUtil.fromJson(req, GraphRequestDto.class);
+            return SparkUtil.respondObjectOrNotFound(
+                res, praiseService.buildGraph(getSessionId(req), graphRequest));
+          } catch (ProcessingException pe) {
+            throw pe;
+          } catch (Throwable e) {
+            throw new ProcessingException("Error from buildGraph call: " + e.getMessage(), e);
+          }
         });
 
     // get examples
@@ -46,9 +53,15 @@ public class PraiseRoutes extends AbstractRouteGroup {
     post(
         "/solve",
         (req, res) -> {
-          ModelQueryDto modelQuery = SparkUtil.fromJson(req, ModelQueryDto.class);
-          return SparkUtil.respondObjectOrNotFound(
-              res, praiseService.solveProblem(getSessionId(req), modelQuery));
+          try {
+            ModelQueryDto modelQuery = SparkUtil.fromJson(req, ModelQueryDto.class);
+            return SparkUtil.respondObjectOrNotFound(
+                res, praiseService.solveProblem(getSessionId(req), modelQuery));
+          } catch (ProcessingException pe) {
+            throw pe;
+          } catch (Throwable e) {
+            throw new ProcessingException("Error from solve call: " + e.getMessage(), e);
+          }
         });
 
     // solve a Praise probabilistic model

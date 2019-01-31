@@ -7,6 +7,7 @@
             @sliderChanged="(v) => onSliderChanged(index, v)"
             class="horizontal-slider"
             direction="horizontal"
+            :allowUpperRangeValueToChange="index === 0"
             :graphVariableSet="control.gvs"
         ></graph-variable-set-slider>
       </div>

@@ -10,8 +10,7 @@ public class GraphQueryResultDto {
   private List<String> xmVariables;
 
   // Not empty
-  // Contains an entry for all xmVariables and others that do
-  // not qualify as an xm for graph creation.
+  // Contains an entry for each variable.
   private List<GraphVariableSet> graphVariableSets;
 
   // bas64 image with data/mime header

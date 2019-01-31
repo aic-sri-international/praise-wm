@@ -8101,9 +8101,10 @@ vue-tippy@^2.0.24:
     popper.js "^1.14.3"
     tippy.js "^2.5.2"
 
-vue-toasted@^1.1.24:
+vue-toasted@^1.1.26:
   version "1.1.26"
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.26.tgz#1333d1a42157ab78389c3810023a49ba94e69c7b"
+  integrity sha512-Z4/gfPcqdzsRvif7UITrZOkh3C6jm0yQKJyr9kX31IGWXor5dNipE1Sc5SnlL5RLmY7vlLa+SqIjc9Gbpy7V0g==
 
 vue2-filters@^0.3.0:
   version "0.3.0"

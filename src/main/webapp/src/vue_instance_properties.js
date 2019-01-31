@@ -8,7 +8,7 @@ import {
 
 const showToastError = (text) => {
   const toastOpts = {
-    theme: 'primary',
+    theme: 'toasted-primary',
     duration: 5000,
     position: 'bottom-center',
     fullWidth: true,

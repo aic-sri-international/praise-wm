@@ -80,7 +80,6 @@
         } else {
           this.closePopup();
           this.html = null;
-          console.log('mouse pointer moved');
         }
       },
       addOverlay(map: Map) {

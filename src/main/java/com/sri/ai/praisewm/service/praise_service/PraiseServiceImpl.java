@@ -20,18 +20,18 @@ import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
 import com.sri.ai.praisewm.service.praise.PageModelLoader;
 import com.sri.ai.praisewm.service.praise.SegmentedModelLoader;
 import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
-import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
-import com.sri.ai.util.function.api.functions.Function;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,63 +114,58 @@ public class PraiseServiceImpl implements PraiseService, Service {
     List<? extends HOGMProblemResult> hogmProblemResults;
 
     int solverId = nextSolver.incrementAndGet();
-
-    // Save referrence to solver in case the user makes a call to interrupt it
-    // while it's processing.
-    activeSolverMap.put(solverId, queryRunner);
-
     try {
+      // Save reference to solver in case the user makes a call to interrupt it
+      // while it's processing.
+      activeSolverMap.put(solverId, queryRunner);
+
       // Process the solver and get the results
       hogmProblemResults = queryRunner.getResults();
       if (hogmProblemResults.isEmpty()) {
         throw new RuntimeException("Solver did not return any results");
       }
-    } catch (Exception e) {
-      throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
     } finally {
       activeSolverMap.remove(solverId);
     }
 
-    try {
-      ExpressionResultDto expressionResultDto = null;
+    // There should only ever one result, if for some reason it ever returns more than
+    // one, just return the first.
+    final HOGMProblemResult hpResult = hogmProblemResults.get(0);
+    final String queryText = hpResult.getQueryString();
 
-      List<String> answers = new ArrayList<>();
-      // There should only ever one result, if for some reason it ever returns more than
-      // one, just return the first.
-      HOGMProblemResult hpResult = hogmProblemResults.get(0);
-      Expression result = hpResult.getResult();
-      if (result != null) {
-        answers.add(queryRunner.simplifyAnswer(result, hpResult.getQueryExpression()).toString());
-      }
+    final ExpressionResultDto expressionResultDto =
+        new ExpressionResultDto()
+            .setQuery(queryText)
+            .setQueryDuration(hpResult.getMillisecondsToCompute());
 
+    final List<String> answers = new ArrayList<>();
+
+    if (!hpResult.getErrors().isEmpty()) {
       hpResult.getErrors().forEach(error -> answers.add("Error: " + error.getErrorMessage()));
-
-      String queryText = hpResult.getQueryString();
-
-      ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
-          (ExpressionWithProbabilityFunction) result;
-      Function function =
-          expressionWithProbabilityFunction
-              .getDiscretizedConditionalProbabilityDistributionFunction();
-
-      expressionResultDto =
-          new ExpressionResultDto()
-              .setQuery(queryText)
-              .setAnswers(answers)
-              .setExplanationTree(hpResult.getExplanation())
-              .setQueryDuration(hpResult.getMillisecondsToCompute())
-              .setCompletionDate(Instant.now())
-              .setGraphQueryResultDto(
-                  queryFunctionManager.processQueryResultFunction(sessionId, queryText, function));
-      return expressionResultDto;
-    } catch (Exception e) {
-      throw new ProcessingException("Cannot solve query: " + e.getMessage(), e);
+      return expressionResultDto.setAnswers(answers);
     }
+
+    final Expression expression =
+        Objects.requireNonNull(
+            hpResult.getResult(), "Expression returned from HOGMProblemResult result is null");
+
+    answers.add(queryRunner.simplifyAnswer(expression, hpResult.getQueryExpression()).toString());
+
+    Validate.isInstanceOf(ExpressionWithProbabilityFunction.class, expression);
+    ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
+        ((ExpressionWithProbabilityFunction) expression);
+
+    return expressionResultDto
+        .setAnswers(answers)
+        .setCompletionDate(Instant.now())
+        .setGraphQueryResultDto(
+            queryFunctionManager.processQueryResultFunction(
+                sessionId, expressionWithProbabilityFunction));
   }
 
   @Override
   public GraphRequestResultDto buildGraph(String sessionId, GraphRequestDto graphRequestDto) {
-    return queryFunctionManager.handleGraphRequest(sessionId, graphRequestDto, false);
+    return queryFunctionManager.handleGraphRequest(sessionId, graphRequestDto);
   }
 
   @Override
