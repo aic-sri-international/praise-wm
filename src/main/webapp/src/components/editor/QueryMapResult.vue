@@ -10,12 +10,13 @@
             @closeMap="showMap = true"
             :mapRegionNameToValue="mapRegionNameToValue">
           </ol-map>
-          <!--<query-graph-controls-->
-              <!--v-if="graphQueryVariableResults"-->
-              <!--ref="queryGraphControls_ref"-->
-              <!--@controlChanged="onControlChanged"-->
-              <!--:graph-query-variable-results="graphQueryVariableResults">-->
-          <!--</query-graph-controls>-->
+          <query-graph-controls
+              v-if="graphQueryVariableResults"
+              ref="queryGraphControls_ref"
+              :isMapControls="true"
+              @controlChanged="onControlChanged"
+              :graph-query-variable-results="graphQueryVariableResults">
+          </query-graph-controls>
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
@@ -35,9 +36,11 @@
   import QueryGraphControls from './QueryGraphControls';
   import type {
     GraphQueryResultDto,
-    // GraphRequestDto,
+    GraphRequestDto,
     GraphQueryVariableResults,
+    GraphRequestResultDto,
   } from './types';
+  import { fetchGraph } from './dataSourceProxy';
 
   export default {
     name: 'QueryMapResult',
@@ -53,6 +56,7 @@
     data() {
       return {
         graphQueryVariableResults: null,
+        mapRegionNameToValue: null,
         showMap: false,
         showIcon: false,
       };
@@ -67,22 +71,21 @@
         };
 
         this.graphQueryVariableResults = gqvr;
+
+        if (this.graphQueryResult && this.graphQueryResult.mapRegionNameToValue) {
+          this.mapRegionNameToValue = this.graphQueryResult.mapRegionNameToValue;
+        }
       },
-      updateMapDisplay() {
-        // const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        // @TODO TBD.. probably send a new request to the server
+      async queryForNewMapData() {
+        const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
+        const graph: GraphRequestResultDto = await fetchGraph(request);
+        this.mapRegionNameToValue = graph.mapRegionNameToValue;
       },
       onControlChanged() {
         if (!this.debounced$) {
-          this.debounced$ = debounce(this.updateMapDisplay, 250, { trailing: true });
+          this.debounced$ = debounce(this.queryForNewMapData, 250, { trailing: true });
         }
         this.debounced$();
-      },
-    },
-    computed: {
-      mapRegionNameToValue() {
-        return this.graphQueryResult && this.graphQueryResult.mapRegionNameToValue
-          ? this.graphQueryResult.mapRegionNameToValue : null;
       },
     },
     watch: {

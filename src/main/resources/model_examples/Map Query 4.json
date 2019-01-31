@@ -1,0 +1,14 @@
+{
+  "name": "Map Query 4",
+  "description": "Map South Sudan county query 4",
+  "declarations": "random x: 0..3 x Boolean -> [-10;10];",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "for all I in 0..3 : for all P in Boolean : x(I, P) = Normal(2*I, 3.0);"
+    }
+  ],
+  "queries": [
+    "for all J in 0..3 : for all Q in Boolean : x(J, Q)"
+  ]
+}

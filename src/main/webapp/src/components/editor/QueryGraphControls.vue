@@ -3,11 +3,12 @@
     <div v-for="(control, index) in controls" >
       <div v-if="control.isSlider">
         <graph-variable-set-slider
+            v-if="!(isMapControls && control.isXmVariable)"
             :style="control.style"
             @sliderChanged="(v) => onSliderChanged(index, v)"
             class="horizontal-slider"
             direction="horizontal"
-            :allowUpperRangeValueToChange="index === 0"
+            :allowUpperRangeValueToChange="control.isXmVariable"
             :graphVariableSet="control.gvs"
         ></graph-variable-set-slider>
       </div>
@@ -40,6 +41,7 @@
     gvs: GraphVariableSet,
     sliderChanged: any,
     isSlider: boolean,
+    isXmVariable: boolean,
     ddSelection: ?string,
     style: string,
   };
@@ -54,6 +56,9 @@
     props: {
       graphQueryVariableResults: {
         type: Object,
+      },
+      isMapControls: {
+        type: Boolean,
       },
     },
     data() {
@@ -195,6 +200,7 @@
             gvs,
             isSlider: currentIsSlider,
             sliderChanged: null,
+            isXmVariable: this.getCurrentXm() === gvs.name,
             ddSelection: currentIsSlider ? null : getFirstEnum(),
             style: getStyle(),
           };
