@@ -1,6 +1,6 @@
 {
-  "name": "Map Query 4",
-  "description": "Map South Sudan county query 4",
+  "name": "Numeric and boolean variables",
+  "description": "Numeric and boolean variables",
   "declarations": "random x: 0..3 x Boolean -> [-10;10];",
   "rules": [
     {
