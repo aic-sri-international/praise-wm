@@ -70,7 +70,7 @@ export type GraphVariableRangeDto = {
 }
 
 // When contained within a GraphRequestDto,
-// if enums is present, it must always contain a single entry in the array
+// if enums is present, it will usually contain a single entry in the array
 export type GraphVariableSet = {
   name: string,
   enums?: string[],

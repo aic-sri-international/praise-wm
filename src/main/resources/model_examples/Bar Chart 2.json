@@ -1,0 +1,14 @@
+{
+  "name": "Bar Chart 2",
+  "description": "Bar Chart 2",
+  "declarations": "sort Person: 4, bob, mary;\nrandom neighbor : Person;\nconstant year : 1990..2000;",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "if year < 1995 then if Normal(0,1) < 0 then neighbor = bob else neighbor =\nmary else neighbor = bob;"
+    }
+  ],
+  "queries": [
+    "neighbor"
+  ]
+}

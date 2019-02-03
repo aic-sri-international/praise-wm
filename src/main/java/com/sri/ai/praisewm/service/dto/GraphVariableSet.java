@@ -9,7 +9,7 @@ public class GraphVariableSet {
   private String name;
   // null if graphVariableRangeDto is non-null
   // If non-null: when sent to the client, the list will contain multiple entries, but will
-  // only contain the selected value when sent from the client.
+  // usually only contain the selected value when sent from the client.
   private List<String> enums;
   // null if enums is non-null
   private GraphVariableRangeDto range;

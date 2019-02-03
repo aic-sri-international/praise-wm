@@ -3,7 +3,7 @@
     <div v-for="(control, index) in controls" >
       <div v-if="control.isSlider">
         <graph-variable-set-slider
-            v-if="!(control.isXmVariable && control.gvs.enums)"
+            v-if="!isFixedSetOfEnums(control)"
             :style="control.style"
             @sliderChanged="(v) => onSliderChanged(index, v)"
             class="horizontal-slider"
@@ -13,7 +13,7 @@
         ></graph-variable-set-slider>
       </div>
       <div v-else :style="control.style">
-        <b-input-group v-if="!(control.isXmVariable && control.gvs.enums)"
+        <b-input-group v-if="!isFixedSetOfEnums(control)"
                        size="sm"
                        class="ml-1"
                        :prepend="control.gvs.name">
@@ -68,6 +68,9 @@
       };
     },
     methods: {
+      isFixedSetOfEnums(control: Control) {
+        return control.isXmVariable && control.gvs.enums;
+      },
       getTextWidth(text: string) {
         const canvas: any = this.$refs.canvas_ref;
         const canvasContext = canvas.getContext('2d');
@@ -123,6 +126,8 @@
             gvs.range.first = c.sliderChanged[0];
             // eslint-disable-next-line prefer-destructuring
             gvs.range.last = c.sliderChanged[1];
+          } else if (this.isFixedSetOfEnums(c)) {
+            // Do not change the set of enums
           } else if (gvs.enums && c.sliderChanged) {
             gvs.enums = [c.sliderChanged];
           } else if (gvs.enums && !c.isSlider && c.ddSelection) {
