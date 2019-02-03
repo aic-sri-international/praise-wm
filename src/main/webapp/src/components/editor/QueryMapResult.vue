@@ -65,15 +65,18 @@
       initialize() {
         // eslint-disable-next-line prefer-destructuring
         const graphQueryResult: GraphQueryResultDto = this.graphQueryResult;
-        const gqvr: GraphQueryVariableResults = {
-          xmVariables: [...graphQueryResult.xmVariables],
-          graphVariableSets: [...graphQueryResult.graphVariableSets],
-        };
-
-        this.graphQueryVariableResults = gqvr;
-
-        if (this.graphQueryResult && this.graphQueryResult.mapRegionNameToValue) {
-          this.mapRegionNameToValue = this.graphQueryResult.mapRegionNameToValue;
+        if (graphQueryResult) {
+          const gqvr: GraphQueryVariableResults = {
+            xmVariables: [...graphQueryResult.xmVariables],
+            graphVariableSets: [...graphQueryResult.graphVariableSets],
+          };
+          if (this.graphQueryResult.mapRegionNameToValue) {
+            this.mapRegionNameToValue = this.graphQueryResult.mapRegionNameToValue;
+          }
+          this.graphQueryVariableResults = gqvr;
+        } else {
+          this.graphQueryVariableResults = null;
+          this.mapRegionNameToValue = null;
         }
       },
       async queryForNewMapData() {

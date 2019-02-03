@@ -59,13 +59,18 @@
       initialize() {
         // eslint-disable-next-line prefer-destructuring
         const graphQueryResult: GraphQueryResultDto = this.graphQueryResult;
-        const gqvr: GraphQueryVariableResults = {
-          xmVariables: [...graphQueryResult.xmVariables],
-          graphVariableSets: [...graphQueryResult.graphVariableSets],
-        };
+        if (graphQueryResult) {
+          const gqvr: GraphQueryVariableResults = {
+            xmVariables: [...graphQueryResult.xmVariables],
+            graphVariableSets: [...graphQueryResult.graphVariableSets],
+          };
 
-        this.imageData = graphQueryResult.imageData;
-        this.graphQueryVariableResults = gqvr;
+          this.imageData = graphQueryResult.imageData;
+          this.graphQueryVariableResults = gqvr;
+        } else {
+          this.imageData = null;
+          this.graphQueryVariableResults = null;
+        }
       },
       async fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
         try {
