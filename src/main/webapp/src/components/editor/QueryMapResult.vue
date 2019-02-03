@@ -13,7 +13,6 @@
           <query-graph-controls
               v-if="graphQueryVariableResults"
               ref="queryGraphControls_ref"
-              :isMapControls="true"
               @controlChanged="onControlChanged"
               :graph-query-variable-results="graphQueryVariableResults">
           </query-graph-controls>

@@ -3,7 +3,7 @@
     <div v-for="(control, index) in controls" >
       <div v-if="control.isSlider">
         <graph-variable-set-slider
-            v-if="!(isMapControls && control.isXmVariable)"
+            v-if="!(control.isXmVariable && control.gvs.enums)"
             :style="control.style"
             @sliderChanged="(v) => onSliderChanged(index, v)"
             class="horizontal-slider"
@@ -13,7 +13,10 @@
         ></graph-variable-set-slider>
       </div>
       <div v-else :style="control.style">
-        <b-input-group v-if="!(isMapControls && control.isXmVariable)" size="sm" class="ml-1" :prepend="control.gvs.name">
+        <b-input-group v-if="!(control.isXmVariable && control.gvs.enums)"
+                       size="sm"
+                       class="ml-1"
+                       :prepend="control.gvs.name">
           <b-form-select
               @input="()=>onDropdownSelectionChanged()"
               v-model="control.ddSelection"
@@ -56,9 +59,6 @@
     props: {
       graphQueryVariableResults: {
         type: Object,
-      },
-      isMapControls: {
-        type: Boolean,
       },
     },
     data() {

@@ -1,0 +1,14 @@
+{
+  "name": "Bar Chart 1",
+  "description": "Bar Chart 1",
+  "declarations": "sort Person: 4, bob, mary;\nrandom neighbor : Person;",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": ""
+    }
+  ],
+  "queries": [
+    "neighbor"
+  ]
+}
