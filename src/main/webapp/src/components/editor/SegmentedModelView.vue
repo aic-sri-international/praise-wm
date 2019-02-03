@@ -236,6 +236,29 @@
           queries: [...this.queryOptions],
         };
       },
+      minimizeModel(model: SegmentedModelDto) : SegmentedModelDto {
+        const coalesceRules = (rules: ModelRuleDto[]) : string =>
+          rules.reduce((accum: string, modeRuleDto: ModelRuleDto) => {
+          // eslint-disable-next-line no-param-reassign
+            accum += ` ${modeRuleDto.rule}`;
+            return accum;
+          }, '');
+
+        const coalesceRule: ModelRuleDto = {
+          rule: coalesceRules(model.rules),
+        };
+
+        //  Strip metadata and coalesce rules
+        const slimModel: SegmentedModelDto = {
+          name: model.name,
+          description: model.description,
+          declarations: model.declarations,
+          rules: [coalesceRule],
+          queries: model.queries,
+        };
+
+        return slimModel;
+      },
       async runQuery() {
         const selectedQuery = this.$refs.queryOption_ref.getCurrentOption();
         if (!selectedQuery) {
@@ -303,8 +326,7 @@
           return;
         }
         const { text } = filesInfo[0];
-        const model: SegmentedModelDto = JSON.parse(text);
-
+        const model: SegmentedModelDto = this.minimizeModel(JSON.parse(text));
         this.setupModels([model]);
         this.modelSelectionChanged(this.modelOptionSelected);
       },
