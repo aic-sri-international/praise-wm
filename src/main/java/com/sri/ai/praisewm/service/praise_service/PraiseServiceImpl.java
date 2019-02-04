@@ -156,6 +156,12 @@ public class PraiseServiceImpl implements PraiseService, Service {
     ExpressionWithProbabilityFunction expressionWithProbabilityFunction =
         ((ExpressionWithProbabilityFunction) expression);
 
+    if (expressionWithProbabilityFunction
+        .getDiscretizedConditionalProbabilityDistributionFunctionQueryIndex() == -1) {
+      answers.add("The function has 0 dimensions and cannot be plotted.");
+      return expressionResultDto.setAnswers(answers);
+    }
+
     return expressionResultDto
         .setAnswers(answers)
         .setCompletionDate(Instant.now())
