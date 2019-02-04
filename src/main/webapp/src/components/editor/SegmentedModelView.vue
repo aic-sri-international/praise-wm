@@ -102,7 +102,7 @@
         </div>
         <query-results :results="queryResults"
                        :selectedIx="selectedQueryResult"
-                       @selectionChanged="(ix)=> selectedQueryResult = ix"
+                       @selectionChanged="(ix)=> { selectedQueryResult = ix; totalMainQueryCounter += 1;}"
                        class="query-results mt-2 mb-2"
                        v-if="showQueryResults && queryResults.length">
         </query-results>
@@ -113,11 +113,15 @@
     </div>
     <div class="right-column" id="segModelEditorViewRightCol">
       <!--@TODO update when the HOGM solver can return map related query results-->
+      <!-- We use the :key="totalMainQueryCounter" to assure that the complete state of
+           the component is reset between each initial query -->
       <query-map-result :graph-query-result="graphQueryResult"
+                        :key="totalMainQueryCounter"
                         @querySent="runningQueries += 1"
                         @queryReturned="runningQueries -= 1"
                         v-if="displayMap"></query-map-result>
       <query-chart-result :graph-query-result="graphQueryResult"
+                          :key="totalMainQueryCounter"
                           @querySent="runningQueries += 1"
                           @queryReturned="runningQueries -= 1"
                           v-else></query-chart-result>
@@ -193,9 +197,9 @@
         modelOptionSelected: 0,
         modelOptions: [],
         segmentedModel: emptySegmentedModel,
-
         queryOptions: [],
         queryResults: [],
+        totalMainQueryCounter: 0,
         showQueryResults: true,
         dclEditTextWatch: false,
         selectedQueryResult: -1,
@@ -280,6 +284,7 @@
         try {
           this.runningQueries = this.runningQueries + 1;
           const result: ExpressionResultDto = await solve(query);
+          this.totalMainQueryCounter += 1;
           this.queryResults = [result].concat(this.queryResults);
           this.showQueryResults = true;
           this.selectedQueryResult = 0;
