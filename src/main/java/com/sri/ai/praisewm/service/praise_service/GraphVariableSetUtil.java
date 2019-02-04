@@ -131,7 +131,9 @@ class GraphVariableSetUtil {
     if (newSetOfValues instanceof SetOfEnumValues) {
       newVariable = new EnumVariable(oldVariable.getName(), (SetOfEnumValues) newSetOfValues);
     } else if (newSetOfValues instanceof SetOfRealValues) {
-      newVariable = new RealVariable(oldVariable.getName(), oldVariable.getUnit(), (SetOfRealValues) newSetOfValues);
+      newVariable =
+          new RealVariable(
+              oldVariable.getName(), oldVariable.getUnit(), (SetOfRealValues) newSetOfValues);
     } else if (newSetOfValues instanceof SetOfIntegerValues) {
       newVariable =
           new IntegerVariable(oldVariable.getName(), oldVariable.getUnit(), newSetOfValues);

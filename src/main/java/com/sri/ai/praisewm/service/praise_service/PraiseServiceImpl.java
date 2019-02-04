@@ -149,7 +149,8 @@ public class PraiseServiceImpl implements PraiseService, Service {
         Objects.requireNonNull(
             hpResult.getResult(), "Expression returned from HOGMProblemResult result is null");
     // Comment-out by request
-    //  answers.add(queryRunner.simplifyAnswer(expression, hpResult.getQueryExpression()).toString());
+    //  answers.add(queryRunner.simplifyAnswer(expression,
+    // hpResult.getQueryExpression()).toString());
     // Note that the client requires some text in the answers array.
     answers.add("Query Completed");
     Validate.isInstanceOf(ExpressionWithProbabilityFunction.class, expression);
@@ -157,8 +158,11 @@ public class PraiseServiceImpl implements PraiseService, Service {
         ((ExpressionWithProbabilityFunction) expression);
 
     if (expressionWithProbabilityFunction
-        .getDiscretizedConditionalProbabilityDistributionFunctionQueryIndex() == -1) {
-      answers.add("The function has 0 dimensions and cannot be plotted.");
+            .getDiscretizedConditionalProbabilityDistributionFunctionQueryIndex()
+        == -1) {
+      answers.add(
+          "The function has 0 dimensions and cannot be plotted: "
+              + expressionWithProbabilityFunction.toString());
       return expressionResultDto.setAnswers(answers);
     }
 
