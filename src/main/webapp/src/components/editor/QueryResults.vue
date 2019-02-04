@@ -64,9 +64,8 @@
       },
       formatResult(r: ExpressionResultDto, index: number) {
         let answer;
-        // only use the 1st entry
         if (Array.isArray(r.answers)) {
-          [answer] = r.answers;
+          answer = r.answers.join('\n');
         }
 
         if (answer) {
