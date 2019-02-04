@@ -5,7 +5,7 @@
   "rules": [
     {
       "metadata": "",
-      "rule": "if year < 1995 then if Normal(0,1) < 0 then neighbor = bob else neighbor =\nmary else neighbor = bob;"
+      "rule": "neighbor = if year < 1995\n\n               then if Normal(0,1) < 0 then bob else mary\n\n               else bob;"
     }
   ],
   "queries": [

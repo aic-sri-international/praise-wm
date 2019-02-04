@@ -5,10 +5,11 @@
   "rules": [
     {
       "metadata": "",
-      "rule": "for all I in 0..3 : for all P in Boolean : x(I, P) = Normal(2*I, 3.0);"
+      "rule": "for all I in 0..3 : \n\n  for all P in Boolean :\n  \n    x(I, P) = Normal(if P then 2*I else -2*I, 3.0);"
     }
   ],
   "queries": [
+    "for all J in 0..3 : for all P in Boolean : x(J, P)",
     "for all J in 0..3 : for all Q in Boolean : x(J, Q)"
   ]
 }

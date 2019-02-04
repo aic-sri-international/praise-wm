@@ -301,6 +301,9 @@
       },
       async download() {
         const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
+        if (this.queryOptions) {
+          sm.queries = this.$refs.queryOption_ref.getAllOptions();
+        }
         this.$$.downloadFile(sm, `${sm.name}.json`);
       },
       modelSelectionChanged(modelIx: number) {

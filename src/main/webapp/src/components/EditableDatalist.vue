@@ -126,6 +126,20 @@
         }
         this.$refs.input_ref.focus();
       },
+      getAllOptions() : string[] {
+        const queries: string[]
+            = this.modelOptions.reduce((accum: string, value: { text: string, value:string }) :
+                                        string[] => [...accum, value.text], []);
+        if (this.currentItem) {
+          const ix = queries.indexOf(this.currentItem);
+          if (ix !== -1) {
+            queries.splice(ix, 1);
+            // Make sure that the current query is at the top of the list
+            queries.unshift(this.currentItem);
+          }
+        }
+        return queries;
+      },
     },
     watch: {
       options() {

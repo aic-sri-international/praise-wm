@@ -5,7 +5,7 @@
   "rules": [
     {
       "metadata": "",
-      "rule": "capital = if year < 2 then Abyei else if month = 0 then Abyei else if month = 1 then Akobo else Abiemnhom;"
+      "rule": "capital = if year < 2 then Abyei \n  else if month = 0 then Abyei \n  else if month = 1 then Akobo \n  else Abiemnhom;"
     }
   ],
   "queries": [
