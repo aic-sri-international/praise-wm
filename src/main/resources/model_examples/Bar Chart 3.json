@@ -1,0 +1,14 @@
+{
+  "name": "Bar Chart 3",
+  "description": "Bar Chart 3",
+  "declarations": "sort Person: 4, bob, mary;\nrandom neighbor : Person x 1990..2000 -> Person;",
+  "rules": [
+    {
+      "metadata": "",
+      "rule": "for all X in Person : for all Y in 1990..2000 : if Y > 1995 then neighbor(X, \nY) = bob else if\nNormal(0,1) < 0 then neighbor(X, Y) = bob else neighbor(X, Y) = mary;"
+    }
+  ],
+  "queries": [
+    "for all X in Person : for all t in 1990..2000 : neighbor(X, t)"
+  ]
+}

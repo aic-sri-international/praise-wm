@@ -72,18 +72,17 @@
           this.graphQueryVariableResults = null;
         }
       },
-      async fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
-        try {
-          return await fetchGraph(request);
-        } catch (err) {
-          // errors already logged/displayed
-          return { imageData: '' };
-        }
-      },
       async queryForNewGraph() {
         const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        const graph: GraphRequestResultDto = await fetchGraph(request);
-        this.imageData = graph.imageData;
+        try {
+          this.$emit('querySent');
+          const graph: GraphRequestResultDto = await fetchGraph(request);
+          this.imageData = graph.imageData;
+        } catch (err) {
+        // errors already logged/displayed
+        } finally {
+          this.$emit('queryReturned');
+        }
       },
       onControlChanged() {
         if (!this.debounced$) {

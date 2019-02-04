@@ -80,8 +80,15 @@
       },
       async queryForNewMapData() {
         const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        const graph: GraphRequestResultDto = await fetchGraph(request);
-        this.mapRegionNameToValue = graph.mapRegionNameToValue;
+        try {
+          this.$emit('querySent');
+          const graph: GraphRequestResultDto = await fetchGraph(request);
+          this.mapRegionNameToValue = graph.mapRegionNameToValue;
+        } catch (err) {
+          // errors already logged/displayed
+        } finally {
+          this.$emit('queryReturned');
+        }
       },
       onControlChanged() {
         if (!this.debounced$) {

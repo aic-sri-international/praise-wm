@@ -107,21 +107,20 @@
                        v-if="showQueryResults && queryResults.length">
         </query-results>
       </div>
-      <div @click.stop="interruptQueries" class="querySpinner" id="runningQueries"
-           v-if="runningQueries">
-        <span class="fa-layers fa-fw">
-           <i class="fas fa-spinner fa-pulse" data-fa-transform="grow-80" style="color: green"></i>
-        </span>
-        <b-popover target="runningQueries" triggers="hover">
-          <span>Click spinner to interrupt queries.</span>
-        </b-popover>
-      </div>
+      <spinner :show="runningQueries > 0"
+               hoverText="Click spinner to interrupt queries."
+               @click="interruptQueries()"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightCol">
       <!--@TODO update when the HOGM solver can return map related query results-->
       <query-map-result :graph-query-result="graphQueryResult"
+                        @querySent="runningQueries += 1"
+                        @queryReturned="runningQueries -= 1"
                         v-if="displayMap"></query-map-result>
-      <query-chart-result :graph-query-result="graphQueryResult" v-else></query-chart-result>
+      <query-chart-result :graph-query-result="graphQueryResult"
+                          @querySent="runningQueries += 1"
+                          @queryReturned="runningQueries -= 1"
+                          v-else></query-chart-result>
       <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
       <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->
     </div>
@@ -139,6 +138,7 @@
   import ActionButton from '@/components/ActionButton';
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
+  import Spinner from '@/components/Spinner';
   import type { FileInfo } from '@/utils';
   import { HELP_VXC as HELP } from '@/store';
   import { mapGetters } from 'vuex';
@@ -185,6 +185,7 @@
       EditableDatalist,
       QueryMapResult,
       NumericInput,
+      Spinner,
     },
     data() {
       return {
@@ -434,13 +435,6 @@
   .help {
     background-color: lightyellow;
     border-bottom-color: green;
-  }
-
-  .querySpinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    cursor: pointer;
   }
 
   .query-solver-options {
