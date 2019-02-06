@@ -21,7 +21,8 @@
           </editor>
         </div>
         <b-popover :show="showHelp" target="dclEditor" triggers="">
-          <span class="help">Global model declarations section.</span>
+          <span class="help">Global model declarations section.
+            You can optionally include rules in this section.</span>
         </b-popover>
         <segmented-model-editor :rules="segmentedModel.rules" id="segmented-model-editor"
                                 ref="seg_model_editor_ref">
@@ -108,7 +109,6 @@
         </query-results>
       </div>
       <spinner :show="runningQueries > 0"
-               hoverText="Click spinner to interrupt queries."
                @click="interruptQueries()"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightCol">
@@ -244,21 +244,26 @@
       minimizeModel(model: SegmentedModelDto) : SegmentedModelDto {
         const coalesceRules = (rules: ModelRuleDto[]) : string =>
           rules.reduce((accum: string, modeRuleDto: ModelRuleDto) => {
-          // eslint-disable-next-line no-param-reassign
-            accum += ` ${modeRuleDto.rule}`;
+            const lf = accum ? '\n\n' : '';
+            // eslint-disable-next-line no-param-reassign
+            accum += `${lf}${modeRuleDto.rule}`;
             return accum;
           }, '');
 
-        const coalesceRule: ModelRuleDto = {
-          rule: coalesceRules(model.rules),
-        };
+        const rulesString: string = coalesceRules(model.rules);
+        let declarations: string = model.declarations || '';
+        if (declarations && rulesString) {
+          declarations += `\n\n${rulesString}`;
+        } else if (rulesString) {
+          declarations = rulesString;
+        }
 
-        //  Strip metadata and coalesce rules
+        //  Strip metadata and coalesce declarations and rules
         const slimModel: SegmentedModelDto = {
           name: model.name,
           description: model.description,
-          declarations: model.declarations,
-          rules: [coalesceRule],
+          declarations,
+          rules: [],
           queries: model.queries,
         };
 

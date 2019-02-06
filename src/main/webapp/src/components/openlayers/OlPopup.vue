@@ -22,6 +22,20 @@
     trStyle: 'style="line-height: 1.1"',
   };
 
+  const formatDecimal = (num: number) => {
+    const text = num.toFixed(4);
+    let i = text.length - 1;
+    // noinspection StatementWithEmptyBodyJS
+    for (; i >= 0 && text.charAt(i) === '0'; i -= 1);
+    if (text.charAt(i) === '.') {
+      i -= 1;
+      if (i < 0) {
+        return '0';
+      }
+    }
+    return text.slice(0, i + 1);
+};
+
   export default {
     name: 'OlPopup',
     data() {
@@ -37,14 +51,13 @@
       };
     },
     methods: {
-      onMapEvent(event: MapBrowserEvent, getOpacityForFeature: (feature: Feature) => number) {
+      onMapEvent(event: MapBrowserEvent, getValueForFeature: (feature: Feature) => number) {
         if (!this.overlay) {
           throw Error('addOverlay must be called before calling onMapClick');
         }
 
         let html = '';
         let isOurs = false;
-
 
         event.map.forEachFeatureAtPixel(event.pixel, (feature: Feature) => {
           if (html) {
@@ -61,12 +74,12 @@
               <td ${popupConsts.tdStyle}>${feature.get(propConst.County)}</td>
             </tr>`;
 
-          const probability = getOpacityForFeature(feature);
-          if (typeof probability === 'number') {
+          const value = getValueForFeature(feature);
+          if (typeof value === 'number') {
             html += `
             <tr ${popupConsts.trStyle}>
-              <td ${popupConsts.tdLabelStyle}>Probability:</td>
-              <td ${popupConsts.tdStyle}>${probability}</td>
+              <td ${popupConsts.tdLabelStyle}>Value:</td>
+              <td ${popupConsts.tdStyle}>${formatDecimal(value)}</td>
             </tr>`;
           }
 

@@ -1,13 +1,8 @@
 {
   "name": "One numeric variable",
   "description": "Model with one numeric variable",
-  "declarations": "random x : [-10;10];",
-  "rules": [
-    {
-      "metadata": "",
-      "rule": "x = Normal(0.0, 15.0);"
-    }
-  ],
+  "declarations": "random x : [-10;10];\n\nx = Normal(0.0, 15.0);",
+  "rules": [],
   "queries": [
     "x"
   ]

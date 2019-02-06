@@ -1,13 +1,8 @@
 {
   "name": "Bar Chart 3",
   "description": "Bar Chart 3",
-  "declarations": "sort Person: 4, bob, mary;\nrandom neighbor : Person x 1990..2000 -> Person;\nrandom coin : Person x 1990..2000 -> [-10;10];",
-  "rules": [
-    {
-      "metadata": "",
-      "rule": "for all X in Person : for all Y in 1990..2000 : coin(X, Y) = Normal(0,1);\n\nfor all X in Person : for all Y in 1990..2000 : \n  if Y > 1995 then neighbor(X, Y) = bob \n  else if coin(X,Y) < 0 then neighbor(X, Y) = bob \n  else neighbor(X, Y) = mary;"
-    }
-  ],
+  "declarations": "sort Person: 4, bob, mary;\nrandom neighbor : Person x 1990..2000 -> Person;\nrandom coin : Person x 1990..2000 -> [-10;10];\n\nfor all X in Person : for all Y in 1990..2000 : coin(X, Y) = Normal(0,1);\n\nfor all X in Person : for all Y in 1990..2000 : \n  if Y > 1995 then neighbor(X, Y) = bob \n  else if coin(X,Y) < 0 then neighbor(X, Y) = bob \n  else neighbor(X, Y) = mary;",
+  "rules": [],
   "queries": [
     "for all X in Person : for all t in 1990..2000 : neighbor(X, t)"
   ]

@@ -46,6 +46,11 @@ declare module 'bootstrap/dist/css/bootstrap.css' {
 declare module 'bootstrap-vue/dist/bootstrap-vue.css' {
   declare module.exports: any;
 }
+
+declare module 'chroma-js' {
+  declare module.exports: any;
+}
+
 declare module '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css' {
   declare module.exports: any;
 }
@@ -81,6 +86,9 @@ declare module 'lodash/identity' {
   declare module.exports: any;
 }
 declare module 'lodash/isEqual' {
+  declare module.exports: any;
+}
+declare module 'lodash/round' {
   declare module.exports: any;
 }
 

@@ -4,7 +4,7 @@
         <span class="fa-layers fa-fw">
            <i class="fas fa-spinner fa-pulse" :data-fa-transform="transform" :style="`color: ${color}`" ></i>
         </span>
-    <b-popover target="spinnerId" triggers="hover">
+    <b-popover v-if="hoverText" target="spinnerId" triggers="hover">
       <span>{{hoverText}}</span>
     </b-popover>
   </div>
@@ -40,6 +40,7 @@
     top: 50%;
     left: 50%;
     cursor: pointer;
+    z-index: 1030;
   }
 
 </style>

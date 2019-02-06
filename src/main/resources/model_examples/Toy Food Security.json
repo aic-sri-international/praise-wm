@@ -1,13 +1,8 @@
 {
   "name": "Toy Food Security",
   "description": "Toy Food Security",
-  "declarations": "sort Counties: 4, TonjEast, TonjNorth, Panyijiar, Mayendit;\n\nrandom precip : Counties x 0..6 -> [500;2000];\n\nrandom temp : Counties x 0..6 -> [0;70];\n\nrandom crop : Counties x 0..6 -> [0;800];",
-  "rules": [
-    {
-      "metadata": "",
-      "rule": "for all County in Counties :\n\nfor all Month in 0..6 :\n\nprecip(County, Month) =\n\n     if Month = 0\n\n                  then Normal(1000, 2)\n\n                  else Normal(precip(County, Month - 1), 50);\n\nfor all County in Counties :\n\nfor all Month in 0..6 :\n\ntemp(County, Month) =\n\n     if Month = 0\n\n                  then Normal(20, 2)\n\n                  else Normal(temp(County, Month - 1), 1);\n\nfor all County in Counties :\n\nfor all Month in 0..6 :\n\ncrop(County, Month) = Normal(5*temp(County, Month) + 0.25*precip(County, Month), 30);\n\n// precip(TonjEast, 3) = 1200;\n\nprecip(TonjEast, 4) = 1500;\n\nprecip(Panyijiar, 5) = 1600;\n\ncrop(TonjEast, 5) = 400;"
-    }
-  ],
+  "declarations": "sort Counties: 4, TonjEast, TonjNorth, Panyijiar, Mayendit;\n\nrandom precip : Counties x 0..6 -> [500;2000];\n\nrandom temp : Counties x 0..6 -> [0;70];\n\nrandom crop : Counties x 0..6 -> [0;800];\n\nfor all County in Counties :\n\nfor all Month in 0..6 :\n\nprecip(County, Month) =\n\n     if Month = 0\n\n                  then Normal(1000, 2)\n\n                  else Normal(precip(County, Month - 1), 50);\n\nfor all County in Counties :\n\nfor all Month in 0..6 :\n\ntemp(County, Month) =\n\n     if Month = 0\n\n                  then Normal(20, 2)\n\n                  else Normal(temp(County, Month - 1), 1);\n\nfor all County in Counties :\n\nfor all Month in 0..6 :\n\ncrop(County, Month) = Normal(5*temp(County, Month) + 0.25*precip(County, Month), 30);\n\n// precip(TonjEast, 3) = 1200;\n\nprecip(TonjEast, 4) = 1500;\n\nprecip(Panyijiar, 5) = 1600;\n\ncrop(TonjEast, 5) = 400;",
+  "rules": [],
   "queries": [
     "for all County in Counties : for all Month in 0..6 : mean(precip(County, Month))",
     "for all J in 0..3 : for all Q in Boolean : x(J, Q)"

@@ -1,13 +1,8 @@
 {
   "name": "Numeric and boolean variables",
   "description": "Numeric and boolean variables",
-  "declarations": "random x: 0..3 x Boolean -> [-10;10];",
-  "rules": [
-    {
-      "metadata": "",
-      "rule": "for all I in 0..3 : \n\n  for all P in Boolean :\n  \n    x(I, P) = Normal(if P then 2*I else -2*I, 3.0);"
-    }
-  ],
+  "declarations": "random x: 0..3 x Boolean -> [-10;10];\n\nfor all I in 0..3 : \n\n  for all P in Boolean :\n  \n    x(I, P) = Normal(if P then 2*I else -2*I, 3.0);",
+  "rules": [],
   "queries": [
     "for all J in 0..3 : for all P in Boolean : x(J, P)",
     "for all J in 0..3 : for all Q in Boolean : x(J, Q)"

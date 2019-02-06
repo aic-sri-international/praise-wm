@@ -1,5 +1,7 @@
 // @flow
 
+import chroma from 'chroma-js';
+import round from 'lodash/round';
 import Feature from 'ol/Feature';
 import { Fill, Stroke, Style } from 'ol/style';
 
@@ -11,8 +13,7 @@ export const props = {
 type StyleEntry = {
   state: string,
   county: string,
-  opacity: number,
-  probability?: number;
+  value?: number;
   style: Style,
 }
 
@@ -26,28 +27,14 @@ const inQueryStroke = new Stroke({
   width: 2,
 });
 
-// const errorStroke = new Stroke({
-//   color: 'red',
-//   width: 1,
-// });
-
-const defaultOpacity = 0.0;
-
 const newFill = (r: number, g: number, b: number, opacity: number) => new Fill({
   color: `rgba(${r}, ${g}, ${b}, ${opacity})`,
 });
 
-// const invalidFeatureStyle =
-//     new Style({
-//       stroke: errorStroke,
-//       fill: newFill(0, 0, 255, 0.1),
-//     });
-
-
 const defaultFeatureStyle =
     new Style({
       stroke: defaultStroke,
-      fill: newFill(0, 0, 255, defaultOpacity),
+      fill: newFill(0, 0, 0, 0),
     });
 
 class FeatureCollectionHandler {
@@ -55,12 +42,76 @@ class FeatureCollectionHandler {
   countyToStyleMap: {[county: string]: StyleEntry };
   stateToStyleMap: {[state: string]: StyleEntry };
   mapRegionNameToValue: ?{ [string]: number };
+  regionToRgba: ? { [string]: number[] };
   countiesWereInput: ?boolean = undefined;
 
   constructor(featureCollection: Object, mapRegionNameToValue?: { [string]: number }) {
     this.featureCollection = featureCollection;
+
+    // Round all values to 4 digits of precision we will be creating
+    // a map of
     this.mapRegionNameToValue = mapRegionNameToValue;
+    this.initRgba();
     this.initMaps();
+  }
+
+  initRgba() {
+    if (!this.mapRegionNameToValue) {
+      return;
+    }
+
+    // Round all values to 4 digits of precision to minimize unique values
+    const roundedMap = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
+      const [region, value] = entry;
+      // eslint-disable-next-line no-param-reassign
+      accum[region] = round(value, 4);
+      return accum;
+    }, {});
+
+    // eslint-disable-next-line
+    const valArray: number[] = Object.values(roundedMap);
+
+    // #of unique non-zero values
+    const nonZeroNonDupCount
+        = valArray.reduce((accum: number, val: number, ix: number) => {
+          if (val === 0) {
+            return accum;
+          }
+          if (ix > 0 && val === valArray[ix - 1]) {
+            return accum;
+          }
+          return accum + 1;
+        }, 0);
+
+    const hexArray: string[]
+        = chroma.scale([
+          '#fafa6e',
+          '#008ae5',
+        ]).mode('lch').colors(nonZeroNonDupCount);
+
+    let hexArrayIx = 0;
+
+    const mapOfValueToHex = valArray.reduce((accum, val) => {
+      if (val !== 0 && !accum[val]) {
+        // eslint-disable-next-line no-param-reassign
+        accum[val] = hexArray[hexArrayIx];
+        hexArrayIx += 1;
+      }
+
+      return accum;
+    }, {});
+
+    // Sort entries by value in ascending order returning array of arrays
+    // eslint-disable-next-line
+    const sortedMapAsArrays: [] = Object.entries(roundedMap).sort((a, b) => a[1] - b[1]);
+
+    this.regionToRgba = sortedMapAsArrays.reduce((accum, entry) => {
+      const [region, value] = entry;
+      const hex: string = mapOfValueToHex[value];
+      // eslint-disable-next-line no-param-reassign
+      accum[region] = hex ? chroma(hex).rgba() : [0, 0, 0, 0];
+      return accum;
+    }, {});
   }
 
   setUseCountyFlag() {
@@ -102,27 +153,33 @@ class FeatureCollectionHandler {
     if (!map) {
       return;
     }
-    let value = map[styleEntry.state] || map[styleEntry.county];
+
+    const value = map[styleEntry.county] !== undefined
+      ? map[styleEntry.county]
+      : map[styleEntry.state];
+
     if (typeof value !== 'number') {
       return;
     }
 
     // eslint-disable-next-line no-param-reassign
-    styleEntry.probability = value;
+    styleEntry.value = value;
 
-    if (value > 0.95) {
-      value = 0.85;
+    let rgba: number[] = [0, 0, 0, 0];
+
+    if (this.regionToRgba) {
+      if (this.regionToRgba[styleEntry.county]) {
+        rgba = this.regionToRgba[styleEntry.county];
+      } else if (this.regionToRgba[styleEntry.state]) {
+        rgba = this.regionToRgba[styleEntry.state];
+      }
     }
-    const opacity = +value.toFixed(4);
-    const style = new Style({
-      stroke: inQueryStroke,
-      fill: newFill(0, 0, 255, opacity),
-    });
 
     // eslint-disable-next-line no-param-reassign
-    styleEntry.opacity = opacity;
-    // eslint-disable-next-line no-param-reassign
-    styleEntry.style = style;
+    styleEntry.style = new Style({
+      stroke: inQueryStroke,
+      fill: newFill(rgba[0], rgba[1], rgba[2], rgba[3]),
+    });
   }
 
   initMaps() {
@@ -139,7 +196,6 @@ class FeatureCollectionHandler {
         const styleEntry : StyleEntry = {
           state: geoJsonFeature.properties[props.State],
           county: geoJsonFeature.properties[props.County],
-          opacity: defaultOpacity,
           style: defaultFeatureStyle,
         };
 
@@ -183,9 +239,9 @@ class FeatureCollectionHandler {
     return styleEntry ? styleEntry.style : defaultFeatureStyle;
   }
 
-  getProbabilityForFeature(feature: Feature) : Style {
+  getValueForFeature(feature: Feature) : Style {
     const styleEntry: ?StyleEntry = this.getStyleEntryForFeature(feature);
-    return styleEntry ? styleEntry.probability : null;
+    return styleEntry ? styleEntry.value : null;
   }
 }
 

@@ -1,13 +1,8 @@
 {
   "name": "Two Numeric Variables",
   "description": "Model with two numeric variables",
-  "declarations": "random x : [-10;10];\nconstant b : [-10;10];",
-  "rules": [
-    {
-      "metadata": "",
-      "rule": "x = Normal(b + 2, 3.0);"
-    }
-  ],
+  "declarations": "random x : [-10;10];\nconstant b : [-10;10];\n\nx = Normal(b + 2, 3.0);",
+  "rules": [],
   "queries": [
     "x"
   ]
