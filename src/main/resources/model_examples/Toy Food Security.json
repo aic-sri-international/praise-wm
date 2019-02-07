@@ -5,6 +5,6 @@
   "rules": [],
   "queries": [
     "for all County in Counties : for all Month in 0..6 : mean(precip(County, Month))",
-    "for all J in 0..3 : for all Q in Boolean : x(J, Q)"
+    "for all Month in 0..6 : for all County in Counties : mean(precip(County, Month))"
   ]
 }

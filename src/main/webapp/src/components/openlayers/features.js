@@ -71,45 +71,89 @@ class FeatureCollectionHandler {
     // eslint-disable-next-line
     const valArray: number[] = Object.values(roundedMap);
 
-    // #of unique non-zero values
-    const nonZeroNonDupCount
-        = valArray.reduce((accum: number, val: number, ix: number) => {
+    // Sort entries by value in ascending order returning array of arrays
+    // eslint-disable-next-line
+    const sortedMapAsArrays: [] = Object.entries(roundedMap).sort((a, b) => {
+      // eslint-disable-next-line
+      const v1: number = a[1];
+      // eslint-disable-next-line
+      const v2: number = b[1];
+      if (v1 > v2) {
+        return 1;
+      }
+      if (v1 < v2) {
+        return -1;
+      }
+      return 0;
+    });
+
+    // We want white to always represent a zero value and no other value.
+    // So we need to know if we already have an entry with a zero value
+    // before we create the hexArray.
+    let includesZeroValue: boolean = false;
+
+    // #of unique values
+    const nonDupCount
+        = sortedMapAsArrays.reduce((accum: number, regionValue: [], ix: number) => {
+          // eslint-disable-next-line
+          const val = regionValue[1];
+
           if (val === 0) {
-            return accum;
+            includesZeroValue = true;
           }
-          if (ix > 0 && val === valArray[ix - 1]) {
-            return accum;
+          if (ix > 0) {
+            const priorRegionValue = sortedMapAsArrays[ix - 1];
+            const priorVal = priorRegionValue[1];
+            if (val === priorVal) {
+              return accum;
+            }
           }
+
           return accum + 1;
         }, 0);
 
+    const computeNumberOfColors = () : number => {
+      let numColors = nonDupCount;
+
+      if (nonDupCount === 1 && valArray[0] === 0) {
+        // The chroma.scale method we use will not include white if ask
+        // it to only create 1 color.
+        numColors += 1;
+      } else if (!includesZeroValue) {
+        numColors += 1;
+      }
+
+      return numColors;
+    };
+
+    const numberOfColors: number = computeNumberOfColors();
     const hexArray: string[]
         = chroma.scale([
-          '#fafa6e',
-          '#008ae5',
-        ]).mode('lch').colors(nonZeroNonDupCount);
+          '#FFFFFF', // white
+          '#0000FF', // blue
+        ]).mode('lch').colors(numberOfColors);
 
-    let hexArrayIx = 0;
 
-    const mapOfValueToHex = valArray.reduce((accum, val) => {
-      if (val !== 0 && !accum[val]) {
+    let hexArrayIx = includesZeroValue ? 0 : 1;
+
+    const mapOfValueToHex = sortedMapAsArrays.reduce((accum, val) => {
+      const num : number = val[1];
+
+      if (accum[num] === undefined) {
         // eslint-disable-next-line no-param-reassign
-        accum[val] = hexArray[hexArrayIx];
+        accum[num] = hexArray[hexArrayIx];
         hexArrayIx += 1;
       }
 
       return accum;
     }, {});
 
-    // Sort entries by value in ascending order returning array of arrays
-    // eslint-disable-next-line
-    const sortedMapAsArrays: [] = Object.entries(roundedMap).sort((a, b) => a[1] - b[1]);
 
     this.regionToRgba = sortedMapAsArrays.reduce((accum, entry) => {
       const [region, value] = entry;
       const hex: string = mapOfValueToHex[value];
       // eslint-disable-next-line no-param-reassign
-      accum[region] = hex ? chroma(hex).rgba() : [0, 0, 0, 0];
+      accum[region] = chroma(hex).rgba();
       return accum;
     }, {});
   }
