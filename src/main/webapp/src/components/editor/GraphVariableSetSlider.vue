@@ -2,7 +2,7 @@
   <div ref="temp_ref" v-observe-visibility="{
                   callback: visibilityChanged,
                 }">
-    <vue-slider @callback="(v)=>$emit('sliderChanged', v)"
+    <vue-slider @callback="(v)=>sendChangeEvent(v)"
                 ref="vueSlider_ref"
                 v-bind="slider"
                 v-model="slider.value"
@@ -75,6 +75,19 @@
       };
     },
     methods: {
+      sendChangeEvent(value: any) {
+        let newValue: any = value;
+
+        // If it's a range, but we are only displaying a single dot, the value is always a
+        // single value instead of an array, but always send back an array to simplify logic
+        // for the caller.
+        const params: GraphVariableSet = this.graphVariableSet;
+        if (params.range && !this.allowUpperRangeValueToChange) {
+          newValue = [this.slider.value, this.slider.max];
+        }
+
+        this.$emit('sliderChanged', newValue);
+      },
       visibilityChanged(isVisible: boolean) {
         // This is required to have the slider dots and labels display correctly on initial
         // display without adding restrictions or complexity to parent components.
@@ -131,8 +144,8 @@
             this.setbottomTextStyle(44);
             const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
             this.slider.data = null;
-            this.slider.value = [range.first, range.last];
-            this.slider.disabled = [false, !this.allowUpperRangeValueToChange];
+            this.slider.value
+                = this.allowUpperRangeValueToChange ? [range.first, range.last] : range.first;
             this.slider.min = range.first;
             this.slider.max = range.last;
             this.slider.interval = range.step;

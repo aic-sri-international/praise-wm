@@ -83,22 +83,25 @@
             </action-button>
           </div>
           <div class="query-solver-options">
-            <span class="query-solver-options-text">Initial samples</span>
-            <numeric-input
-                :min="1"
-                :max="100000000"
-                :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
-                :value="numberOfInitialSamples"
-                @blur="data => numberOfInitialSamples = data">
-            </numeric-input>
-            <span class="query-solver-option-divider"></span>
-            <span class="query-solver-options-text">Discrete values</span>
-            <numeric-input
-              :min="2"
-              :max="1000"
-              :value="numberOfDiscreteValues"
-              @blur="data => numberOfDiscreteValues = data">
-            </numeric-input>
+            <div class="query-solver-component mr-4">
+              <div class="query-solver-options-text">Initial samples</div>
+              <numeric-input
+                  :min="1"
+                  :max="100000000"
+                  :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
+                  :value="numberOfInitialSamples"
+                  @blur="data => numberOfInitialSamples = data">
+              </numeric-input>
+            </div>
+            <div class="query-solver-component">
+              <span class="query-solver-options-text">Discrete values</span>
+              <numeric-input
+                :min="2"
+                :max="1000"
+                :value="numberOfDiscreteValues"
+                @blur="data => numberOfDiscreteValues = data">
+              </numeric-input>
+              </div>
           </div>
         </div>
         <query-results :results="queryResults"
@@ -120,11 +123,13 @@
                         @querySent="runningQueries += 1"
                         @queryReturned="runningQueries -= 1"
                         v-if="displayMap"></query-map-result>
+      <div v-else class="query-chart">
       <query-chart-result :graph-query-result="graphQueryResult"
                           :key="totalMainQueryCounter"
                           @querySent="runningQueries += 1"
-                          @queryReturned="runningQueries -= 1"
-                          v-else></query-chart-result>
+                          @queryReturned="runningQueries -= 1">
+      </query-chart-result>
+        </div>
       <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
       <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->
     </div>
@@ -368,7 +373,7 @@
         this.splitter$.destroy();
       }
       this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
-        sizes: [65, 35],
+        sizes: [60, 40],
         onDragEnd() {
           sendResizeEvent();
         },
@@ -417,6 +422,11 @@
     flex-direction: column;
   }
 
+  .query-chart {
+    display: flex;
+    justify-content: center;
+  }
+
   .segmentedEditor {
     flex: 1 1 auto;
     position: relative;
@@ -453,15 +463,20 @@
   .query-solver-options {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     margin-top: 0.5rem;
     margin-left: 0.25rem;
   }
+
+  .query-solver-component {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap
+  }
+
   .query-solver-options-text {
     margin-top: 0.1rem;
     font-size: 0.95rem;
     margin-right: 0.5rem;
-  }
-  .query-solver-option-divider {
-    margin-right: 0.75rem;
   }
 </style>

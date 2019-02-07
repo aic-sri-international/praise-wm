@@ -1,6 +1,5 @@
 <template>
   <div class="ol-popup" ref="popup_ref">
-    <a @click="closePopup()" class="ol-popup-closer" href="#" ref="popup_closer_ref"></a>
     <div v-html="html"></div>
   </div>
 </template>
@@ -60,8 +59,9 @@
         let isOurs = false;
 
         event.map.forEachFeatureAtPixel(event.pixel, (feature: Feature) => {
-          if (html) {
-            html += '<hr>';
+          if (isOurs) {
+            // We only want the first one
+            return;
           }
           html += `
           <table>
@@ -155,14 +155,4 @@
     margin-left: -11px;
   }
 
-  .ol-popup-closer {
-    text-decoration: none;
-    position: absolute;
-    top: 2px;
-    right: 8px;
-  }
-
-  .ol-popup-closer:after {
-    content: "✖";
-  }
 </style>

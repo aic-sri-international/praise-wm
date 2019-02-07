@@ -93,7 +93,7 @@ class FeatureCollectionHandler {
     let includesZeroValue: boolean = false;
 
     // #of unique values
-    const nonDupCount
+    const numUniqueValues
         = sortedMapAsArrays.reduce((accum: number, regionValue: [], ix: number) => {
           // eslint-disable-next-line
           const val = regionValue[1];
@@ -113,9 +113,9 @@ class FeatureCollectionHandler {
         }, 0);
 
     const computeNumberOfColors = () : number => {
-      let numColors = nonDupCount;
+      let numColors = numUniqueValues;
 
-      if (nonDupCount === 1 && valArray[0] === 0) {
+      if (numUniqueValues === 1 && valArray[0] === 0) {
         // The chroma.scale method we use will not include white if ask
         // it to only create 1 color.
         numColors += 1;

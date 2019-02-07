@@ -121,7 +121,7 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .ol-map {
-    height: 400px;
+    height: 460px;
     width: 100%;
   }
 </style>
