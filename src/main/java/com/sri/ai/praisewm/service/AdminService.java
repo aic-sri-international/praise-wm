@@ -8,7 +8,7 @@ public class AdminService implements Service {
   @Override
   public void start(ServiceManager serviceManager) {
     new AdminRoutes(
-        serviceManager.getRestService(),
+        serviceManager.getSparkService(),
         RouteScope.ADMIN,
         serviceManager.getJooqTxProcessor(),
         serviceManager.getEventBus());

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="ol-map" ref="map_ref"></div>
+    <div :style="mapStyle" ref="map_ref"></div>
     <ol-popup ref="ol_popup_ref" @clicked-non-feature="$emit('closeMap')"></ol-popup>
   </div>
 </template>
@@ -33,6 +33,10 @@
       mapRegionNameToValue: {
         type: Object,
       },
+      heightOffset: {
+        type: Number,
+        default: 74,
+      },
     },
     data() {
       return {
@@ -46,6 +50,11 @@
         if (this.map) {
           this.map.updateSize();
         }
+      },
+    },
+    computed: {
+      mapStyle() {
+        return { width: '100%', height: `calc(100vh - ${this.heightOffset}px)` };
       },
     },
     watch: {
@@ -120,8 +129,4 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .ol-map {
-    height: 460px;
-    width: 100%;
-  }
 </style>

@@ -5,17 +5,18 @@
   <div>
     <transition name="fade" v-on:after-leave="showIcon = true">
       <div v-show="showMap" class="top-level-container">
-          <ol-map
-            class="ol-map"
-            @closeMap="showMap = true"
-            :mapRegionNameToValue="mapRegionNameToValue">
-          </ol-map>
-          <query-graph-controls
-              v-if="graphQueryVariableResults"
-              ref="queryGraphControls_ref"
-              @controlChanged="onControlChanged"
-              :graph-query-variable-results="graphQueryVariableResults">
-          </query-graph-controls>
+        <ol-map
+            ref="map_ref"
+            :heightOffset="mapHeightOffset"
+          @closeMap="showMap = true"
+          :mapRegionNameToValue="mapRegionNameToValue">
+        </ol-map>
+        <query-graph-controls
+            v-if="graphQueryVariableResults"
+            ref="queryGraphControls_ref"
+            @controlChanged="onControlChanged"
+            :graph-query-variable-results="graphQueryVariableResults">
+        </query-graph-controls>
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
@@ -41,6 +42,8 @@
   } from './types';
   import { fetchGraph } from './dataSourceProxy';
 
+  const pageBannerHeight = 74;
+
   export default {
     name: 'QueryMapResult',
     components: {
@@ -58,6 +61,7 @@
         mapRegionNameToValue: null,
         showMap: false,
         showIcon: false,
+        mapHeightOffset: pageBannerHeight,
       };
     },
     methods: {
@@ -96,6 +100,32 @@
         }
         this.debounced$();
       },
+      updateMapHeightOffset(alwaysResize: boolean) {
+        this.$nextTick(() => {
+          if (!this.$refs.queryGraphControls_ref) {
+            this.mapHeightOffset = pageBannerHeight;
+            if (alwaysResize) {
+              this.$nextTick(() => {
+                this.$refs.map_ref.updateMapSize();
+              });
+            }
+            return;
+          }
+          // We do not yet have the complete client height for the queryGraphControls
+          // component. Set the mapHeightOffset to the partial height of the queryGraphControls
+          // component to trigger a recomputation.
+          const qgc = this.$refs.queryGraphControls_ref.$el;
+          this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
+          setTimeout(() => {
+            // Wait for clientHeight to be recomputed, them set the offset to what should be
+            // the complete clientHeight.
+            this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
+            this.$nextTick(() => {
+              this.$refs.map_ref.updateMapSize();
+            });
+          }, 68);
+        });
+      },
     },
     watch: {
       graphQueryResult() {
@@ -103,19 +133,19 @@
           this.debounced$.cancel();
         }
         this.initialize();
+        this.updateMapHeightOffset(true);
       },
       showMap(newValue: boolean) {
         if (newValue) {
-          // This is needed to have any query control sliders correctly position
-          // themselves if a query result is returned while the controls are not visible
           this.$nextTick(() => {
-            window.dispatchEvent(new Event('resize'));
+            this.$refs.map_ref.updateMapSize();
           });
         }
       },
     },
     mounted() {
       this.showMap = true;
+      this.updateMapHeightOffset(false);
     },
     created() {
       if (this.graphQueryResult) {
@@ -131,11 +161,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-  }
-
-  .ol-map {
-    height: 400px;
-    width: 100%;
   }
 
   .mapIcon {

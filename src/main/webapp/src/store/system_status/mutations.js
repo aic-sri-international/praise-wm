@@ -1,13 +1,13 @@
 // @flow
 /* eslint-disable no-param-reassign */
-import type { MessageLevel } from '@/services/ws_notifications/types';
+import type { SystemStatusVuexPayload } from '@/services/ws_notifications/types';
 import SS from './constants';
 import type { VuexSystemStatusState } from './types';
 
 
 export default {
-  [SS.SET.DATABASE](state: VuexSystemStatusState, status: MessageLevel) {
-    state.database = status;
+  [SS.SET.DATABASE](state: VuexSystemStatusState, payload: SystemStatusVuexPayload) {
+    state.database = payload.level;
   },
   [SS.SET.ALL_STATUSES_UNKNOWN](state: VuexSystemStatusState) {
     state.database = null;

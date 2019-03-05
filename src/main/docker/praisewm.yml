@@ -15,7 +15,7 @@ services:
 #    setx COMPOSE_CONVERT_WINDOWS_PATHS 1
 #    setx PRAISEWM_DATA_DIRECTORY c:/data/praisewm
 # You can use any complete Windows path that you'd like for PRAISEWM_DATA_DIRECTORY
-# as long as you have appropriate Windows access permissions, however, you may 
+# as long as you have appropriate Windows access permissions, however, you may
 # encounter problems if the path contains spaces. The praisewm server will
 # create its directories within PRAISEWM_DATA_DIRECTORY.
 #
@@ -27,4 +27,3 @@ services:
             - PRAISEWM_DATABASE_HOST=praisewm-mysql
         ports:
             - 4567:4567
-            - 4568:4568

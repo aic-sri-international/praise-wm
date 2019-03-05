@@ -48,7 +48,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
 
   @Override
   public void start(ServiceManager serviceManager) {
-    new PraiseRoutes(this, serviceManager.getRestService(), RouteScope.API);
+    new PraiseRoutes(this, serviceManager.getSparkService(), RouteScope.API);
 
     pageModelLoader = new PageModelLoader();
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -13,6 +14,34 @@ import org.slf4j.LoggerFactory;
 public final class FilesUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FilesUtil.class);
   private static final Set<String> SUPPORTED_IMAGE_TYPES = ImmutableSet.of("png", "jpeg", "jpg");
+
+  /**
+   * Wraps {@link Files#readAllLines} to throw a {@link RuntimeException}
+   *
+   * @param filepath the file's path
+   * @return file's contents as a list of text lines
+   */
+  public static List<String> readFile(Path filepath) {
+    try {
+      return Files.readAllLines(filepath);
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Cannot read file '%s'", filepath), e);
+    }
+  }
+
+  /**
+   * Wraps {@link Files#write} to throw a {@link RuntimeException}
+   *
+   * @param lines lines of text for the file
+   * @param targetFilepath path to file to be created or recreated
+   */
+  public static void writeFile(List<String> lines, Path targetFilepath) {
+    try {
+      Files.write(targetFilepath, lines);
+    } catch (Exception e) {
+      throw new RuntimeException(String.format("Cannot write to file '%s'", targetFilepath), e);
+    }
+  }
 
   public static void createDirectories(Path dirPath, String description) {
     String msg = String.format("%s directory '%s'", description, dirPath);

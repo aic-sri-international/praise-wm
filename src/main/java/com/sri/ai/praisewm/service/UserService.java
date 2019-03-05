@@ -15,7 +15,7 @@ public class UserService implements Service {
             SecurityServiceImpl.class.getName());
 
     new UserRoutes(
-        serviceManager.getRestService(),
+        serviceManager.getSparkService(),
         RouteScope.API,
         securityService,
         serviceManager.getJooqTxProcessor());

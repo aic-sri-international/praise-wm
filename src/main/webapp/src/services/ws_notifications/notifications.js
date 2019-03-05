@@ -26,6 +26,7 @@ import type {
   MessageLevel,
   NotificationTextMessage,
   DataRefreshEvent,
+  SystemStatusVuexPayload,
 } from './types';
 
 import { eventTypes, systemStatusTypes } from './types';
@@ -145,7 +146,13 @@ function handleSystemStatusEvent(event: any) {
       default:
         throw Error(`Undefined SystemStatusEvent, SystemStatusType ${system}`);
     }
-    store.commit(vxcFp(SS, which), level);
+
+    const payload: SystemStatusVuexPayload = {
+      level,
+      event,
+    };
+
+    store.commit(vxcFp(SS, which), payload);
   };
 
   objectEntries(event.systemStatuses).forEach(([system, value]) => {

@@ -11,7 +11,6 @@ public class LoginResponseDto {
   @JsonProperty("isAdminRole")
   private Boolean isAdminRole;
 
-  private Integer localPort;
   private Instant serverTime;
   private Integer wsReconnectInterval;
   private Integer wsMaxReconnectAttempts;
@@ -32,15 +31,6 @@ public class LoginResponseDto {
 
   public LoginResponseDto setAdminRole(boolean adminRole) {
     isAdminRole = adminRole;
-    return this;
-  }
-
-  public int getLocalPort() {
-    return localPort;
-  }
-
-  public LoginResponseDto setLocalPort(int localPort) {
-    this.localPort = localPort;
     return this;
   }
 
@@ -87,8 +77,6 @@ public class LoginResponseDto {
         + user
         + ", isAdminRole="
         + isAdminRole
-        + ", localPort="
-        + localPort
         + ", serverTime="
         + serverTime
         + ", wsReconnectInterval="

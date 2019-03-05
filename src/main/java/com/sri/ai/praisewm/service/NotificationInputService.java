@@ -12,6 +12,6 @@ public class NotificationInputService implements Service {
   @Override
   public void start(ServiceManager serviceManager) {
     new NotificationInputRoutes(
-        serviceManager.getRestService(), RouteScope.API, serviceManager.getEventBus());
+        serviceManager.getSparkService(), RouteScope.API, serviceManager.getEventBus());
   }
 }

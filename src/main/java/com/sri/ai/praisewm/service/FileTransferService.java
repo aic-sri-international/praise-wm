@@ -24,7 +24,7 @@ public class FileTransferService implements Service {
   public void start(ServiceManager serviceManager) {
     init(serviceManager.getConfiguration().asString("server.fileUploadFolder"));
     new FileTransferRoutes(
-        serviceManager.getRestService(),
+        serviceManager.getSparkService(),
         RouteScope.API,
         (request) -> new UploadFileProcessor(request, uploadDir).upload());
   }

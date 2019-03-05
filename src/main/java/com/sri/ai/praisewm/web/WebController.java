@@ -10,7 +10,7 @@ import com.sri.ai.praisewm.web.error.PathNotDefinedException;
 import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.filter.CorsFilter;
 import com.sri.ai.praisewm.web.rest.util.HttpStatus;
-import com.sri.ai.praisewm.web.websocket.WebSocketConstants;
+import com.sri.ai.praisewm.web.ws.WebSocketConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -233,6 +233,9 @@ public class WebController {
   }
 
   private void setFilters() {
+    // Allow CORS for static files
+    sparkService.staticFiles.header("Access-Control-Allow-Origin", "*");
+
     // Checking for the defined paths in this filter is used to filter-out requests that
     // would otherwise be passed to the security authentication service.
     sparkService.before(
@@ -246,6 +249,22 @@ public class WebController {
           }
         });
 
+    sparkService.options(
+        "/*",
+        (request, response) -> {
+          String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+          if (accessControlRequestHeaders != null) {
+            response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+          }
+
+          String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+          if (accessControlRequestMethod != null) {
+            response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+          }
+
+          return "OK";
+        });
+
     corsFilter.apply();
 
     sparkService.after((req, res) -> res.header("Content-Encoding", "gzip"));
@@ -254,6 +273,7 @@ public class WebController {
   public void stop() {
     if (sparkIsInitialized) {
       sparkService.stop();
+      sparkService.awaitStop();
     }
   }
 }

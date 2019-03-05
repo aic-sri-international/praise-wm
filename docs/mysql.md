@@ -16,9 +16,9 @@ You can either install and run MySQL in your host operating system or within a D
 
 1. Create a MySQL database account with DBA privileges.
 
-    The user/password for the account must match those found in [com.sri.ai.praisewm.cfg][].
+    The user/password for the account must match those found in [application.properties][].
 
 
 
 [MySQL Community Server]: https://dev.mysql.com/downloads/
-[com.sri.ai.praisewm.cfg]: ../src/main/resources/com.sri.ai.praisewm.cfg
+[application.properties]: ../application.properties

@@ -8,9 +8,7 @@ import com.sri.ai.praisewm.util.PropertiesWrapper;
 public interface ServiceManager {
   PropertiesWrapper getConfiguration();
 
-  spark.Service getRestService();
-
-  spark.Service getWebSocketService();
+  spark.Service getSparkService();
 
   EventBus getEventBus();
 

@@ -1,12 +1,21 @@
 package com.sri.ai.praisewm.service;
 
 import com.sri.ai.praisewm.event.notification.NotificationEvent;
-import com.sri.ai.praisewm.web.websocket.NotificationSessionManager;
+import com.sri.ai.praisewm.web.ws.NotificationSessionManager;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/** NotificationService. */
+/**
+ * The Notification Service sends events to UI clients using the {@link NotificationSessionManager}.
+ *
+ * <p>A {@code PingEvent} is broadcast to all connected clients every {@code
+ * server.ws.pingClientInMillis} which is configured in the application's {@code com.jpanther.cfg}
+ * file.
+ *
+ * <p>When this service's {@link #stop} method is called, it will broadcast a {@link
+ * SystemShutdownEvent} to all connected clients.
+ */
 public class NotificationService implements Service {
   private NotificationSessionManager notifications;
   private Integer pingBroadcastInMillis;
@@ -16,7 +25,8 @@ public class NotificationService implements Service {
   public void start(ServiceManager serviceManager) {
     notifications =
         new NotificationSessionManager(
-            serviceManager.getWebSocketService(),
+            serviceManager.getConfiguration(),
+            serviceManager.getSparkService(),
             serviceManager.getEventBus(),
             serviceManager.getService(SecurityServiceImpl.class));
 

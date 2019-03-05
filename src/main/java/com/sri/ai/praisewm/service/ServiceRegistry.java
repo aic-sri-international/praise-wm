@@ -1,27 +1,53 @@
 package com.sri.ai.praisewm.service;
 
-import com.sri.ai.praisewm.service.praise_service.PraiseServiceImpl;
+import com.sri.ai.praisewm.util.PropertiesWrapper;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** ServiceRegistry. */
 public final class ServiceRegistry {
-  private static final Set<Class<? extends Service>> SERVICES = new LinkedHashSet<>();
+  private static final Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
+  private final Set<Class<? extends Service>> services = new LinkedHashSet<>();
+  private PropertiesWrapper pw;
 
-  static {
-    // Add services in the order that they are to be initialized
-    // The security service must be first
-    SERVICES.add(SecurityServiceImpl.class);
-    SERVICES.add(NotificationService.class);
-    SERVICES.add(AdminService.class);
-    SERVICES.add(UserService.class);
-    SERVICES.add(NotificationInputService.class);
-    SERVICES.add(FileTransferService.class);
-    SERVICES.add(SystemStatusService.class);
-    SERVICES.add(PraiseServiceImpl.class);
+  public ServiceRegistry(PropertiesWrapper pw) {
+    this.pw = pw;
+    registerServices();
   }
 
-  public static Set<Class<? extends Service>> get() {
-    return SERVICES;
+  private void registerServices() {
+    TreeMap<Object, Object> sortedMap = new TreeMap<>(pw.getProperties());
+
+    final String serviceKeyPattern = "^service\\.implementation\\.\\d+\\..*";
+
+    sortedMap.entrySet().stream()
+        .filter(e -> e.getKey().toString().matches(serviceKeyPattern))
+        .forEach(
+            e -> {
+              Class<? extends Service> serviceClass;
+              try {
+                serviceClass = Class.forName(e.getValue().toString()).asSubclass(Service.class);
+                services.add(serviceClass);
+              } catch (ClassNotFoundException ex) {
+                LOG.error(
+                    "Skipping service class {} from '{}'. Class not found",
+                    e.getValue().toString(),
+                    pw.getName(),
+                    ex);
+              }
+            });
+
+    if (services.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("You need to add at least one service to the '%s'", pw.getName()));
+    }
+  }
+
+  public Set<Class<? extends Service>> get() {
+    return Collections.unmodifiableSet(services);
   }
 }

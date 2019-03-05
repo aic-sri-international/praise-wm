@@ -82,10 +82,12 @@
   Vue.use(Vue2Filters);
   Vue.use(VueTippy, {
     flipDuration: 0,
+    theme: 'light',
+    arrow: true,
     popperOptions: {
       modifiers: {
         preventOverflow: {
-          enabled: false,
+          enabled: true,
         },
         hide: {
           enabled: false,

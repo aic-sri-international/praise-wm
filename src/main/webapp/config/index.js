@@ -36,7 +36,7 @@ module.exports = {
         },
       },
       b: {
-        target: 'ws://localhost:4568',
+        target: 'ws://localhost:4567',
         secure: false,
         ws: true,
         filter: function (pathname, req) {

@@ -1,31 +1,38 @@
 <template>
-  <div style="display:flex; flex-dimension: row">
-      <input style="text-align: left"
-               :style="currentStyle"
-               ref="input"
-               v-tippy="{ theme: 'light', arrow: true }"
-               :title="tooltip"
-               :disabled="disabled"
-               @blur="onBlur"
-               @input="updateDigitsValue($event.target.value)"/>
-      <div style="display:flex; flex-dimension: column; margin-left: -36px">
-          <b-btn variant="outline-secondary"
+  <div class="container">
+    <div class="row">
+        <input style="text-align: left"
+                 :style="currentStyle"
+                 ref="input"
+                 v-tippy
+                 :title="tooltip"
+                 :disabled="disabled"
                  @blur="onBlur"
-                 :disabled="upArrowIsDisabled"
-                 style="color: blue; height:4px;"
-                 @click.stop="onStepClick($event, true)">
-          <i class="fas fa-caret-up" data-fa-transform="up-12"></i>
-          </b-btn>
-        <b-btn variant="outline-secondary"
-               @blur="onBlur"
-               :disabled="downArrowIsDisabled"
-               style="color: blue; height:4px; margin-top: 16px; margin-left: -36px"
-               @click.stop="onStepClick($event, false)">
-          <i class="fas fa-caret-down" data-fa-transform="up-11"></i>
-        </b-btn>
-      </div>
+                 @input="updateDigitsValue($event.target.value)"/>
+        <div class="column shift-left">
+          <div class="row">
+            <b-btn variant="outline-secondary"
+                   class="button-class"
+                   @blur="onBlur"
+                   @click.stop="onStepClick($event, true)"
+                   :disabled="upArrowIsDisabled">
+              <div class="arrow-up"></div>
+            </b-btn>
+          </div>
+          <span style="height: .5px"></span>
+            <div class="row">
+              <b-btn variant="outline-secondary"
+                     ref="downButton_ref"
+                     class="button-class"
+                     @blur="onBlur"
+                     @click.stop="onStepClick($event, false)"
+                     :disabled="downArrowIsDisabled">
+                <div class="arrow-down"></div>
+              </b-btn>
+            </div>
+        </div>
+    </div>
   </div>
-
 </template>
 
 <script>
@@ -213,3 +220,42 @@
     },
   };
 </script>
+
+<style scoped>
+  .container {
+    display:flex;
+  }
+  .row {
+    display:flex;
+    flex-direction:row;
+  }
+  .column {
+    display:flex;
+    flex-direction:column;
+  }
+  .shift-left {
+    margin-left: -20px;
+  }
+  .button-class {
+    height:4px;
+    width: 34px;
+  }
+  .arrow-up {
+    margin-top: -3px;
+    margin-left: -4px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 7px 6px 7px;
+    border-color: transparent transparent #0040ff transparent;
+  }
+  .arrow-down {
+    margin-top: -3px;
+    margin-left: -4px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 7px 0 7px;
+    border-color: #0040ff transparent transparent transparent;
+  }
+</style>

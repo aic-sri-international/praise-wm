@@ -16,7 +16,7 @@ import com.sri.ai.praisewm.util.PropertiesWrapper;
 import com.sri.ai.praisewm.web.error.AuthenticationException;
 import com.sri.ai.praisewm.web.error.AuthorizationException;
 import com.sri.ai.praisewm.web.error.LoginException;
-import com.sri.ai.praisewm.web.websocket.WebSocketConstants;
+import com.sri.ai.praisewm.web.ws.WebSocketConstants;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
@@ -207,7 +207,6 @@ public class SecurityServiceImpl implements Service, SecurityService {
         new LoginResponseDto()
             .setUser(userResult)
             .setAdminRole(user.getName().equals(ADMIN_NAME))
-            .setLocalPort(getLocalPort())
             .setServerTime(Instant.now())
             .setWsReconnectInterval(wsReconnectInterval)
             .setWsMaxReconnectAttempts(maxReconnectAttempts)

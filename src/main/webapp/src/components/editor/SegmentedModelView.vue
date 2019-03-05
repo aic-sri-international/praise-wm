@@ -1,38 +1,36 @@
 <template>
   <div class="top-level-container">
-    <div class="left-column" id="segModelEditorViewLeftCol">
+    <div class="left-column" id="segModelEditorViewLeftColId">
       <div>
         <b-form-textarea class="mb-2"
-                         id="segmentedModelDescription" max-rows="20"
+                         id="segmentedModelDescriptionId" max-rows="20"
                          placeholder="Enter a description for the model"
                          rows="1"
                          size="sm"
                          v-model="segmentedModel.description"
                          wrap="off">
         </b-form-textarea>
-        <b-popover :show="showHelp" target="segmentedModelDescription" triggers="">
-          <span class="help">Describes the model.</span>
+        <b-popover :show="showHelp" target="segmentedModelDescriptionId" placement="right" triggers="">
+          Describes the model
         </b-popover>
       </div>
-      <div class="segmentedEditor" id="segmentedEditor">
-        <div class="dcl-editor">
-          <editor :editTextWatch="dclEditTextWatch" :value="segmentedModel.declarations" id="dclEditor"
+      <div class="segmentedEditor" id="segmentedEditorId">
+        <div class="dcl-editor" id="dclEditorId">
+          <editor :editTextWatch="dclEditTextWatch" :value="segmentedModel.declarations"
                   ref="dcl_editor_ref" type="hogm">
           </editor>
         </div>
-        <b-popover :show="showHelp" target="dclEditor" triggers="">
-          <span class="help">Global model declarations section.
-            You can optionally include rules in this section.</span>
+        <b-popover :show="showHelp" target="dclEditorId" triggers="">
+          <div class="help-title">Global model declarations section</div>
+          You can optionally include rules in this section.
         </b-popover>
-        <segmented-model-editor :rules="segmentedModel.rules" id="segmented-model-editor"
+        <segmented-model-editor :rules="segmentedModel.rules"
                                 ref="seg_model_editor_ref">
         </segmented-model-editor>
-        <b-popover :show="showHelp" target="segmentedEditor" triggers="">
-          <span class="help">
-            Right-click within a rule section to display a context menu. The context menu
-            allows you to toggle the display of metadata for the rule, insert a new rule,
-            or delete the rule.
-          </span>
+        <b-popover :show="showHelp && segmentedModel.rules.length > 0" target="segmentedEditorId" triggers="">
+          <div class="help-title">Right-click within a rule section to display a context menu</div>
+          The context menu allows you to toggle the display of metadata for the rule, insert a new rule,
+          or delete the rule.
         </b-popover>
       </div>
       <div class="modelControlsContainer">
@@ -40,6 +38,7 @@
           <div style="display: flex; flex-direction: row">
             <b-input-group class="ml-1" prepend="Model" size="sm">
               <b-form-select
+                  id="modelSelectionId"
                   :options="modelOptions"
                   @input="modelSelectionChanged"
                   v-model="modelOptionSelected">
@@ -48,16 +47,19 @@
             <span class="ml-1"></span>
             <action-button
                 @clicked="()=>$refs.input_ref.click()"
-                title="Open Model"
+                v-tippy
+                title="Open and read model from disk"
                 type="open">
             </action-button>
             <action-button
                 @clicked="download"
-                title="Download Model"
+                v-tippy
+                title="Download current model to disk"
                 type="download">
             </action-button>
             <action-button
                 @clicked="loadModelsFromServer"
+                v-tippy
                 title="Reload models from server"
                 type="sync">
             </action-button>
@@ -65,6 +67,7 @@
           <div style="display: flex; flex-direction: row">
             <editable-datalist
                 :options="queryOptions"
+                id="modelQueryId"
                 class="ml-1"
                 label="Query"
                 placeholder="Please enter a query ..."
@@ -73,11 +76,13 @@
             <span class="ml-1"></span>
             <action-button
                 @clicked="runQuery"
+                v-tippy
                 title="Run the query"
                 type="play">
             </action-button>
             <action-button
                 @clicked="()=> queryResults = []"
+                v-tippy
                 title="Remove query results"
                 type="broom">
             </action-button>
@@ -101,20 +106,41 @@
                 :value="numberOfDiscreteValues"
                 @blur="data => numberOfDiscreteValues = data">
               </numeric-input>
-              </div>
+            </div>
+            <div id="querySolverOptionsId" class="query-solver-component" style="width: 1px"
+                 :class="{ querySolverOptionsHelpOffset: showHelp }">
+            </div>
           </div>
         </div>
-        <query-results :results="queryResults"
-                       :selectedIx="selectedQueryResult"
-                       @selectionChanged="(ix)=> { selectedQueryResult = ix; totalMainQueryCounter += 1;}"
-                       class="query-results mt-2 mb-2"
-                       v-if="showQueryResults && queryResults.length">
-        </query-results>
+        <div id="queryResultsId">
+          <query-results :results="queryResults"
+                         :selectedIx="selectedQueryResult"
+                         @selectionChanged="(ix)=> { selectedQueryResult = ix; totalMainQueryCounter += 1;}"
+                         class="query-results mt-2 mb-2"
+                         v-if="showQueryResults && queryResults.length">
+          </query-results>
+        </div>
+        <b-popover :show="showHelp" target="queryResultsId" placement="right" triggers="">
+          <div class="help-title">Query results messages</div>
+          After running a second query you can click on a prior result message to
+          see its result in the visualization panel.
+        </b-popover>
       </div>
+      <b-popover :show="showHelp" target="modelSelectionId" placement="topleft" :offset="-240" triggers="">
+        Select the model to be used for the query
+      </b-popover>
+      <b-popover :show="showHelp" target="modelQueryId" placement="topright" triggers="">
+        <div class="help-title">The query to be used for the model</div>
+        <div>You can enter a new query or select a prior query from the dropdown list.</div>
+         <div>Right-click in the query field to select an action from the popup menu.</div>
+      </b-popover>
+      <b-popover :show="showHelp" target="querySolverOptionsId" placement="right" triggers="">
+        Query solver tuning parameters
+      </b-popover>
       <spinner :show="runningQueries > 0"
                @click="interruptQueries()"></spinner>
     </div>
-    <div class="right-column" id="segModelEditorViewRightCol">
+    <div class="right-column" id="segModelEditorViewRightColId">
       <!--@TODO update when the HOGM solver can return map related query results-->
       <!-- We use the :key="totalMainQueryCounter" to assure that the complete state of
            the component is reset between each initial query -->
@@ -124,15 +150,18 @@
                         @queryReturned="runningQueries -= 1"
                         v-if="displayMap"></query-map-result>
       <div v-else class="query-chart">
-      <query-chart-result :graph-query-result="graphQueryResult"
-                          :key="totalMainQueryCounter"
-                          @querySent="runningQueries += 1"
-                          @queryReturned="runningQueries -= 1">
-      </query-chart-result>
-        </div>
+        <query-chart-result :graph-query-result="graphQueryResult"
+                            :key="totalMainQueryCounter"
+                            @querySent="runningQueries += 1"
+                            @queryReturned="runningQueries -= 1">
+        </query-chart-result>
+      </div>
       <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
       <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->
     </div>
+    <b-popover :show="showHelp" target="segModelEditorViewRightColId" triggers="">
+      Visualization of query results.
+    </b-popover>
     <input-text-file @change="inputFileChanged" accept=".json" ref="input_ref"></input-text-file>
   </div>
 </template>
@@ -372,9 +401,9 @@
       if (this.splitter$ !== undefined) {
         this.splitter$.destroy();
       }
-      this.splitter$ = Split(['#segModelEditorViewLeftCol', '#segModelEditorViewRightCol'], {
+      this.splitter$ = Split(['#segModelEditorViewLeftColId', '#segModelEditorViewRightColId'], {
         sizes: [60, 40],
-        onDragEnd() {
+        onDrag() {
           sendResizeEvent();
         },
       });
@@ -455,9 +484,9 @@
     overflow: auto
   }
 
-  .help {
-    background-color: lightyellow;
-    border-bottom-color: green;
+  .help-title {
+    font-weight: 500;
+    border-bottom: 1px solid lightgrey;
   }
 
   .query-solver-options {
@@ -468,15 +497,20 @@
     margin-left: 0.25rem;
   }
 
+  .querySolverOptionsHelpOffset {
+    margin-left: 1.5rem !important;
+  }
+
   .query-solver-component {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap
+    flex-wrap: nowrap
   }
 
   .query-solver-options-text {
     margin-top: 0.1rem;
     font-size: 0.95rem;
     margin-right: 0.5rem;
+    white-space: nowrap;
   }
 </style>

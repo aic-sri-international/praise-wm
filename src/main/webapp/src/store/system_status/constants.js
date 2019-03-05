@@ -4,8 +4,8 @@ const SYSTEM_STATUS_VXC = {
   MODULE: 'systemStatus',
   GET: {
     UI_IS_OPEN: 'systemStatusUiIsOpen',
-    STATUS_OVERALL_CLASS: 'systemStatusOverallClass',
-    DATABASE_CLASS: 'systemStatusDatabaseClass',
+    STATUS_OVERALL_ICON_INFO: 'systemStatusOverallIconInfo',
+    DATABASE_ICON_INFO: 'systemStatusDatabaseIconInfo',
   },
   SET: {
     UI_IS_OPEN: 'setSystemStatusUiIsOpen',

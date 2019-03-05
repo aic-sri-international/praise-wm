@@ -17,8 +17,10 @@ WORKDIR /opt/praisewm
 
 COPY praisewm*.jar praisewm.jar
 COPY keystore.jks keystore.jks
+COPY application.properties application.properties
+COPY logback.xml logback.xml
 
-EXPOSE 4567 4568
+EXPOSE 4567
 CMD echo "The application will start in ${PRAISEWM_SLEEP}seconds..." && \
     sleep ${PRAISEWM_SLEEP} && \
     java ${JAVA_OPTS} -jar praisewm.jar

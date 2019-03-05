@@ -5,11 +5,11 @@
       <h4>System Status</h4>
       </div>
       <hr />
-      <div v-for="item in items">
+      <div v-for="item in items" :key="item.name">
         <div class="d-flex justify-content-start">
           <div>{{item.name}}</div>
-          <div class="ml-auto">
-            <i :class="item.classes"></i>
+          <div class="ml-auto" v-if="item.iconName">
+            <font-awesome-icon :icon="item.iconName" :class="item.classes"/>
           </div>
         </div>
         <hr />
@@ -43,11 +43,11 @@
     },
     computed: {
       ...mapGetters(SS.MODULE, [
-        SS.GET.DATABASE_CLASS,
+        SS.GET.DATABASE_ICON_INFO,
       ]),
       items() : Item[] {
         return [
-          { name: 'Database', classes: this[SS.GET.DATABASE_CLASS] },
+          { name: 'Database', ...this[SS.GET.DATABASE_ICON_INFO] },
         ];
       },
     },

@@ -9,6 +9,7 @@ import com.sri.ai.praisewm.service.ServiceManagerImpl;
 import com.sri.ai.praisewm.service.ServiceRegistry;
 import com.sri.ai.praisewm.util.PropertiesWrapper;
 import com.sri.ai.praisewm.web.WebController;
+import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,18 +17,19 @@ public class Application {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
   private final EventBus eventBus = new EventBus("ApplicationEventBus");
+  private PropertiesWrapper pw;
+  private ServiceRegistry serviceRegistry;
   private ServiceManagerImpl serviceManager;
   private SecurityService securityService;
-  private WebController webResource;
-  // WebSocket session endpoints are created using a separate spark.Service instance
-  // to work-around this Spark websocket bug: https://github.com/perwendel/spark/issues/783
-  private WebController websocketResource;
+  private WebController webController;
   private DeadEventListener deadEventListener = new DeadEventListener();
 
-  public static void main(String[] args) {
+  public Application() {
     try {
-      Application application = new Application();
-      application.start();
+      pw = PropertiesWrapper.fromFile(Paths.get("application.properties"));
+      LOG.info("\nApplication Properties:\n{}", pw.format());
+      serviceRegistry = new ServiceRegistry(pw);
+      start();
     } catch (Exception e) {
       LOG.error("Application initialization error", e);
       System.exit(1);
@@ -35,42 +37,26 @@ public class Application {
   }
 
   private void start() {
-    PropertiesWrapper pw = PropertiesWrapper.fromClasspath("com.sri.ai.praisewm.cfg");
-    LOG.info("\nApplication Properties:\n{}", pw.format());
-
     ShutdownThread shutdownHookThread = new ShutdownThread(this::stop);
     Runtime.getRuntime().addShutdownHook(shutdownHookThread);
 
     eventBus.register(deadEventListener);
 
-    webResource = new WebController(pw, () -> securityService, 0);
-
-    websocketResource = new WebController(pw, () -> securityService, 1);
+    webController = new WebController(pw, () -> securityService, 0);
 
     serviceManager =
         new ServiceManagerImpl(
-            pw, eventBus, webResource.getSparkService(), websocketResource.getSparkService());
+            pw, eventBus, () -> webController.init(), webController.getSparkService());
 
-    ServiceRegistry.get().forEach(serviceManager::addService);
-    // We need to complete the webResouce initialization before we start the services
-    // that will establish the REST endpoints.
-    webResource.init();
+    serviceRegistry.get().forEach(serviceManager::addService);
 
     serviceManager.startServices();
     securityService = serviceManager.getService(SecurityServiceImpl.class);
-
-    // All websocket endpoints must be created prior to initializing the web resource used for
-    // websockets.
-    //    EchoSessionManager echoSessionManager =
-    //        new EchoSessionManager(websocketResource.getSparkService(), eventBus);
-
-    websocketResource.init();
   }
 
   private void stop() {
     serviceManager.stopServices();
-    websocketResource.stop();
-    webResource.stop();
+    webController.stop();
   }
 
   public static class DeadEventListener {

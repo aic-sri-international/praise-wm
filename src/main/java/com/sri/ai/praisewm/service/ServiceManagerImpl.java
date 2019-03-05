@@ -5,7 +5,9 @@ import com.sri.ai.praisewm.db.JooqTxProcessor;
 import com.sri.ai.praisewm.db.internal.DatabaseConnectionManager;
 import com.sri.ai.praisewm.db.internal.JooqTxProcessorImpl;
 import com.sri.ai.praisewm.util.PropertiesWrapper;
+import com.sri.ai.praisewm.web.WebController;
 import java.util.LinkedHashMap;
+import java.util.concurrent.Callable;
 import org.apache.commons.lang3.Validate;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
@@ -16,25 +18,25 @@ public class ServiceManagerImpl implements ServiceManager {
   private static final Logger LOG = LoggerFactory.getLogger(ServiceManagerImpl.class);
   private final LinkedHashMap<Class, Service> services = new LinkedHashMap<>();
   private final EventBus eventBus;
-  private final spark.Service restService;
-  private final spark.Service websocketService;
+  private final Callable<WebController> webControllerInitializer;
+  private final spark.Service sparkService;
   private DatabaseConnectionManager dbManager;
   private PropertiesWrapper configuration;
-  private Flyway flyway = new Flyway();
+  private Flyway flyway;
 
   public ServiceManagerImpl(
       PropertiesWrapper propertiesWrapper,
       EventBus eventBus,
-      spark.Service restService,
-      spark.Service websocketService) {
+      Callable<WebController> webControllerInitializer,
+      spark.Service sparkService) {
     this.eventBus = eventBus;
-    this.restService = restService;
-    this.websocketService = websocketService;
+    this.webControllerInitializer = webControllerInitializer;
+    this.sparkService = sparkService;
     configuration = propertiesWrapper;
     dbManager = new DatabaseConnectionManager(propertiesWrapper);
     dbManager.start(
         (dataSource) -> {
-          flyway.setDataSource(dataSource);
+          flyway = Flyway.configure().dataSource(dataSource).load();
           flyway.migrate();
         });
   }
@@ -45,13 +47,8 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
-  public spark.Service getRestService() {
-    return restService;
-  }
-
-  @Override
-  public spark.Service getWebSocketService() {
-    return websocketService;
+  public spark.Service getSparkService() {
+    return sparkService;
   }
 
   @Override
@@ -96,6 +93,12 @@ public class ServiceManagerImpl implements ServiceManager {
               try {
                 s.start(this);
                 LOG.info("{} Started", s.getClass().getName());
+                if (s instanceof NotificationService) {
+                  // WebController initialization must occur after the creation of any Spark
+                  // Websocket handlers and before initializing any services that create
+                  // REST routes.
+                  webControllerInitializer.call();
+                }
               } catch (Exception e) {
                 throw new RuntimeException("Cannot start service: " + s.getClass().getName(), e);
               }

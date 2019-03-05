@@ -15,7 +15,13 @@ type VuexSystemStatusStore = {
   mutations: Object,
 };
 
+type SystemStatusIconInfo = {
+  iconName: string,
+  classes: string,
+};
+
 export type {
   VuexSystemStatusState,
   VuexSystemStatusStore,
+  SystemStatusIconInfo,
 };

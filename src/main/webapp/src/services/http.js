@@ -48,7 +48,6 @@ const HTTP_STATUS_NO_CONTENT = 204;
 const HTTP_STATUS_CREATED = 201;
 
 let secSessionId: string = '';
-let actualRemoteServerPort: number;
 let timeDeltaInMillis : number = 0;
 let reconnectInternalInMillis = 0;
 let maxReconnectAttempts = 0;
@@ -77,11 +76,7 @@ function appendSessionIdQuery(url: string) {
 export function getUrlForWebsocketEndpoint(endpoint : string) : string {
   const loc = window.location;
   const protocol : string = loc.protocol === 'http:' ? 'ws:' : 'wss:';
-  const restPort : number = +loc.port;
-  // A bit of a kluge to accomodate the WebPack dev server WS proxy
-  const wsPort = restPort + (restPort === actualRemoteServerPort ? 1 : 0);
-
-  return appendSessionIdQuery(`${protocol}//${loc.hostname}:${wsPort}/ws/${endpoint}`);
+  return appendSessionIdQuery(`${protocol}//${loc.hostname}:${loc.port}/ws/${endpoint}`);
 }
 
 function getHeaderValue(headers: Headers, key: string) : string {
@@ -283,7 +278,6 @@ export const http = {
       const serverTime : Date = new Date(loginResponse.serverTime);
       timeDeltaInMillis = serverTime.getTime() - Date.now();
 
-      actualRemoteServerPort = loginResponse.localPort;
       reconnectInternalInMillis = loginResponse.wsReconnectInterval;
       maxReconnectAttempts = loginResponse.wsMaxReconnectAttempts;
       clientInactivityTimeoutInMillis = loginResponse.wsClientInactivityTimeout;

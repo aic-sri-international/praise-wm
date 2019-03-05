@@ -6,6 +6,7 @@ import SS from './constants';
 import type {
   VuexSystemStatusState,
   VuexSystemStatusStore,
+  SystemStatusIconInfo,
 } from './types';
 
 const rankedLevels = [
@@ -14,27 +15,27 @@ const rankedLevels = [
   messageLevels.ERROR,
 ];
 
-const classesByLevel = [
-  'fa fa-check-circle systemStatusInfoColor',
-  'fa fa-exclamation-triangle systemStatusWarnColor',
-  'fa fa-times-circle systemStatusErrorColor',
+const iconInfoByLevel: SystemStatusIconInfo[] = [
+  { iconName: 'check-circle', classes: 'systemStatusInfoColor' },
+  { iconName: 'exclamation-triangle', classes: 'systemStatusWarnColor' },
+  { iconName: 'times-circle', classes: 'systemStatusErrorColor' },
 ];
 
-const getClassesForLevel = (level) : ?string =>
-  (level ? classesByLevel[rankedLevels.indexOf(level)] : null);
+const getIconInfoForLevel = (level) :
+    ?SystemStatusIconInfo => (level ? iconInfoByLevel[rankedLevels.indexOf(level)] : null);
 
 const getters = {
   [SS.GET.UI_IS_OPEN]:
       (state: VuexSystemStatusState): boolean => state.ui.isOpen,
-  [SS.GET.DATABASE_CLASS]:
-      (state: VuexSystemStatusState): ?string => getClassesForLevel(state.database),
-  [SS.GET.STATUS_OVERALL_CLASS]:
-      (state: VuexSystemStatusState): ?string => {
+  [SS.GET.DATABASE_ICON_INFO]: (state: VuexSystemStatusState):
+      ?SystemStatusIconInfo => getIconInfoForLevel(state.database),
+  [SS.GET.STATUS_OVERALL_ICON_INFO]:
+      (state: VuexSystemStatusState): ?SystemStatusIconInfo => {
         // eslint-disable-next-line function-paren-newline
         const max = Math.max(
-          //  comment placeholder for additional state
+        // placeholder for additional system state
           rankedLevels.indexOf(state.database));
-        return max === -1 ? null : classesByLevel[max];
+        return max === -1 ? null : iconInfoByLevel[max];
       },
 };
 

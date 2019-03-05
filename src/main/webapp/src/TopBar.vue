@@ -2,14 +2,20 @@
   <div class="header">
     <span class="headerTitle" @click.stop="$emit('notificationsTesterClicked')">PRAiSE-WM</span>
 
-    <span class="headerIcon headerHelp" @click="toggleHelp()">
+    <span class="headerIcon headerHelp"
+          v-tippy
+          title="Toggle Help"
+          @click="toggleHelp()">
       <span class="fa-layers fa-fw">
          <i class="fas fa-circle" data-fa-transform="grow-12 down-3" style="color: white"></i>
         <i class="fas fa-question fa-inverse" style="color: green" data-fa-transform="shrink-1 down-3"></i>
       </span>
     </span>
 
-    <span class="headerIcon headerNotification" @click="$emit('notificationsClicked')">
+    <span class="headerIcon headerNotification"
+          v-tippy
+          title="Notifications"
+          @click="$emit('notificationsClicked')">
       <span class="fa-layers fa-fw">
         <i class="fas fa-bell" data-fa-transform="grow-12 down-2"></i>
         <span v-if="notificationUiHasNewMsg">
@@ -18,10 +24,17 @@
       </span>
     </span>
 
-    <span class="headerIcon headerSystemStatus" @click="$emit('systemsStatusClicked')">
+    <span class="headerIcon headerSystemStatus"
+          v-tippy
+          title="System Status"
+          @click="$emit('systemsStatusClicked')">
       <span class="fa-layers fa-fw">
         <i class="fas fa-desktop" data-fa-transform="grow-14 down-4"></i>
-        <i :class="systemStatusOverallClass"></i>
+        <font-awesome-icon
+            v-if="iconInfo"
+            :icon="iconInfo.iconName"
+            transform="down-2 right-1"
+            :class="iconInfo.classes"/>
       </span>
     </span>
 
@@ -29,7 +42,7 @@
         {{time | formatDateTime}}
       </span>
 
-    <span class="headerIcon headerLogout" @click="doLogout" v-b-tooltip.hover.auto title="Click to logout">
+    <span class="headerIcon headerLogout" @click="doLogout" v-tippy title="Click to logout">
         <i class="fas fa-sign-out-alt" data-fa-transform="grow-14"></i>
       </span>
 
@@ -49,6 +62,7 @@
     store,
     vxcFp,
   } from '@/store';
+  import type { SystemStatusIconInfo } from '@/store/system_status/types';
 
   let intervalId;
 
@@ -78,8 +92,15 @@
         NC.GET.UI_HAS_NEW_MSG,
       ]),
       ...mapGetters(SS.MODULE, [
-        SS.GET.STATUS_OVERALL_CLASS,
+        SS.GET.STATUS_OVERALL_ICON_INFO,
       ]),
+      iconInfo() : ?SystemStatusIconInfo {
+        const iconInfo: ?SystemStatusIconInfo = this[SS.GET.STATUS_OVERALL_ICON_INFO];
+        if (iconInfo) {
+          return { ...iconInfo };
+        }
+        return null;
+      },
     },
     created() {
       intervalId = window.setInterval(() => {

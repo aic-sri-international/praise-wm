@@ -16,9 +16,9 @@ jooq {
             password = "${project.ext.cfg['database.password']}"
         }
         generator {
-            name = 'org.jooq.util.DefaultGenerator'
+            name = 'org.jooq.codegen.DefaultGenerator'
             database {
-                name = 'org.jooq.util.mysql.MySQLDatabase'
+                name = 'org.jooq.meta.mysql.MySQLDatabase'
                 inputSchema = "${project.ext.cfg['database.schema']}"
                 schemaVersionProvider = """
                     SELECT CONCAT('praisewm', '_', MAX(version)) FROM flyway_schema_history;

@@ -14,12 +14,15 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'application'
+
+plugins {
+    id 'java-library'
+    id 'maven'
+    id 'application'
+}
 
 group = 'com.sri.ai.praisewm'
-version = '2.3'
+version = '2.4'
 
 description = "praisewm"
 
@@ -27,7 +30,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 // must precede shadow plugin
-mainClassName = "${group}.Application"
+mainClassName = "${group}.ApplicationBootstrap"
 
 apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -58,9 +61,11 @@ shadowJar {
     // Similar issue described here: https://dzone.com/articles/fixed-embedded-jetty-fails-0
     //
     exclude 'license/*'
+    // Bug work-around : https://github.com/johnrengelman/shadow/issues/446
+    archiveClassifier.set('all')
 }
 
-file("src/main/resources/${group}.cfg").withReader {
+file("application.properties").withReader {
     Properties props = new Properties()
     props.load(it)
     project.ext.cfg = new ConfigSlurper().parse(props).flatten().each {
@@ -155,31 +160,32 @@ repositories {
 }
 
 dependencies {
-    compile name: "PRAiSE-${aic_praise_version}-jar-with-dependencies"
-    compile "com.sparkjava:spark-core:${spark_version}"
-    compile "mysql:mysql-connector-java:${mysql_connector_java_version}"
-    compile "com.zaxxer:HikariCP:${HikariCP_version}"
-    compile "com.fasterxml.jackson.core:jackson-core:${jackson_core_version}"
-    compile "com.fasterxml.jackson.core:jackson-databind:${jackson_core_version}"
-    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:${jackson_core_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_core_version}"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_core_version}"
-    compile "javax.xml.bind:jaxb-api:${jaxb_api_version}"
-    compile "com.google.guava:guava:${guava_version}"
-    compile "com.jayway.jsonpath:json-path:${json_path_version}"
-    compile "org.apache.commons:commons-lang3:${commons_lang3_version}"
-    compile "commons-fileupload:commons-fileupload:${commons_fileupload_version}"
-    compile "org.apache.pdfbox:pdfbox:${apache_pdfbox_version}"
+    implementation name: "PRAiSE-${aic_praise_version}-jar-with-dependencies"
+    implementation "com.sparkjava:spark-core:${spark_version}"
+    implementation "mysql:mysql-connector-java:${mysql_connector_java_version}"
+    implementation "com.zaxxer:HikariCP:${HikariCP_version}"
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson_core_version}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_core_version}"
+    implementation "com.fasterxml.jackson.module:jackson-module-parameter-names:${jackson_core_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jackson_core_version}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_core_version}"
+    implementation "javax.xml.bind:jaxb-api:${jaxb_api_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+    implementation "com.jayway.jsonpath:json-path:${json_path_version}"
+    implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
+    implementation "commons-fileupload:commons-fileupload:${commons_fileupload_version}"
+    implementation "org.apache.pdfbox:pdfbox:${apache_pdfbox_version}"
 
-    compile "org.geotools:gt-geotiff:${gt_geotiff_version}"
-    compile "org.geotools:gt-epsg-hsql:${gt_geotiff_version}"
+    implementation "org.geotools:gt-geotiff:${gt_geotiff_version}"
+    implementation "org.geotools:gt-epsg-hsql:${gt_geotiff_version}"
 
-    compile "ch.qos.logback:logback-classic:${logback_version}"
+    implementation "ch.qos.logback:logback-classic:${logback_version}"
     testCompile "junit:junit:${junit_version}"
     testCompile "org.assertj:assertj-core:${assertj_core_version}"
     testCompile "org.assertj:assertj-guava:${assertj_guava_version}"
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = "${gradle_version}"
+    distributionType = Wrapper.DistributionType.ALL
 }

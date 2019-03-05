@@ -1,27 +1,35 @@
 <template>
   <div>
-    <div style="margin-top: 5px;" @click="toggleSideBarCollapse">
-      <div v-show="isSideBarCollapsed" >
-        <i class="fas fa-caret-right"></i>
-      </div>
-      <div v-show="!isSideBarCollapsed">
-        <i class="fas fa-caret-left"></i>
-      </div>
+    <div style="margin-top: 5px">
+      <a class="btn-block" style="color: black"
+         @click="toggleSideBarCollapse">
+        <div v-show="isSideBarCollapsed">
+          <i class="fas fa-caret-right"></i>
+        </div>
+        <div v-show="!isSideBarCollapsed">
+          <i class="fas fa-caret-left"></i>
+        </div>
+      </a>
     </div>
+
     <!-- Sidebar Holder -->
     <nav id="sidebar" :class="{ 'active': isSideBarCollapsed }">
       <ul class="list-unstyled components">
         <li :class="{ currentRoute : $route.path === paths.HOME }">
           <a @click="routeTo(paths.HOME)">
-            <i class="fas fa-home" data-fa-transform="grow-8"></i>
-            <span v-show="!isSideBarCollapsed" class="ml-2">
+            <span v-tippy="tipOptions" :title="titles.home">
+                <i class="fas fa-home" data-fa-transform="grow-8"></i>
+            </span>
+            <span v-if="!isSideBarCollapsed" class="ml-2">
                {{titles.home}}
             </span>
           </a>
         </li>
         <li>
           <a v-b-toggle.maintSubmenu data-toggle="collapse">
-            <i class="fas fa-wrench" data-fa-transform="grow-8"></i>
+            <span v-tippy="tipOptions" :title="titles.maint">
+              <i class="fas fa-wrench" data-fa-transform="grow-8"></i>
+            </span>
             <span v-show="!isSideBarCollapsed" class="ml-2">
                {{titles.maint}}
             </span>
@@ -30,7 +38,9 @@
             <ul class="list-unstyled">
               <li :class="{ currentRoute : $route.path === paths.USER_MAINT }">
                 <a @click="routeTo(paths.USER_MAINT)">
-                  <i class="fas fa-user" data-fa-transform="grow-6"></i>
+                  <span v-tippy="tipOptions" :title="titles.maint_u">
+                    <i class="fas fa-user" data-fa-transform="grow-6"></i>
+                  </span>
                   <span v-if="!isSideBarCollapsed" class="ml-2">
                       {{titles.maint_u}}
                   </span>
@@ -75,7 +85,16 @@
         },
         tipOptions: {
           placement: 'right',
-          arrow: true,
+          popperOptions: {
+            modifiers: {
+              preventOverflow: {
+                enabled: false,
+              },
+              hide: {
+                enabled: false,
+              },
+            },
+          },
         },
       };
     },
@@ -194,15 +213,22 @@
   }
 
   a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
-    content: "\f0da";
+    content: '';
     display: block;
     position: absolute;
     right: 20px;
-    font-weight: 900;
-    font-family: "Font Awesome 5 Free";
+    margin-top: 6px;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid currentColor;
   }
+
   a[aria-expanded="true"]::before {
-    content: " \f0d7";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid currentColor;
   }
 
   /* Selected child menus when open */

@@ -72,6 +72,11 @@ type SystemStatusEvent = NotificationTextMessage &
       },
     };
 
+type SystemStatusVuexPayload = {
+  level: MessageLevel,
+  event: SystemStatusEvent,
+};
+
 export {
   eventTypes,
   broadcastTypes,
@@ -97,4 +102,5 @@ export type {
 
   SystemStatusEvent,
   SystemStatusType,
+  SystemStatusVuexPayload,
 };
