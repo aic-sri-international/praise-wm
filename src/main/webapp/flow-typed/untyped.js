@@ -73,6 +73,10 @@ declare module 'element-ui' {
   declare module.exports: any;
 }
 
+declare module 'lean-he/encode' {
+  declare module.exports: any;
+}
+
 declare module 'lodash/cloneDeep' {
   declare module.exports: any;
 }

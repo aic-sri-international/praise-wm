@@ -5,7 +5,7 @@
       <h4>Notifications</h4>
         <div class="ml-auto">
           <div v-if="notificationsForUi.length" @click.stop="onRemoveAllMessages">
-            <i class="close fas fa-times fa-lg"></i>
+            <i class="fas fa-times removeIcon" data-fa-transform="grow-6"></i>
           </div>
         </div>
       </div>
@@ -16,17 +16,16 @@
             <i class="fas fa-circle mt-1" :style="getCircleStyle(msg.level)"></i>
             <div class="font-weight-bold pl-2">{{msg.level | lowercase | capitalize }}</div>
             <div class="flex-column">
-              <div class="pl-2 text-left"><span v-html=msg.text></span></div>
+              <div class="pl-2 text-left" v-html="$$.insertWordBreaks(msg.text)"></div>
               <div class="text-left">
-                <i class="pl-1 fas fa-clock"></i> {{getTimeAgo(msg.date)}} ago
+                <i class="pl-1 fas fa-clock" style="color: #9bcd5f"></i> {{getTimeAgo(msg.date)}} ago
               </div>
             </div>
             <div class="ml-auto">
               <div @click.stop="onRemoveMessage(msg)">
-                <i class="fas fa-times"></i>
+                <i class="fas fa-times removeIcon"></i>
               </div>
             </div>
-
           </div>
           <hr />
         </div>
@@ -46,7 +45,6 @@
 
 <script>
   // @flow
-
   import { mapGetters } from 'vuex';
   import moment from 'moment';
   import { messageLevels } from '@/services/ws_notifications/types';
@@ -141,5 +139,9 @@
     right:10px;
     left:auto;
     transform:skew(8deg) rotate(3deg);
+  }
+
+  .removeIcon {
+    cursor: pointer;
   }
 </style>

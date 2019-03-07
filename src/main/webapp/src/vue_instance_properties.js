@@ -4,6 +4,7 @@ import Vue from 'vue';
 import {
   getDate,
   downloadFile,
+  insertWordBreaks,
 } from './utils';
 
 const showToastError = (text) => {
@@ -29,5 +30,6 @@ Vue.prototype.$$ = {
   getDate,
   showToastError,
   downloadFile,
+  insertWordBreaks,
 };
 

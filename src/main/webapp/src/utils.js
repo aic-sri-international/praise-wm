@@ -1,6 +1,7 @@
 // @flow
 
 import Vue from 'vue';
+import encode from 'lean-he/encode';
 import { serverTimeDeltaInMillis } from './services/http';
 
 function getDate() {
@@ -93,10 +94,19 @@ function downloadFile(objectOrObjectUrl: Object | string, filename: string) {
   }, 66);
 }
 
+// Escapes html within the text, then inserts an HTML word break tag
+// after each of a specified set of characters
+function insertWordBreaks(text: string) : string {
+  let encoded = encode(text);
+  encoded = encoded.replace(/([()_:=,.{}\\/\]])/gi, '$1<wbr>');
+  return encoded;
+}
+
 export {
   getDate,
   objectEntries,
   readTextFile,
   downloadFile,
   cnvFormatDate,
+  insertWordBreaks,
 };
