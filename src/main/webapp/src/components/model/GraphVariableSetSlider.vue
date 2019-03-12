@@ -1,21 +1,21 @@
 <template>
-  <div ref="temp_ref" v-observe-visibility="{
-                  callback: visibilityChanged,
-                }">
-    <vue-slider @callback="(v)=>sendChangeEvent(v)"
+  <div>
+    <vue-slider @change="(v)=>sendChangeEvent(v)"
                 ref="vueSlider_ref"
                 v-bind="slider"
                 v-model="slider.value"
                 >
     </vue-slider>
     <div v-if="bottomText" :style="bottomTextStyle">{{bottomText}}</div>
-    <div v-if="bottomText" style="height: 12px"></div>
   </div>
 </template>
 
 <script>
   // @flow
   import vueSlider from 'vue-slider-component';
+  // eslint-disable-next-line flowtype-errors/show-errors
+  import 'vue-slider-component/theme/default.css';
+
   import { getRangeLabel } from './types';
   import type { GraphVariableSet, GraphVariableRangeDto } from './types';
 
@@ -43,29 +43,23 @@
         bottomTextStyle: '',
         slider: {
           value: null,
-          width: 'auto',
+          width: null, // default = auto : field is numeric
           height: null,
-          dotSize: 14,
+          dotSize: 14, // default = 14
           min: 0,
           max: 0,
           interval: 1,
           disabled: false,
           lazy: true,
-          eventType: 'auto',
-          show: false,
           tooltip: 'always',
           enableCross: false,
           direction: this.direction,
-          formatter: null,
-          piecewiseLabel: true,
+          tooltipFormatter: null,
+          marks: true,
+          hideLabel: true,
           data: null,
           tooltipDir: null,
-          piecewise: true,
           processStyle: null,
-          piecewiseStyle: null,
-          piecewiseActiveStyle: {
-            backgroundColor: defaultColor,
-          },
           bgStyle: null,
           labelStyle: null,
           labelActiveStyle: {
@@ -88,21 +82,13 @@
 
         this.$emit('sliderChanged', newValue);
       },
-      visibilityChanged(isVisible: boolean) {
-        // This is required to have the slider dots and labels display correctly on initial
-        // display without adding restrictions or complexity to parent components.
-        // See 'Exceptions' section of docs: https://github.com/NightCatSama/vue-slider-component
-        if (isVisible && !this.slider.show) {
-          this.slider.show = true;
-        }
-      },
-      setbottomTextStyle(heightAdjust: number) {
-        this.bottomTextStyle = `margin-top: -${heightAdjust}px`;
+      setbottomTextStyle(mt: number, mb: number) {
+        this.bottomTextStyle = `margin-top: ${mt}px; margin-bottom: ${mb}px`;
       },
       setOptions() {
-        if (this.direction === 'horizontal') {
+        if (this.direction === 'ltr') {
           this.slider.height = 6;
-          this.slider.width = 'auto';
+          this.slider.width = null; // 'auto'
           this.slider.tooltipDir = [
             'top',
             'top',
@@ -115,20 +101,29 @@
         const params: GraphVariableSet = this.graphVariableSet;
         this.bottomText = params.name;
 
+        const marksFunction = (value: string) => ({
+          label: value,
+          style: {
+            backgroundColor: defaultColor,
+            height: '10px',
+            width: '10px',
+            display: 'block',
+            transform: 'translate(-2px, -2px)',
+          },
+        });
+
         if (params.enums) {
           this.slider.data = [...params.enums];
-          this.setbottomTextStyle(52);
+          this.setbottomTextStyle(-40, 80);
           // eslint-disable-next-line prefer-destructuring
           this.slider.value = this.slider.data[0];
           this.slider.min = 0;
           this.slider.max = this.slider.data.length;
           this.slider.interval = 1;
-          this.slider.piecewiseLabel = true;
-          this.slider.piecewiseStyle = {
+          this.slider.hideLabel = false;
+          this.slider.marks = marksFunction;
+          this.slider.railStyle = {
             backgroundColor: defaultColor,
-            visibility: 'visible',
-            width: '12px',
-            height: '12px',
           };
           this.slider.bgStyle = {
             backgroundColor: defaultColor,
@@ -136,12 +131,12 @@
           this.slider.labelStyle = {
             color: defaultColor,
           };
-          this.slider.formatter = null;
+          this.slider.tooltipFormatter = null;
         } else {
           // eslint-disable-next-line prefer-destructuring
           const range: ?GraphVariableRangeDto = params.range;
           if (range) {
-            this.setbottomTextStyle(44);
+            this.setbottomTextStyle(-44, 60);
             const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
             this.slider.data = null;
             this.slider.value
@@ -149,11 +144,11 @@
             this.slider.min = range.first;
             this.slider.max = range.last;
             this.slider.interval = range.step;
-            this.slider.piecewiseLabel = false;
-            this.slider.piecewiseStyle = null;
+            this.slider.hideLabel = true;
+            this.slider.marks = true;
             this.slider.bgStyle = null;
             this.slider.labelStyle = null;
-            this.slider.formatter = formatterFunc(range.unitSymbol);
+            this.slider.tooltipFormatter = formatterFunc(range.unitSymbol);
           }
         }
       },

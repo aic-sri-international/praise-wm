@@ -50,6 +50,9 @@ declare module 'bootstrap-vue/dist/bootstrap-vue.css' {
 declare module 'chroma-js' {
   declare module.exports: any;
 }
+declare module 'common-tags' {
+  declare module.exports: any;
+}
 
 declare module '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css' {
   declare module.exports: any;
@@ -142,6 +145,9 @@ declare module '@turf/centroid' {
   declare module.exports: any;
 }
 
+declare module 'vue-context-menu' {
+  declare module.exports: any;
+}
 
 declare module 'vuelidate' {
   declare module.exports: any;

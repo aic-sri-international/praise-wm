@@ -22,29 +22,26 @@ const uploadNext = async (commit, state) => {
   let update : UploadEntry;
 
   try {
-    update =
-        {
-          ...entry,
-          status: entryStatuses.UPLOADING,
-          startUploadDate: new Date(),
-        };
+    update = {
+      ...entry,
+      status: entryStatuses.UPLOADING,
+      startUploadDate: new Date(),
+    };
     commit(UP.SET.UPDATE_ENTRY, update);
 
     await uploadFile(entry.file);
 
-    update =
-        {
-          ...entry,
-          status: entryStatuses.COMPLETED,
-          endUploadDate: new Date(),
-        };
+    update = {
+      ...entry,
+      status: entryStatuses.COMPLETED,
+      endUploadDate: new Date(),
+    };
   } catch (e) {
-    update =
-        {
-          ...entry,
-          status: entryStatuses.ERROR,
-          endUploadDate: new Date(),
-        };
+    update = {
+      ...entry,
+      status: entryStatuses.ERROR,
+      endUploadDate: new Date(),
+    };
   }
   commit(UP.SET.UPDATE_ENTRY, update);
 

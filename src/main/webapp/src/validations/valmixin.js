@@ -20,9 +20,13 @@ const FORM_LBLS = 'formLables';
 
 class Validator {
   componentName;
+
   fieldRefMap: FieldRefMap = {};
+
   fieldRefLabelMap: { [refName: string]: string } = {};
+
   fieldRefInputMap: { [refName: string]: Object } = {};
+
   vueThis;
 
   constructor(vueThis) {
@@ -277,8 +281,7 @@ class Validator {
   }
 
   log(...args) {
-    const text = args.reduce((msg, value) =>
-      msg + JSON.stringify(value, null, 2), '');
+    const text = args.reduce((msg, value) => msg + JSON.stringify(value, null, 2), '');
 
     // eslint-disable-next-line no-console
     console.log(`${this.msgPrefix()} ${text}`);

@@ -23,7 +23,7 @@
 
 <script>
   import ContextMenu from 'vue-context-menu';
-  import type { ModelRuleDto, ModelRuleWrapper } from './types';
+  import type { ModelRuleDto, ModelRuleWrapper } from '@/components/model/types';
   import ModelRuleEditor from './ModelRuleEditor';
 
   export default {

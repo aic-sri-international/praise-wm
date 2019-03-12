@@ -16,8 +16,11 @@ export type AceModelEditorArgs = {
 
 export default class AceModelEditor {
   editor: Object;
+
   sessions: Object[] = [];
+
   editorContainerParent: Object;
+
   editorMode: string;
 
   constructor(args: AceModelEditorArgs) {
@@ -127,4 +130,3 @@ export default class AceModelEditor {
     this.sessions.forEach(session => session.destroy);
   }
 }
-

@@ -24,12 +24,18 @@ export type ModelPagesDto = {
   pages: ModelPageDto[],
 };
 
-export type ModelQueryDto = {
+export type ModelQueryOptions = {
   query: string,
-  model: string,
   numberOfInitialSamples: number,
   numberOfDiscreteValues: number,
 };
+
+export type EditorReferences = {
+  dclEditor: Object,
+  segmentedModelEditor: Object,
+};
+
+export type ModelQueryDto = { model: string } & ModelQueryOptions;
 
 export type FormattedPageModelDto = {
   name: string,

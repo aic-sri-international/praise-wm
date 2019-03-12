@@ -4,8 +4,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '@/components/login/Login';
 import UserMaintenance from '@/components/usermaint/UserMaintenance';
-// import ModelEditor from '@/components/editor/ModelEditor';
-import SegmentedModelView from '@/components/editor/SegmentedModelView';
+// import ModelEditor from '@/components/model/editor/ModelEditor';
+import SegmentedModelView from '@/components/model/SegmentedModelView';
 
 Vue.use(Router);
 

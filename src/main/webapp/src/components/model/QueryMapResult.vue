@@ -83,15 +83,23 @@
         }
       },
       async queryForNewMapData() {
+        let xmVariableChanged = false;
         const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
         try {
           this.$emit('querySent');
           const graph: GraphRequestResultDto = await fetchGraph(request);
           this.mapRegionNameToValue = graph.mapRegionNameToValue;
+          if (request.xmVariable !== this.graphQueryResult.xmVariables[0]) {
+            xmVariableChanged = true;
+            this.graphQueryResult.xmVariables[0] = request.xmVariable;
+          }
         } catch (err) {
           // errors already logged/displayed
         } finally {
           this.$emit('queryReturned');
+        }
+        if (xmVariableChanged) {
+          this.initialize();
         }
       },
       onControlChanged() {

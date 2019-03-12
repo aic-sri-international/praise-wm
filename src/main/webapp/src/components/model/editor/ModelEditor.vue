@@ -99,10 +99,21 @@
   import ActionButton from '@/components/ActionButton';
   import InputTextFile from '@/components/InputTextFile';
   import type { FileInfo } from '@/utils';
+  import {
+    fetchExamples,
+    solve,
+    toFormattedPageModel,
+    fromFormattedPageModel,
+  } from '@/components/model/dataSourceProxy';
+  import { modelQueryDtoDefaults } from '@/components/model/types';
+  import type {
+    ModelPagesDto,
+    ModelPageDto,
+    ModelQueryDto,
+    FormattedPageModelDto,
+    ExpressionResultDto,
+  } from '@/components/model/types';
   import AceModelEditor from './aceModelEditor';
-  import { fetchExamples, solve, toFormattedPageModel, fromFormattedPageModel } from './dataSourceProxy';
-  import { modelQueryDtoDefaults } from './types';
-  import type { ModelPagesDto, ModelPageDto, ModelQueryDto, FormattedPageModelDto, ExpressionResultDto } from './types';
 
   export default {
     name: 'modelEditor',

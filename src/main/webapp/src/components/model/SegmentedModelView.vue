@@ -34,84 +34,18 @@
         </b-popover>
       </div>
       <div class="modelControlsContainer">
-        <div class="modelControlsPanel">
-          <div style="display: flex; flex-direction: row">
-            <b-input-group class="ml-1" prepend="Model" size="sm">
-              <b-form-select
-                  id="modelSelectionId"
-                  :options="modelOptions"
-                  @input="modelSelectionChanged"
-                  v-model="modelOptionSelected">
-              </b-form-select>
-            </b-input-group>
-            <span class="ml-1"></span>
-            <action-button
-                @clicked="()=>$refs.input_ref.click()"
-                v-tippy
-                title="Open and read model from disk"
-                type="open">
-            </action-button>
-            <action-button
-                @clicked="download"
-                v-tippy
-                title="Download current model to disk"
-                type="download">
-            </action-button>
-            <action-button
-                @clicked="loadModelsFromServer"
-                v-tippy
-                title="Reload models from server"
-                type="sync">
-            </action-button>
-          </div>
-          <div style="display: flex; flex-direction: row">
-            <editable-datalist
-                :options="queryOptions"
-                id="modelQueryId"
-                class="ml-1"
-                label="Query"
-                placeholder="Please enter a query ..."
-                ref="queryOption_ref">
-            </editable-datalist>
-            <span class="ml-1"></span>
-            <action-button
-                @clicked="runQuery"
-                v-tippy
-                title="Run the query"
-                type="play">
-            </action-button>
-            <action-button
-                @clicked="()=> queryResults = []"
-                v-tippy
-                title="Remove query results"
-                type="broom">
-            </action-button>
-          </div>
-          <div class="query-solver-options">
-            <div class="query-solver-component mr-4">
-              <div class="query-solver-options-text">Initial samples</div>
-              <numeric-input
-                  :min="1"
-                  :max="100000000"
-                  :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
-                  :value="numberOfInitialSamples"
-                  @blur="data => numberOfInitialSamples = data">
-              </numeric-input>
-            </div>
-            <div class="query-solver-component">
-              <span class="query-solver-options-text">Discrete values</span>
-              <numeric-input
-                :min="2"
-                :max="1000"
-                :value="numberOfDiscreteValues"
-                @blur="data => numberOfDiscreteValues = data">
-              </numeric-input>
-            </div>
-            <div id="querySolverOptionsId" class="query-solver-component" style="width: 1px"
-                 :class="{ querySolverOptionsHelpOffset: showHelp }">
-            </div>
-          </div>
-        </div>
+        <segmented-model-view-controls-panel
+            ref="controlsPanel_ref"
+            :modelNames="modelNames"
+            :inputQueries="queries"
+            @runQuery="runQuery"
+            @inputFileChanged="inputFileChanged"
+            @modelSelectionChanged="modelSelectionChanged"
+            @saveCurrentModelToDisk="saveCurrentModelToDisk"
+            @loadModelsFromServer="loadModelsFromServer"
+            @clearQueryResults="()=> queryResults = []"
+        >
+        </segmented-model-view-controls-panel>
         <div id="queryResultsId">
           <query-results :results="queryResults"
                          :selectedIx="selectedQueryResult"
@@ -126,17 +60,6 @@
           see its result in the visualization panel.
         </b-popover>
       </div>
-      <b-popover :show="showHelp" target="modelSelectionId" placement="topleft" :offset="-240" triggers="">
-        Select the model to be used for the query
-      </b-popover>
-      <b-popover :show="showHelp" target="modelQueryId" placement="topright" triggers="">
-        <div class="help-title">The query to be used for the model</div>
-        <div>You can enter a new query or select a prior query from the dropdown list.</div>
-         <div>Right-click in the query field to select an action from the popup menu.</div>
-      </b-popover>
-      <b-popover :show="showHelp" target="querySolverOptionsId" placement="right" triggers="">
-        Query solver tuning parameters
-      </b-popover>
       <spinner :show="runningQueries > 0"
                @click="interruptQueries()"></spinner>
     </div>
@@ -162,7 +85,6 @@
     <b-popover :show="showHelp" target="segModelEditorViewRightColId" triggers="">
       Visualization of query results.
     </b-popover>
-    <input-text-file @change="inputFileChanged" accept=".json" ref="input_ref"></input-text-file>
   </div>
 </template>
 
@@ -172,17 +94,14 @@
   import cloneDeep from 'lodash/cloneDeep';
   import uniqBy from 'lodash/uniqBy';
   import identity from 'lodash/identity';
-  import NumericInput from '@/components/NumericInput';
-  import ActionButton from '@/components/ActionButton';
-  import EditableDatalist from '@/components/EditableDatalist';
-  import InputTextFile from '@/components/InputTextFile';
   import Spinner from '@/components/Spinner';
   import type { FileInfo } from '@/utils';
   import { HELP_VXC as HELP } from '@/store';
   import { mapGetters } from 'vuex';
-  import Editor from './Editor';
+  import Editor from './editor/Editor';
   import Explanations from './explanations/Explanations';
-  import SegmentedModelEditor from './SegmentedModelEditor';
+  import SegmentedModelEditor from './editor/SegmentedModelEditor';
+  import SegmentedModelViewControlsPanel from './SegmentedModelViewControlsPanel';
   import QueryResults from './QueryResults';
   import QueryChartResult from './QueryChartResult';
   import QueryMapResult from './QueryMapResult';
@@ -193,6 +112,7 @@
     SegmentedModelDto,
     ModelRuleDto,
     ModelQueryDto,
+    ModelQueryOptions,
     ExpressionResultDto,
     GraphQueryResultDto,
   } from './types';
@@ -206,32 +126,27 @@
       rule: '',
     }],
     queries: [],
-    queryResults: [],
   };
 
   export default {
     name: 'SegmentedModelView',
     components: {
       Editor,
-      ActionButton,
-      InputTextFile,
       SegmentedModelEditor,
+      SegmentedModelViewControlsPanel,
       QueryResults,
       QueryChartResult,
       MapImage,
       Explanations,
-      EditableDatalist,
       QueryMapResult,
-      NumericInput,
       Spinner,
     },
     data() {
       return {
         segmentedModels: [],
-        modelOptionSelected: 0,
-        modelOptions: [],
         segmentedModel: emptySegmentedModel,
-        queryOptions: [],
+        modelNames: [],
+        queries: [],
         queryResults: [],
         totalMainQueryCounter: 0,
         showQueryResults: true,
@@ -268,11 +183,11 @@
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
         return {
-          name: this.modelOptions[this.modelOptionSelected].text.trim(),
+          name: this.$refs.controlsPanel_ref.getSelectedModelName(),
           description: this.segmentedModel.description.trim(),
           declarations,
           rules,
-          queries: [...this.queryOptions],
+          queries: [...this.$refs.controlsPanel_ref.getSelectedModelQueries()],
         };
       },
       minimizeModel(model: SegmentedModelDto) : SegmentedModelDto {
@@ -303,22 +218,11 @@
 
         return slimModel;
       },
-      async runQuery() {
-        const selectedQuery = this.$refs.queryOption_ref.getCurrentOption();
-        if (!selectedQuery) {
-          return;
-        }
-        this.$refs.queryOption_ref.showList(false);
-        this.$refs.queryOption_ref.addCurrentEntry();
+      async runQuery(queryOptions: ModelQueryOptions) {
         const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
         const model: string = `${sm.declarations || ''}\n${sm.rules.map(mr => mr.rule).join('\n')}\n`;
 
-        const query: ModelQueryDto = {
-          model,
-          query: selectedQuery,
-          numberOfInitialSamples: this.numberOfInitialSamples,
-          numberOfDiscreteValues: this.numberOfDiscreteValues,
-        };
+        const query: ModelQueryDto = { model, ...queryOptions };
 
         try {
           this.runningQueries = this.runningQueries + 1;
@@ -338,28 +242,20 @@
           this.runningQueries = this.runningQueries > 0 ? this.runningQueries - 1 : 0;
         }
       },
-      async download() {
+      async saveCurrentModelToDisk() {
         const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
-        if (this.queryOptions) {
-          sm.queries = this.$refs.queryOption_ref.getAllOptions();
-        }
         this.$$.downloadFile(sm, `${sm.name}.json`);
       },
       modelSelectionChanged(modelIx: number) {
         const smd: SegmentedModelDto = this.segmentedModels[modelIx];
         this.segmentedModel = cloneDeep(smd);
         this.dclEditTextWatch = !this.dclEditTextWatch;
-        this.queryOptions = uniqBy(smd.queries, identity);
+        this.queries = uniqBy(smd.queries, identity);
         this.queryResults = [];
       },
       setupModels(models: SegmentedModelDto[]) {
         this.segmentedModels = models;
-        const modelOptions = [];
-        for (let i = 0; i < models.length; i += 1) {
-          modelOptions.push({ value: i, text: models[i].name });
-        }
-        this.modelOptions = modelOptions;
-        this.modelOptionSelected = 0;
+        this.modelNames = models.map(e => e.name);
       },
       async loadModels(): Promise<SegmentedModelDto[]> {
         try {
@@ -376,13 +272,11 @@
         const { text } = filesInfo[0];
         const model: SegmentedModelDto = this.minimizeModel(JSON.parse(text));
         this.setupModels([model]);
-        this.modelSelectionChanged(this.modelOptionSelected);
       },
       async loadModelsFromServer() {
         const models: SegmentedModelDto[] = await this.loadModels();
         if (models.length) {
           this.setupModels(models);
-          this.modelSelectionChanged(this.modelOptionSelected);
         }
       },
       interruptQueries() {
@@ -467,11 +361,6 @@
     padding: 10px;
   }
 
-  .modelControlsPanel {
-    padding: 10px;
-    flex: 0 0 auto;
-  }
-
   .dcl-editor {
     border: thin double lightgrey;
     padding: 10px;
@@ -487,30 +376,5 @@
   .help-title {
     font-weight: 500;
     border-bottom: 1px solid lightgrey;
-  }
-
-  .query-solver-options {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-    margin-left: 0.25rem;
-  }
-
-  .querySolverOptionsHelpOffset {
-    margin-left: 1.5rem !important;
-  }
-
-  .query-solver-component {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap
-  }
-
-  .query-solver-options-text {
-    margin-top: 0.1rem;
-    font-size: 0.95rem;
-    margin-right: 0.5rem;
-    white-space: nowrap;
   }
 </style>

@@ -1,37 +1,46 @@
 <template>
   <div>
     <div v-for="(control, index) in controls" >
-      <div v-if="control.isSlider">
-        <graph-variable-set-slider
-            v-if="!isFixedSetOfEnums(control)"
-            :style="control.style"
-            @sliderChanged="(v) => onSliderChanged(index, v)"
-            class="horizontal-slider"
-            direction="horizontal"
-            :allowUpperRangeValueToChange="control.isXmVariable"
-            :graphVariableSet="control.gvs"
-        ></graph-variable-set-slider>
-      </div>
-      <div v-else :style="control.style">
-        <b-input-group v-if="!isFixedSetOfEnums(control)"
-                       size="sm"
-                       class="ml-1"
-                       :prepend="control.gvs.name">
-          <b-form-select
-              @input="()=>onDropdownSelectionChanged()"
-              v-model="control.ddSelection"
-              :options="control.gvs.enums">
-          </b-form-select>
-        </b-input-group>
+      <div @contextmenu.prevent="onRightMouseClick($event, index)">
+        <div v-if="control.isSlider">
+          <graph-variable-set-slider
+              v-if="!isFixedSetOfEnums(control)"
+              :style="control.style"
+              @sliderChanged="(v) => onSliderChanged(index, v)"
+              direction="ltr"
+              :allowUpperRangeValueToChange="control.isXmVariable"
+              :graphVariableSet="control.gvs"
+          ></graph-variable-set-slider>
+        </div>
+        <div v-else :style="control.style">
+          <b-input-group v-if="!isFixedSetOfEnums(control)"
+                         size="sm"
+                         class="ml-1"
+                         :prepend="control.gvs.name">
+            <b-form-select
+                @input="()=>onDropdownSelectionChanged()"
+                v-model="control.ddSelection"
+                :options="control.gvs.enums">
+            </b-form-select>
+          </b-input-group>
+        </div>
       </div>
     </div>
     <canvas v-show="false" ref="canvas_ref"></canvas>
+    <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
+      <div>
+        <li @click="switchXm"
+            class="ctx-item">Swap {{menu.curXVarName}} with {{menu.curVarName}} as X axis
+        </li>
+      </div>
+    </context-menu>
   </div>
 </template>
 
 <script>
   // @flow
   import cloneDeep from 'lodash/cloneDeep';
+  import ContextMenu from 'vue-context-menu';
   import GraphVariableSetSlider from './GraphVariableSetSlider';
   import { getRangeLabel } from './types';
   import type {
@@ -55,6 +64,7 @@
     name: 'QueryGraphControls',
     components: {
       GraphVariableSetSlider,
+      ContextMenu,
     },
     props: {
       graphQueryVariableResults: {
@@ -65,9 +75,30 @@
       return {
         controls: [],
         maxSliderTextWidth: null,
+        lastRightClickData: null,
+        menu: {
+          curXVarName: '',
+          curVarName: '',
+        },
+        nextXm: null,
       };
     },
     methods: {
+      onRightMouseClick(event: any, index: number) {
+        if (!this.controls[index].isXmVariable) {
+          this.menu.curXVarName = this.getCurrentXm();
+          this.menu.curVarName = this.controls[index].gvs.name;
+          this.$refs.ctxmenu_ref.open(event, { index });
+        }
+      },
+      setCurrentRightClickData(data: any) {
+        this.lastRightClickData = data;
+      },
+      switchXm() {
+        console.log(`switchXm: ${this.lastRightClickData.index}`);
+        this.nextXm = this.menu.curVarName;
+        this.$emit('controlChanged');
+      },
       isFixedSetOfEnums(control: Control) {
         return control.isXmVariable && control.gvs.enums;
       },
@@ -114,8 +145,9 @@
         });
       },
       buildGraphRequest() : GraphRequestDto {
+        const xmVarName = this.nextXm || this.getCurrentXm();
         const request: GraphRequestDto = {
-          xmVariable: this.getCurrentXm(),
+          xmVariable: xmVarName,
           graphVariableSets: [],
         };
 
@@ -137,6 +169,9 @@
           }
           request.graphVariableSets.push(gvs);
         });
+
+        this.nextXm = null;
+
         return request;
       },
       getVariableSets(isXm: boolean, xmName: string): GraphVariableSet[] {
@@ -194,7 +229,7 @@
             mb += controlDividerHeight;
 
             let margins = `margin-top: ${mt}px; margin-bottom: ${mb}px;`;
-  
+
             if (!currentIsSlider) {
               margins += `margin-left: ${ml}px;`;
             }

@@ -191,8 +191,7 @@ function open() : void {
 
   ws.onmessage = (msg: any) => {
     resetActivityTimeout();
-    const nEvent: DataRefreshEvent
-        = JSON.parse(msg.data);
+    const nEvent: DataRefreshEvent = JSON.parse(msg.data);
 
     if (nEvent.eventType !== eventTypes.PING_EVENT) {
       log(`message received: ${msg.data}`);

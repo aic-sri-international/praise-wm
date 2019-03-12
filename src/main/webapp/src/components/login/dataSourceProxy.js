@@ -38,4 +38,3 @@ function logout(): void {
 }
 
 export { login, logout };
-

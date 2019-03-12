@@ -25,3 +25,4 @@ async function uploadFile(file: File): Promise<any> {
 }
 
 export default uploadFile;
+

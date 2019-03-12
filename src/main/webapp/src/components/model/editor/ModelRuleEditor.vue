@@ -21,8 +21,8 @@
 
 <script>
   // @flow
+  import type { ModelRuleDto } from '@/components/model/types';
   import Editor from './Editor';
-  import type { ModelRuleDto } from './types';
 
   export default {
     name: 'ModelRuleEditor',
