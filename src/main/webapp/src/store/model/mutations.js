@@ -8,9 +8,12 @@ import type {
   ExpressionResultDto,
 } from '@/components/model/types';
 import MODEL from './constants';
-import type { VuexModelState } from './types';
+import type { EditorTransition, VuexModelState } from './types';
 
 export default {
+  [MODEL.SET.EDITOR_TRANSITION](state: VuexModelState, editorTransition: EditorTransition) {
+    state.editorTransition = editorTransition;
+  },
   [MODEL.SET.MODEL_DTOS](state: VuexModelState, modelDtos: SegmentedModelDto[]) {
     state.modelDtos
         = modelDtos.reduce((accum: { [string] : SegmentedModelDto }, cur: SegmentedModelDto) => {

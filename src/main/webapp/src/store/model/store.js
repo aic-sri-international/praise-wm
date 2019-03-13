@@ -1,4 +1,5 @@
 // @flow
+import { emptyModelDto, EMPTY_MODEL_NAME } from '@/store/model/util';
 import cloneDeep from 'lodash/cloneDeep';
 import { oneLine } from 'common-tags';
 import type {
@@ -8,13 +9,16 @@ import type {
 import mutations from './mutations';
 import actions from './actions';
 import MODEL from './constants';
+import { editorTransitions } from './types';
 import type {
   VuexModelStore,
   VuexModelState,
+  EditorTransition,
 } from './types';
 
-
 const getters = {
+  [MODEL.GET.EDITOR_TRANSITION]: (state: VuexModelState):
+      EditorTransition => state.editorTransition,
   [MODEL.GET.CUR_MODEL_NAME]: (state: VuexModelState): string => state.curModelName,
   [MODEL.GET.CUR_QUERY]: (state: VuexModelState): string => state.curQuery,
   [MODEL.GET.CUR_MODEL_DTO]: (state: VuexModelState): SegmentedModelDto => {
@@ -46,12 +50,16 @@ const getters = {
       number => state.numberOfDiscreteValues,
 };
 
+// The store should always have a curModelName whose SegmentedModelDto
+// can be found in modelDtos.
+
 const store: VuexModelStore = {
   namespaced: true,
   state: {
-    curModelName: '',
+    editorTransition: editorTransitions.NONE,
+    curModelName: EMPTY_MODEL_NAME,
     curQuery: '',
-    modelDtos: { },
+    modelDtos: { [EMPTY_MODEL_NAME]: emptyModelDto() },
     queryResults: [],
     queryResultsIx: -1,
     queryStartTime: 0,

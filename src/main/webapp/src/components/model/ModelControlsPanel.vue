@@ -24,7 +24,7 @@
             v-tippy>
         </action-button>
         <action-button
-            @clicked="$emit('loadModelsFromServer')"
+            @clicked="initialize"
             title="Reload models from server"
             type="sync"
             v-tippy>
@@ -102,13 +102,13 @@
   import ActionButton from '@/components/ActionButton';
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
-  import { HELP_VXC as HELP } from '@/store';
-  import { mapGetters } from 'vuex';
+  import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
+  import { mapGetters, mapActions } from 'vuex';
   import { modelQueryDtoDefaults } from './types';
   import type { ModelQueryOptions } from './types';
 
   export default {
-    name: 'SegmentedModelViewControlsPanel',
+    name: 'ModelControlsPanel',
     components: {
       ActionButton,
       InputTextFile,
@@ -140,6 +140,9 @@
       ]),
     },
     methods: {
+      ...mapActions(MODEL.MODULE, [
+        MODEL.ACTION.INITIALIZE,
+      ]),
       initModelNames() {
         const options = [];
         for (let i = 0; i < this.modelNames.length; i += 1) {
@@ -186,11 +189,6 @@
   .modelControlsPanel {
     padding: 10px;
     flex: 0 0 auto;
-  }
-
-  .help-title {
-    font-weight: 500;
-    border-bottom: 1px solid lightgrey;
   }
 
   .query-solver-options {

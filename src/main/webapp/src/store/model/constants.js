@@ -3,6 +3,7 @@
 const MODEL_VXC = {
   MODULE: 'model',
   GET: {
+    EDITOR_TRANSITION: 'editorTransition',
     CUR_MODEL_NAME: 'curModelName',
     CUR_QUERY: 'curQuery',
     CUR_MODEL_DTO: 'curModelDto',
@@ -13,6 +14,7 @@ const MODEL_VXC = {
     NUMBER_OF_DISCRETE_VALUES: 'numberOfDiscreteValues',
   },
   SET: {
+    EDITOR_TRANSITION: 'setEditorTransition',
     MODEL_DTOS: 'setModelDtos',
     CUR_MODEL_DTO: 'setCurModelDto',
     CUR_MODEL_NAME: 'setCurModelName',

@@ -25,7 +25,7 @@
           You can optionally include rules in this section.
         </b-popover>
         <segmented-model-editor :rules="segmentedModel.rules"
-                                ref="seg_model_editor_ref">
+                                  ref="seg_model_editor_ref">
         </segmented-model-editor>
         <b-popover :show="showHelp && segmentedModel.rules.length > 0" target="segmentedEditorId" triggers="">
           <div class="help-title">Right-click within a rule section to display a context menu</div>
@@ -34,7 +34,7 @@
         </b-popover>
       </div>
       <div class="modelControlsContainer">
-        <segmented-model-view-controls-panel
+        <model-controls-panel
             ref="controlsPanel_ref"
             :modelNames="modelNames"
             :inputQueries="queries"
@@ -45,7 +45,7 @@
             @loadModelsFromServer="loadModelsFromServer"
             @clearQueryResults="()=> queryResults = []"
         >
-        </segmented-model-view-controls-panel>
+        </model-controls-panel>
         <div id="queryResultsId">
           <query-results :results="queryResults"
                          :selectedIx="selectedQueryResult"
@@ -96,12 +96,12 @@
   import identity from 'lodash/identity';
   import Spinner from '@/components/Spinner';
   import type { FileInfo } from '@/utils';
-  import { HELP_VXC as HELP } from '@/store';
-  import { mapGetters } from 'vuex';
+  import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
+  import { mapGetters, mapActions } from 'vuex';
   import Editor from './editor/Editor';
   import Explanations from './explanations/Explanations';
-  import SegmentedModelEditor from './editor/SegmentedModelEditor';
-  import SegmentedModelViewControlsPanel from './SegmentedModelViewControlsPanel';
+  import SegmentedModelEditor from './editor/ModelEditor';
+  import ModelControlsPanel from './ModelControlsPanel';
   import QueryResults from './QueryResults';
   import QueryChartResult from './QueryChartResult';
   import QueryMapResult from './QueryMapResult';
@@ -129,11 +129,11 @@
   };
 
   export default {
-    name: 'SegmentedModelView',
+    name: 'ModelView',
     components: {
       Editor,
       SegmentedModelEditor,
-      SegmentedModelViewControlsPanel,
+      ModelControlsPanel,
       QueryResults,
       QueryChartResult,
       MapImage,
@@ -179,6 +179,9 @@
       ]),
     },
     methods: {
+      ...mapActions(MODEL.MODULE, [
+        MODEL.ACTION.INITIALIZE,
+      ]),
       async getUpdatedSegmentedModel() {
         const declarations = this.$refs.dcl_editor_ref.getValue().trim();
         const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
@@ -284,6 +287,7 @@
       },
     },
     async created() {
+      this.initialize();
       this.loadModelsFromServer();
     },
     mounted() {
@@ -371,10 +375,5 @@
     padding: 4px;
     max-height: 140px;
     overflow: auto
-  }
-
-  .help-title {
-    font-weight: 500;
-    border-bottom: 1px solid lightgrey;
   }
 </style>

@@ -15,7 +15,7 @@
     <span class="headerIcon headerNotification"
           v-tippy
           title="Notifications"
-          @click="$emit('notificationsClicked')">
+          @click.stop="$emit('notificationsClicked')">
       <span class="fa-layers fa-fw">
         <i class="fas fa-bell" data-fa-transform="grow-12 down-2"></i>
         <span v-if="notificationUiHasNewMsg">
@@ -27,7 +27,7 @@
     <span class="headerIcon headerSystemStatus"
           v-tippy
           title="System Status"
-          @click="$emit('systemsStatusClicked')">
+          @click.stop="$emit('systemsStatusClicked')">
       <span class="fa-layers fa-fw">
         <i class="fas fa-desktop" data-fa-transform="grow-14 down-4"></i>
         <font-awesome-icon

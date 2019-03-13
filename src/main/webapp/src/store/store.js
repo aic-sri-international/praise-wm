@@ -7,6 +7,7 @@ import sidebar from './sidebar/store';
 import notifications from './notifications/store';
 import systemStatus from './system_status/store';
 import uploader from './uploader/store';
+import model from './model/store';
 import help from './help/store';
 
 Vue.use(Vuex);
@@ -25,6 +26,7 @@ export const store = new Vuex.Store({
     notifications,
     systemStatus,
     uploader,
+    model,
     help,
   },
   strict: process.env.NODE_ENV !== 'production',
