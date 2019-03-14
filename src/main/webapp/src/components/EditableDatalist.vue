@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%">
     <b-input-group size="sm" :prepend="label">
-      <input v-model.trim="currentItem"
+      <input v-model.lazy.trim="currentItem"
              ref="input_ref"
              @contextmenu.prevent="$refs.ctxmenu_ref.open($event, { currentItem })"
              type="text"
@@ -81,6 +81,15 @@
       },
     },
     methods: {
+      sendOptionsChangedEvent() {
+        this.$emit(
+          'optionsChanged',
+          this.modelOptions.reduce((accum, cur) => {
+            accum.push(cur.text);
+            return accum;
+          }, []),
+        );
+      },
       getCurrentOption() {
         return this.currentItem;
       },
@@ -92,6 +101,7 @@
           this.modelOptions
               = [{ value: this.currentItem, text: this.currentItem }, ...this.modelOptions];
           this.modelOptionSelected = [this.currentItem];
+          this.sendOptionsChangedEvent();
         }
       },
       modelOptionChange(evt) {
@@ -123,6 +133,7 @@
         if (index > -1) {
           this.modelOptions.splice(index, 1);
           this.currentItem = '';
+          this.sendOptionsChangedEvent();
         }
         this.$refs.input_ref.focus();
       },
@@ -142,6 +153,9 @@
       },
     },
     watch: {
+      currentItem(newValue: string) {
+        this.$emit('currentEntryChanged', newValue);
+      },
       options() {
         this.optionsChanged();
       },

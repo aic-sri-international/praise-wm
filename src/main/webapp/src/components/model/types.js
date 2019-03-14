@@ -47,12 +47,6 @@ export type ModelRuleDto = {
   rule: string,
 };
 
-export type ModelRuleWrapper = {
-  modelRule: ModelRuleDto,
-  toggleMetadata: boolean,
-  emitData: boolean,
-};
-
 export type SegmentedModelDto = {
   name: string,
   description?: string,

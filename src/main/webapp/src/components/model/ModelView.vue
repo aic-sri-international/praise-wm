@@ -1,49 +1,10 @@
 <template>
   <div class="top-level-container">
-    <div class="left-column" id="segModelEditorViewLeftColId">
-      <div>
-        <b-form-textarea class="mb-2"
-                         id="segmentedModelDescriptionId" max-rows="20"
-                         placeholder="Enter a description for the model"
-                         rows="1"
-                         size="sm"
-                         v-model="segmentedModel.description"
-                         wrap="off">
-        </b-form-textarea>
-        <b-popover :show="showHelp" target="segmentedModelDescriptionId" placement="right" triggers="">
-          Describes the model
-        </b-popover>
-      </div>
-      <div class="segmentedEditor" id="segmentedEditorId">
-        <div class="dcl-editor" id="dclEditorId">
-          <editor :editTextWatch="dclEditTextWatch" :value="segmentedModel.declarations"
-                  ref="dcl_editor_ref" type="hogm">
-          </editor>
-        </div>
-        <b-popover :show="showHelp" target="dclEditorId" triggers="">
-          <div class="help-title">Global model declarations section</div>
-          You can optionally include rules in this section.
-        </b-popover>
-        <segmented-model-editor :rules="segmentedModel.rules"
-                                  ref="seg_model_editor_ref">
-        </segmented-model-editor>
-        <b-popover :show="showHelp && segmentedModel.rules.length > 0" target="segmentedEditorId" triggers="">
-          <div class="help-title">Right-click within a rule section to display a context menu</div>
-          The context menu allows you to toggle the display of metadata for the rule, insert a new rule,
-          or delete the rule.
-        </b-popover>
-      </div>
+    <div class="left-column" id="modelEditorViewLeftColId">
+      <model-editor-view class="model-editor-view"></model-editor-view>
       <div class="modelControlsContainer">
         <model-controls-panel
             ref="controlsPanel_ref"
-            :modelNames="modelNames"
-            :inputQueries="queries"
-            @runQuery="runQuery"
-            @inputFileChanged="inputFileChanged"
-            @modelSelectionChanged="modelSelectionChanged"
-            @saveCurrentModelToDisk="saveCurrentModelToDisk"
-            @loadModelsFromServer="loadModelsFromServer"
-            @clearQueryResults="()=> queryResults = []"
         >
         </model-controls-panel>
         <div id="queryResultsId">
@@ -95,9 +56,9 @@
   import uniqBy from 'lodash/uniqBy';
   import identity from 'lodash/identity';
   import Spinner from '@/components/Spinner';
-  import type { FileInfo } from '@/utils';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
   import { mapGetters, mapActions } from 'vuex';
+  import ModelEditorView from './editor/ModelEditorView';
   import Editor from './editor/Editor';
   import Explanations from './explanations/Explanations';
   import SegmentedModelEditor from './editor/ModelEditor';
@@ -106,14 +67,11 @@
   import QueryChartResult from './QueryChartResult';
   import QueryMapResult from './QueryMapResult';
   import MapImage from './MapImage';
-  import { fetchSegmentedModels, solve, interruptSolver } from './dataSourceProxy';
+  import { interruptSolver } from './dataSourceProxy';
   import { modelQueryDtoDefaults } from './types';
   import type {
     SegmentedModelDto,
     ModelRuleDto,
-    ModelQueryDto,
-    ModelQueryOptions,
-    ExpressionResultDto,
     GraphQueryResultDto,
   } from './types';
 
@@ -131,6 +89,7 @@
   export default {
     name: 'ModelView',
     components: {
+      ModelEditorView,
       Editor,
       SegmentedModelEditor,
       ModelControlsPanel,
@@ -221,34 +180,31 @@
 
         return slimModel;
       },
-      async runQuery(queryOptions: ModelQueryOptions) {
-        const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
-        const model: string = `${sm.declarations || ''}\n${sm.rules.map(mr => mr.rule).join('\n')}\n`;
-
-        const query: ModelQueryDto = { model, ...queryOptions };
-
-        try {
-          this.runningQueries = this.runningQueries + 1;
-          const result: ExpressionResultDto = await solve(query);
-          this.totalMainQueryCounter += 1;
-          this.queryResults = [result].concat(this.queryResults);
-          this.showQueryResults = true;
-          this.selectedQueryResult = 0;
-
-          if (!this.queryResults.length) {
-            this.selectedQueryResult = -1;
-            this.showQueryResults = false;
-          }
-        } catch (err) {
-          // errors already logged/displayed
-        } finally {
-          this.runningQueries = this.runningQueries > 0 ? this.runningQueries - 1 : 0;
-        }
-      },
-      async saveCurrentModelToDisk() {
-        const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
-        this.$$.downloadFile(sm, `${sm.name}.json`);
-      },
+      // async runQuery(queryOptions: ModelQueryOptions) {
+      //   const sm: SegmentedModelDto = await this.getUpdatedSegmentedModel();
+      //   const model:
+      //   string = `${sm.declarations || ''}\n${sm.rules.map(mr => mr.rule).join('\n')}\n`;
+      //
+      //   const query: ModelQueryDto = { model, ...queryOptions };
+      //
+      //   try {
+      //     this.runningQueries = this.runningQueries + 1;
+      //     const result: ExpressionResultDto = await solve(query);
+      //     this.totalMainQueryCounter += 1;
+      //     this.queryResults = [result].concat(this.queryResults);
+      //     this.showQueryResults = true;
+      //     this.selectedQueryResult = 0;
+      //
+      //     if (!this.queryResults.length) {
+      //       this.selectedQueryResult = -1;
+      //       this.showQueryResults = false;
+      //     }
+      //   } catch (err) {
+      //     // errors already logged/displayed
+      //   } finally {
+      //     this.runningQueries = this.runningQueries > 0 ? this.runningQueries - 1 : 0;
+      //   }
+      // },
       modelSelectionChanged(modelIx: number) {
         const smd: SegmentedModelDto = this.segmentedModels[modelIx];
         this.segmentedModel = cloneDeep(smd);
@@ -256,39 +212,12 @@
         this.queries = uniqBy(smd.queries, identity);
         this.queryResults = [];
       },
-      setupModels(models: SegmentedModelDto[]) {
-        this.segmentedModels = models;
-        this.modelNames = models.map(e => e.name);
-      },
-      async loadModels(): Promise<SegmentedModelDto[]> {
-        try {
-          return await fetchSegmentedModels();
-        } catch (err) {
-          // errors already logged/displayed
-          return [];
-        }
-      },
-      async inputFileChanged(filesInfo: FileInfo[]) {
-        if (filesInfo.length === 0) {
-          return;
-        }
-        const { text } = filesInfo[0];
-        const model: SegmentedModelDto = this.minimizeModel(JSON.parse(text));
-        this.setupModels([model]);
-      },
-      async loadModelsFromServer() {
-        const models: SegmentedModelDto[] = await this.loadModels();
-        if (models.length) {
-          this.setupModels(models);
-        }
-      },
       interruptQueries() {
         interruptSolver();
       },
     },
     async created() {
       this.initialize();
-      this.loadModelsFromServer();
     },
     mounted() {
       const sendResizeEvent = () => {
@@ -299,7 +228,7 @@
       if (this.splitter$ !== undefined) {
         this.splitter$.destroy();
       }
-      this.splitter$ = Split(['#segModelEditorViewLeftColId', '#segModelEditorViewRightColId'], {
+      this.splitter$ = Split(['#modelEditorViewLeftColId', '#segModelEditorViewRightColId'], {
         sizes: [60, 40],
         onDrag() {
           sendResizeEvent();
@@ -354,18 +283,16 @@
     justify-content: center;
   }
 
-  .segmentedEditor {
+  .model-editor-view {
     flex: 1 1 auto;
+    flex-direction: column;
     position: relative;
     overflow-y: auto;
   }
 
   .modelControlsContainer {
-    border: thin double lightgrey;
-    padding: 10px;
-  }
-
-  .dcl-editor {
+    display: flex;
+    flex-direction: column;
     border: thin double lightgrey;
     padding: 10px;
   }

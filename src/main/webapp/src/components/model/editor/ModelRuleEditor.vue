@@ -5,14 +5,14 @@
           <editor ref="metadata_ref"
                   type="text"
                   styleClass="metadata"
-                  :editTextWatch="editTextWatch"
+                  :editorInitFlag="editorInitFlag"
                   :value="modelRuleWrapper.modelRule.metadata">
           </editor>
           <hr />
         </span>
         <editor ref="rule_ref"
                 type="hogm"
-                :editTextWatch="editTextWatch"
+                :editorInitFlag="editorInitFlag"
                 :value="modelRuleWrapper.modelRule.rule">
         </editor>
       </div>
@@ -41,11 +41,6 @@
             required: true,
           },
         },
-        emitData: {
-          type: Boolean,
-          required: true,
-          default: false,
-        },
         openMetadata: {
           type: Boolean,
           required: false,
@@ -55,7 +50,7 @@
     },
     data() {
       return {
-        editTextWatch: false,
+        editorInitFlag: false,
       };
     },
     methods: {
@@ -66,17 +61,9 @@
         };
       },
     },
-    computed: {
-      emitData() {
-        return this.modelRuleWrapper.emitData;
-      },
-    },
     watch: {
       modelRuleWrapper() {
-        this.editTextWatch = !this.editTextWatch;
-      },
-      emitData() {
-        this.$emit('modelRuleData', this.getModelRule());
+        this.editorInitFlag = !this.editorInitFlag;
       },
     },
   };

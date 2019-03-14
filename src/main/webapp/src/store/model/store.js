@@ -19,8 +19,17 @@ import type {
 const getters = {
   [MODEL.GET.EDITOR_TRANSITION]: (state: VuexModelState):
       EditorTransition => state.editorTransition,
+  [MODEL.GET.MODEL_NAMES]: (state: VuexModelState):
+      string[] => Object.keys(state.modelDtos).sort(),
   [MODEL.GET.CUR_MODEL_NAME]: (state: VuexModelState): string => state.curModelName,
   [MODEL.GET.CUR_QUERY]: (state: VuexModelState): string => state.curQuery,
+  [MODEL.GET.CUR_QUERIES]: (state: VuexModelState): string[] => {
+    if (!state.curModelName) {
+      return [];
+    }
+    const queries: string[] = state.modelDtos[state.curModelName].queries || [];
+    return [...queries];
+  },
   [MODEL.GET.CUR_MODEL_DTO]: (state: VuexModelState): SegmentedModelDto => {
     if (!state.curModelName) {
       throw Error('state.curModelName is not set');

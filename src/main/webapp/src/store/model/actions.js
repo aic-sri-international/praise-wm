@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 // @flow
+import Vue from 'vue';
+import { oneLine } from 'common-tags';
 import type {
   SegmentedModelDto,
-  ModelRuleDto,
   ModelQueryDto,
   ExpressionResultDto,
-  EditorReferences,
 } from '@/components/model/types';
 import type { FileInfo } from '@/utils';
 import {
@@ -13,6 +13,7 @@ import {
   solve,
 } from '@/components/model/dataSourceProxy';
 import { downloadFile } from '@/utils';
+import { editorTransitions } from './types';
 import MODEL from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
 
@@ -25,7 +26,32 @@ const loadModels = async (): Promise<SegmentedModelDto[]> => {
   }
 };
 
-const updateCurModelFromEditor = async (state, commit, getters, refs: EditorReferences):
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const waitForTransitionToComplete = async (getters) => {
+  const max = 20;
+  const ms = 5;
+  let count = 0;
+
+  // This should usually be sufficient
+  await Vue.nextTick();
+
+  while (count <= max && getters[MODEL.GET.EDITOR_TRANSITION] !== editorTransitions.NONE) {
+    // eslint-disable-next-line no-await-in-loop
+    await wait(ms);
+    count += 1;
+  }
+
+  if (count > max) {
+    console.error(oneLine`Editor has not transitioned to 
+                            ${editorTransitions.NONE} after ${max * ms} ms`);
+  }
+
+  return Promise.resolve();
+};
+
+
+const updateCurModelFromEditor = async (state, commit, getters):
     Promise<SegmentedModelDto> => {
   if (!state.curModelName) {
     throw Error('curModelName not set');
@@ -34,13 +60,11 @@ const updateCurModelFromEditor = async (state, commit, getters, refs: EditorRefe
   if (!curModel) {
     throw Error(`model not found for ${state.curModelName}`);
   }
-  const declarations = refs.dclEditor.getValue().trim();
-  const rules: ModelRuleDto[] = await refs.segmentedModelEditor.getModelRules();
+  commit(MODEL.SET.EDITOR_TRANSITION, editorTransitions.STORE);
 
-  curModel.declarations = declarations;
-  curModel.rules = rules;
-  commit(MODEL.SET.CUR_MODEL_DTO, curModel);
-  return curModel;
+  await waitForTransitionToComplete(getters);
+
+  return getters[MODEL.GET.CUR_MODEL_DTO];
 };
 
 const setCurrentModel = (commit, model: SegmentedModelDto) => {
@@ -53,6 +77,7 @@ const setCurrentModel = (commit, model: SegmentedModelDto) => {
 
   commit(MODEL.SET.CLEAR_QUERY_RESULT);
   commit(MODEL.SET.QUERY_RESULT_IX, -1);
+  commit(MODEL.SET.EDITOR_TRANSITION, editorTransitions.LOAD);
 };
 
 export default {
@@ -81,9 +106,15 @@ export default {
 
     setCurrentModel(commit, curModel);
   },
-  async [MODEL.ACTION.RUN_QUERY]({ state, commit, getters }, payload: EditorReferences) {
+  async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
     const curModel : SegmentedModelDto =
-        await updateCurModelFromEditor(state, commit, getters, payload);
+        await updateCurModelFromEditor(state, commit, getters);
+
+    downloadFile(curModel, `${curModel.name}.json`);
+  },
+  async [MODEL.ACTION.RUN_QUERY]({ state, commit, getters }) {
+    const curModel : SegmentedModelDto =
+        await updateCurModelFromEditor(state, commit, getters);
 
     const query: ModelQueryDto = {
       model: extractModelText(curModel),
@@ -108,14 +139,19 @@ export default {
     commit(MODEL.SET.QUERY_RESULT, result);
     commit(MODEL.SET.QUERY_RESULT_IX, 0);
   },
-  async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK](
-    { state, commit, getters },
-    payload: EditorReferences,
-  ) {
+  async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
     const curModel : SegmentedModelDto =
-        await updateCurModelFromEditor(state, commit, getters, payload);
+        await updateCurModelFromEditor(state, commit, getters);
 
     downloadFile(curModel, `${curModel.name}.json`);
+  },
+  async [MODEL.ACTION.CHANGE_CURRENT_MODEL]({ state, commit }, modelName: string) {
+    const model : SegmentedModelDto = state.modelDtos[modelName];
+    if (model) {
+      setCurrentModel(commit, model);
+    } else {
+      console.warn(`current model cannot be set because it does not exist: ${modelName}`);
+    }
   },
   async [MODEL.ACTION.LOAD_MODEL_FROM_DISK]({ commit }, payload: FileInfo[]) {
     if (payload.length === 0) {

@@ -4,8 +4,10 @@ const MODEL_VXC = {
   MODULE: 'model',
   GET: {
     EDITOR_TRANSITION: 'editorTransition',
+    MODEL_NAMES: 'modelNames',
     CUR_MODEL_NAME: 'curModelName',
     CUR_QUERY: 'curQuery',
+    CUR_QUERIES: 'curQueries',
     CUR_MODEL_DTO: 'curModelDto',
     QUERY_RESULTS: 'queryResults',
     CUR_QUERY_RESULT: 'curQueryResult',
@@ -19,6 +21,7 @@ const MODEL_VXC = {
     CUR_MODEL_DTO: 'setCurModelDto',
     CUR_MODEL_NAME: 'setCurModelName',
     CUR_QUERY: 'setCurQuery',
+    CUR_MODEL_QUERIES: 'setCurModelQueries',
     QUERY_RESULT: 'setQueryResult',
     QUERY_RESULT_IX: 'setQueryResultIx',
     CLEAR_QUERY_RESULT: 'clearQueryResult',
@@ -31,6 +34,7 @@ const MODEL_VXC = {
     RUN_QUERY: 'runQuery',
     CANCEL_QUERY: 'cancelQuery',
     SAVE_CURRENT_MODEL_TO_DISK: 'saveCurrentModelToDisk',
+    CHANGE_CURRENT_MODEL: 'changeCurrentModel',
     LOAD_MODEL_FROM_DISK: 'loadModelFromDisk',
   },
 };

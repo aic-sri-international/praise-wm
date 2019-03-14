@@ -2,20 +2,21 @@
   <div class="top-level-container">
     <div>
       <b-form-textarea class="mb-2"
-                       id="modelDescriptionId" max-rows="20"
-                       placeholder="Enter a description for the model"
-                       rows="1"
-                       size="sm"
-                       v-model="description"
-                       wrap="off">
-      </b-form-textarea>
-      <b-popover :show="showHelp" target="modelDescriptionId" placement="right" triggers="">
-        Describes the model
-      </b-popover>
+                         id="modelDescriptionId" max-rows="20"
+                         placeholder="Enter a description for the model"
+                         rows="1"
+                         size="sm"
+                         v-model="description"
+                         wrap="off">
+        </b-form-textarea>
+      <!--For some reason we need to set placement to 'left' to display on the right-->
+        <b-popover :show="showHelp" target="modelDescriptionId" placement="left" triggers="">
+          Describes the model
+        </b-popover>
     </div>
-    <div class="modelEditor" id="modelEditorId">
+    <div class="modelEditor">
       <div class="dcl-editor" id="dclEditorId">
-        <editor :editTextWatch="dclEditTextWatch" :value="declarations"
+        <editor :editorInitFlag="dclEditInitFlag" :value="declarations"
                 ref="dcl_editor_ref" type="hogm">
         </editor>
       </div>
@@ -23,12 +24,7 @@
         <div class="help-title">Global model declarations section</div>
         You can optionally include rules in this section.
       </b-popover>
-      <model-editor :rules="rules" ref="seg_model_editor_ref"></model-editor>
-      <b-popover :show="showHelp && rules.length > 0" target="modelEditorId" triggers="">
-        <div class="help-title">Right-click within a rule section to display a context menu</div>
-        The context menu allows you to toggle the display of metadata for the rule, insert a new rule,
-        or delete the rule.
-      </b-popover>
+      <model-editor id="modelEditorId" :rules="rules" ref="seg_model_editor_ref"></model-editor>
     </div>
   </div>
 </template>
@@ -60,7 +56,7 @@
           metadata: '',
           rule: '',
         }],
-        dclEditTextWatch: false,
+        dclEditInitFlag: false,
       };
     },
     computed: {
@@ -77,9 +73,9 @@
         MODEL.SET.EDITOR_TRANSITION,
         MODEL.SET.CUR_MODEL_DTO,
       ]),
-      async getUpdatedModel() {
+      getUpdatedModel() {
         const model: SegmentedModelDto = this.curModelDto;
-        const rules: ModelRuleDto[] = await this.$refs.seg_model_editor_ref.getModelRules();
+        const rules: ModelRuleDto[] = this.$refs.seg_model_editor_ref.getModelRules();
         return {
           name: model.name,
           description: this.description.trim(),
@@ -93,18 +89,18 @@
         this.description = model.description;
         this.declarations = model.declarations;
         this.rules = model.rules;
-        this.dclEditTextWatch = !this.dclEditTextWatch;
+        this.dclEditInitFlag = !this.dclEditInitFlag;
         this.setEditorTransition(editorTransitions.NONE);
       },
     },
     watch: {
-      async editorTransition(newTransition: EditorTransition) {
+      editorTransition(newTransition: EditorTransition) {
         if (newTransition === editorTransitions.LOAD) {
           this.loadModel();
         } else if (newTransition === editorTransitions.STORE) {
-          const model: SegmentedModelDto = await this.getUpdatedModel();
+          const model: SegmentedModelDto = this.getUpdatedModel();
           this.setCurModelDto(model);
-          this.setEditorTransition(editorTransitions.NONE);
+          this.setEditorTransition(editorTransitions.STORE);
         }
       },
     },
@@ -119,17 +115,15 @@
     height: 100%;
     width: 100%;
     display: flex;
-    flex-direction: row;
-  }
-
-  .modelEditor {
-    flex: 1 1 auto;
-    position: relative;
-    overflow-y: auto;
+    flex-direction: column;
   }
 
   .dcl-editor {
     border: thin double lightgrey;
     padding: 10px;
+  }
+
+  .modelEditor {
+    overflow-y: auto;
   }
 </style>

@@ -5,20 +5,20 @@
         <b-input-group class="ml-1" prepend="Model" size="sm">
           <b-form-select
               :options="modelOptions"
-              @input="(modelIx)=>$emit('modelSelectionChanged', modelIx)"
+              @input="(modelIx)=>modelSelectionChanged(modelIx)"
               id="modelSelectionId"
               v-model="modelOptionSelected">
           </b-form-select>
         </b-input-group>
         <span class="ml-1"></span>
         <action-button
-            @clicked="()=>$refs.input_ref.click()"
+            @clicked="$refs.input_ref.click()"
             title="Open and read model from disk"
             type="open"
             v-tippy>
         </action-button>
         <action-button
-            @clicked="()=> $emit('saveCurrentModelToDisk')"
+            @clicked="saveCurrentModelToDisk"
             title="Download current model to disk"
             type="download"
             v-tippy>
@@ -32,7 +32,9 @@
       </div>
       <div style="display: flex; flex-direction: row">
         <editable-datalist
-            :options="queries"
+            :options="curQueries"
+            @currentEntryChanged="currentQueryChanged"
+            @optionsChanged="queryListChanged"
             class="ml-1"
             id="modelQueryId"
             label="Query"
@@ -90,8 +92,7 @@
     <b-popover :show="showHelp" placement="right" target="querySolverOptionsId" triggers="">
       Query solver tuning parameters
     </b-popover>
-    <input-text-file @change="(filesInfo)=>$emit('inputFileChanged', filesInfo)" accept=".json"
-                     ref="input_ref"></input-text-file>
+    <input-text-file @change="loadModelFromDisk" accept=".json" ref="input_ref"></input-text-file>
   </div>
 </template>
 
@@ -103,9 +104,16 @@
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import { mapGetters, mapActions } from 'vuex';
+  // import { editorTransitions } from '@/store/model/types';
+  // import type { EditorTransition } from '@/store/model/types';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
   import { modelQueryDtoDefaults } from './types';
-  import type { ModelQueryOptions } from './types';
+  import type {
+    ModelQueryOptions,
+    // SegmentedModelDto,
+    // ModelRuleDto,
+    // GraphQueryResultDto,
+  } from './types';
 
   export default {
     name: 'ModelControlsPanel',
@@ -115,21 +123,10 @@
       EditableDatalist,
       NumericInput,
     },
-    props: {
-      modelNames: {
-        type: Array,
-        required: true,
-      },
-      inputQueries: {
-        type: Array,
-        required: true,
-      },
-    },
     data() {
       return {
         modelOptions: [],
         modelOptionSelected: 0,
-        queries: [],
         numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
         numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
       };
@@ -138,24 +135,42 @@
       ...mapGetters(HELP.MODULE, [
         HELP.GET.SHOW_HELP,
       ]),
+      ...mapGetters(MODEL.MODULE, [
+        MODEL.GET.MODEL_NAMES,
+        MODEL.GET.CUR_MODEL_DTO,
+        MODEL.GET.CUR_MODEL_NAME,
+        MODEL.GET.CUR_QUERIES,
+      ]),
     },
     methods: {
       ...mapActions(MODEL.MODULE, [
         MODEL.ACTION.INITIALIZE,
+        MODEL.ACTION.LOAD_MODEL_FROM_DISK,
+        MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK,
+        MODEL.ACTION.CHANGE_CURRENT_MODEL,
       ]),
-      initModelNames() {
+      ...mapMutations(MODEL.MODULE, [
+        MODEL.SET.CUR_QUERY,
+        MODEL.SET.CUR_MODEL_QUERIES,
+      ]),
+      initModelNames(names: string[]) {
         const options = [];
-        for (let i = 0; i < this.modelNames.length; i += 1) {
-          options.push({ value: i, text: this.modelNames[i] });
+        for (let i = 0; i < names.length; i += 1) {
+          options.push({ value: i, text: names[i] });
         }
         this.modelOptions = options;
         this.modelOptionSelected = 0;
       },
-      getSelectedModelName(): string {
-        return this.modelOptions[this.modelOptionSelected].text.trim();
+      queryListChanged(curQueries: string[]) {
+        this.setCurModelQueries(curQueries);
       },
-      getSelectedModelQueries(): string[] {
-        return [...this.queries];
+      currentQueryChanged(curQuery: string) {
+        this.setCurQuery(curQuery);
+      },
+      modelSelectionChanged(modelIx: number) {
+        const modelOption = this.modelOptions[modelIx];
+        const modelName: string = modelOption.text;
+        this.changeCurrentModel(modelName);
       },
       runQuery() {
         const query = this.$refs.queryOption_ref.getCurrentOption();
@@ -173,8 +188,14 @@
       },
     },
     watch: {
-      modelNames() {
-        this.initModelNames();
+      curModelName(curModelName: string) {
+        const ix = this.modelOptions.findIndex(option => option.text === curModelName);
+        if (ix !== -1) {
+          this.modelOptionSelected = ix;
+        }
+      },
+      modelNames(modelNames: string[]) {
+        this.initModelNames(modelNames);
       },
       inputQueries(newValue: string[]) {
         if (!isEqual(newValue, this.queries)) {

@@ -27,7 +27,7 @@
         type: String,
         required: true,
       },
-      editTextWatch: {
+      editorInitFlag: {
         type: Boolean,
         required: true,
       },
@@ -82,7 +82,7 @@
       },
     },
     watch: {
-      editTextWatch() {
+      editorInitFlag() {
         this.$nextTick(() => this.initEditorText());
       },
     },

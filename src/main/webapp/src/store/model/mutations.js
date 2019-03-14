@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign,no-console */
 import Vue from 'vue';
 import { oneLine } from 'common-tags';
+import isEqual from 'lodash/isEqual';
 
 import type {
   SegmentedModelDto,
@@ -29,6 +30,18 @@ export default {
   },
   [MODEL.SET.CUR_QUERY](state: VuexModelState, query: string) {
     state.curQuery = query;
+  },
+  [MODEL.SET.CUR_MODEL_QUERIES](state: VuexModelState, queries: string[]) {
+    if (state.curModelName) {
+      const model: SegmentedModelDto = state.modelDtos[state.curModelName];
+      if (model) {
+        if (!isEqual(model.queries, queries)) {
+          model.queries = [...queries];
+        }
+      } else {
+        console.warn(`MODEL.SET.CUR_MODEL_QUERIES model not found for  ${state.curModelName}`);
+      }
+    }
   },
   [MODEL.SET.QUERY_RESULT](state: VuexModelState, queryResult: ExpressionResultDto) {
     state.queryResults = [queryResult].concat(state.queryResults);
