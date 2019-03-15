@@ -45,6 +45,7 @@ export default {
   },
   [MODEL.SET.QUERY_RESULT](state: VuexModelState, queryResult: ExpressionResultDto) {
     state.queryResults = [queryResult].concat(state.queryResults);
+    state.queryResultsIx = state.queryResults.length ? 0 : -1;
   },
   [MODEL.SET.QUERY_RESULT_IX](state: VuexModelState, queryResultsIx: number) {
     const maxIx = state.queryResults.length - 1;
@@ -57,6 +58,7 @@ export default {
   },
   [MODEL.SET.CLEAR_QUERY_RESULT](state: VuexModelState) {
     state.queryResults = [];
+    state.queryResultsIx = -1;
   },
   [MODEL.SET.IS_QUERY_ACTIVE](state: VuexModelState, isActive: boolean) {
     state.queryStartTime = isActive ? Date.now() : 0;

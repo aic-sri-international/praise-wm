@@ -76,7 +76,6 @@ const setCurrentModel = (commit, model: SegmentedModelDto) => {
   commit(MODEL.SET.CUR_QUERY, curQuery);
 
   commit(MODEL.SET.CLEAR_QUERY_RESULT);
-  commit(MODEL.SET.QUERY_RESULT_IX, -1);
   commit(MODEL.SET.EDITOR_TRANSITION, editorTransitions.LOAD);
 };
 
@@ -137,7 +136,6 @@ export default {
       return;
     }
     commit(MODEL.SET.QUERY_RESULT, result);
-    commit(MODEL.SET.QUERY_RESULT_IX, 0);
   },
   async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
     const curModel : SegmentedModelDto =

@@ -43,7 +43,7 @@
         </editable-datalist>
         <span class="ml-1"></span>
         <action-button
-            @clicked="runQuery"
+            @clicked="submitQuery"
             title="Run the query"
             type="play"
             v-tippy>
@@ -63,7 +63,7 @@
               :min="1"
               :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
               :value="numberOfInitialSamples"
-              @blur="data => numberOfInitialSamples = data">
+              @blur="data => setNumberOfInitialSamples(data)">
           </numeric-input>
         </div>
         <div class="query-solver-component">
@@ -72,7 +72,7 @@
               :max="1000"
               :min="2"
               :value="numberOfDiscreteValues"
-              @blur="data => numberOfDiscreteValues = data">
+              @blur="data => setNumberOfDiscreteValues(data)">
           </numeric-input>
         </div>
         <div :class="{ querySolverOptionsHelpOffset: showHelp }" class="query-solver-component" id="querySolverOptionsId"
@@ -98,22 +98,12 @@
 
 <script>
   // @flow
-  import isEqual from 'lodash/isEqual';
   import NumericInput from '@/components/NumericInput';
   import ActionButton from '@/components/ActionButton';
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  // import { editorTransitions } from '@/store/model/types';
-  // import type { EditorTransition } from '@/store/model/types';
   import { mapGetters, mapMutations, mapActions } from 'vuex';
-  import { modelQueryDtoDefaults } from './types';
-  import type {
-    ModelQueryOptions,
-    // SegmentedModelDto,
-    // ModelRuleDto,
-    // GraphQueryResultDto,
-  } from './types';
 
   export default {
     name: 'ModelControlsPanel',
@@ -127,8 +117,6 @@
       return {
         modelOptions: [],
         modelOptionSelected: 0,
-        numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
-        numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
       };
     },
     computed: {
@@ -140,6 +128,8 @@
         MODEL.GET.CUR_MODEL_DTO,
         MODEL.GET.CUR_MODEL_NAME,
         MODEL.GET.CUR_QUERIES,
+        MODEL.GET.NUMBER_OF_INITIAL_SAMPLES,
+        MODEL.GET.NUMBER_OF_DISCRETE_VALUES,
       ]),
     },
     methods: {
@@ -148,10 +138,13 @@
         MODEL.ACTION.LOAD_MODEL_FROM_DISK,
         MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK,
         MODEL.ACTION.CHANGE_CURRENT_MODEL,
+        MODEL.ACTION.RUN_QUERY,
       ]),
       ...mapMutations(MODEL.MODULE, [
         MODEL.SET.CUR_QUERY,
         MODEL.SET.CUR_MODEL_QUERIES,
+        MODEL.SET.NUMBER_OF_INITIAL_SAMPLES,
+        MODEL.SET.NUMBER_OF_DISCRETE_VALUES,
       ]),
       initModelNames(names: string[]) {
         const options = [];
@@ -162,29 +155,24 @@
         this.modelOptionSelected = 0;
       },
       queryListChanged(curQueries: string[]) {
-        this.setCurModelQueries(curQueries);
+        this[MODEL.SET.CUR_MODEL_QUERIES](curQueries);
       },
       currentQueryChanged(curQuery: string) {
-        this.setCurQuery(curQuery);
+        this[MODEL.SET.CUR_QUERY](curQuery);
       },
       modelSelectionChanged(modelIx: number) {
         const modelOption = this.modelOptions[modelIx];
         const modelName: string = modelOption.text;
-        this.changeCurrentModel(modelName);
+        this[MODEL.ACTION.CHANGE_CURRENT_MODEL](modelName);
       },
-      runQuery() {
+      submitQuery() {
         const query = this.$refs.queryOption_ref.getCurrentOption();
         if (!query) {
           return;
         }
         this.$refs.queryOption_ref.showList(false);
         this.$refs.queryOption_ref.addCurrentEntry();
-        const options: ModelQueryOptions = {
-          query,
-          numberOfInitialSamples: this.numberOfInitialSamples,
-          numberOfDiscreteValues: this.numberOfDiscreteValues,
-        };
-        this.$emit('runQuery', options);
+        this.runQuery();
       },
     },
     watch: {
@@ -196,11 +184,6 @@
       },
       modelNames(modelNames: string[]) {
         this.initModelNames(modelNames);
-      },
-      inputQueries(newValue: string[]) {
-        if (!isEqual(newValue, this.queries)) {
-          this.queries = [...newValue];
-        }
       },
     },
   };

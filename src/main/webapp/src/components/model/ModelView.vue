@@ -3,10 +3,7 @@
     <div class="left-column" id="modelEditorViewLeftColId">
       <model-editor-view class="model-editor-view"></model-editor-view>
       <div class="modelControlsContainer">
-        <model-controls-panel
-            ref="controlsPanel_ref"
-        >
-        </model-controls-panel>
+        <model-controls-panel ref="controlsPanel_ref"></model-controls-panel>
         <div id="queryResultsId">
           <query-results :results="queryResults"
                          :selectedIx="selectedQueryResult"
@@ -21,8 +18,7 @@
           see its result in the visualization panel.
         </b-popover>
       </div>
-      <spinner :show="runningQueries > 0"
-               @click="interruptQueries()"></spinner>
+      <spinner :show="runningQueries > 0" @click="interruptQueries()"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightColId">
       <!--@TODO update when the HOGM solver can return map related query results-->

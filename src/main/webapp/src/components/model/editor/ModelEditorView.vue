@@ -100,7 +100,7 @@
         } else if (newTransition === editorTransitions.STORE) {
           const model: SegmentedModelDto = this.getUpdatedModel();
           this.setCurModelDto(model);
-          this.setEditorTransition(editorTransitions.STORE);
+          this.setEditorTransition(editorTransitions.NONE);
         }
       },
     },

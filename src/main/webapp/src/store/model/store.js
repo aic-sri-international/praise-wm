@@ -6,6 +6,7 @@ import type {
   ExpressionResultDto,
   SegmentedModelDto,
 } from '@/components/model/types';
+import { modelQueryDtoDefaults } from '@/components/model/types';
 import mutations from './mutations';
 import actions from './actions';
 import MODEL from './constants';
@@ -72,8 +73,8 @@ const store: VuexModelStore = {
     queryResults: [],
     queryResultsIx: -1,
     queryStartTime: 0,
-    numberOfInitialSamples: 1000,
-    numberOfDiscreteValues: 25,
+    numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
+    numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
   },
   getters,
   mutations,
