@@ -1,6 +1,6 @@
-FROM openjdk:8-jre-slim
+FROM openjdk:11.0.2-jre-slim
 
-# Switched from 8-jre-alpine to 8-jre-slim to fix NPE when JFreeChart
+# Note that with adoptopenjdk/openjdk11:jdk-11.0.2.9-slim you will get an NPE when JFreeChart
 # makes a call that leads to sun.awt.FontConfiguration.getVersion(FontConfiguration.java:1264)
 # See: https://github.com/docker-library/openjdk/issues/73
 

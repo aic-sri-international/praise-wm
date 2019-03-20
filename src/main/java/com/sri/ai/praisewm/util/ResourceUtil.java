@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * list resources available from the classpath
@@ -17,6 +19,7 @@ import java.util.zip.ZipFile;
  * https://stackoverflow.com/questions/3923129/get-a-list-of-resources-from-classpath-directory
  */
 public class ResourceUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
 
   /**
    * for all elements of java.class.path get a Collection of resources Pattern pattern =
@@ -53,7 +56,9 @@ public class ResourceUtil {
     try {
       zf = new ZipFile(file);
     } catch (final IOException e) {
-      throw new Error(e);
+      // There's a problem with the jar, display an info msg and skip it
+      LOG.debug("Cannot read jar file: {}, {}. File Skipped", file, e.getMessage());
+      return Collections.emptyList();
     }
     final Enumeration e = zf.entries();
     while (e.hasMoreElements()) {

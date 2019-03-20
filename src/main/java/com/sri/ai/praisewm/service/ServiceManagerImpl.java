@@ -64,7 +64,7 @@ public class ServiceManagerImpl implements ServiceManager {
   public void addService(Class<? extends Service> serviceClass) {
     Service service;
     try {
-      service = serviceClass.newInstance();
+      service = serviceClass.getConstructor().newInstance();
     } catch (Exception e) {
       throw new RuntimeException(
           String.format("Cannot create an instance of service %s", serviceClass.getName()), e);

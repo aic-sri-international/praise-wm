@@ -46,6 +46,7 @@ public class SegmentedModelLoader {
         new ModelWatcher(
             eventBus,
             segmentedModelDir,
+            jsonFilter::test,
             () -> refresh = true,
             filepath -> {
               SegmentedModelDto smd = loadSegmentedModelFileDto(filepath);

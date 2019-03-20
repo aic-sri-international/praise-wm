@@ -31,6 +31,7 @@ public class ModelWatcher {
   public ModelWatcher(
       EventBus eventBus,
       Path watchDir,
+      FileFilter fileFilter,
       DirectoryChanged directoryChanged,
       ModelNameAccessor modelNameAccessor) {
     this.watchDir = watchDir;
@@ -82,13 +83,13 @@ public class ModelWatcher {
 
                   switch (e.getType()) {
                     case CREATE:
-                      msg = "New model available.";
+                      msg = "New model available";
                       break;
                     case DELETE:
-                      msg = "Deleted model file.";
+                      msg = "Deleted model file";
                       break;
                     case MODIFY:
-                      msg = "Modified model available.";
+                      msg = "Modified model available";
                       break;
                     default:
                       LOG.warn("Unknown event type: {}", e.getType());
@@ -98,7 +99,7 @@ public class ModelWatcher {
                   NotificationTextMessage ntm = e.getNotification();
 
                   if (e.getType() == QueueEntry.TYPE.DELETE) {
-                    ntm.setText(String.format(msg + "<br /><b>File</b>: %s", e.getFile()));
+                    ntm.setText(String.format(msg + ": %s", e.getFile()));
                   } else {
                     String modelName =
                         modelNameAccessor.getModelName(watchDir.resolve(e.getFile()));
@@ -108,9 +109,8 @@ public class ModelWatcher {
                     }
                     ntm.setText(
                         String.format(
-                            msg + "<br /><b>Name</b>: %s<br /><b>File</b>: %s",
-                            modelName,
-                            e.getFile()));
+                            msg + ": %s",
+                            modelName));
                   }
                   eventBus.post(ntm);
                 });
@@ -146,7 +146,7 @@ public class ModelWatcher {
             () -> {
               try {
                 LOG.info("WatchService thread for {} started", watchDir);
-                loop();
+                loop(fileFilter);
               } catch (Exception e) {
                 LOG.info("WatchService thread for {} terminated", watchDir, e.toString());
               }
@@ -155,17 +155,22 @@ public class ModelWatcher {
     thread.start();
   }
 
-  private void loop() throws InterruptedException {
+  private void loop(FileFilter fileFilter) throws InterruptedException {
     WatchKey key;
     List<QueueEntry> localEntries = new ArrayList<>();
 
     while ((key = watchService.take()) != null) {
       for (WatchEvent<?> event : key.pollEvents()) {
+        final String filename = event.context().toString();
+        if (!fileFilter.isAccepted(filename)) {
+          continue;
+        }
+
         QueueEntry queueEntry = new QueueEntry();
         NotificationTextMessage ntm = new NotificationTextMessage();
         ntm.setLevel(Level.INFO).setBroadcast(Broadcast.EXCLUSIVE);
 
-        queueEntry.setFile(event.context().toString());
+        queueEntry.setFile(filename);
 
         if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
           queueEntry.setType(QueueEntry.TYPE.CREATE);
@@ -208,6 +213,10 @@ public class ModelWatcher {
 
   public interface DirectoryChanged {
     void filesChanged();
+  }
+
+  public interface FileFilter {
+    boolean isAccepted(String filename);
   }
 
   public interface ModelNameAccessor {

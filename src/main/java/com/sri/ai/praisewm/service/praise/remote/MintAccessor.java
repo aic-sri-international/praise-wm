@@ -6,20 +6,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MintAccessor {
   private static final Logger LOG = LoggerFactory.getLogger(MintAccessor.class);
-  private static final Path GEO_TIFF_OUTPUT_DIR = Paths.get("data/tmp/geotiffs");
 
   private RestClient restClient;
 
@@ -29,7 +25,7 @@ public class MintAccessor {
 
   public static void main(String[] args) {
     MintAccessor ma = new MintAccessor();
-    ma.precipitationQuery(new MintQueryParameters());
+    System.out.println("Mean = " + ma.precipitationQuery(new MintQueryParameters()));
   }
 
   double precipitationQuery(MintQueryParameters params) {
@@ -50,7 +46,9 @@ public class MintAccessor {
   }
 
   private byte[] downloadGeotiff(String locationUrl) {
-    return restClient.execute(new HttpGet(locationUrl), byte[].class);
+    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(locationUrl)).build();
+    HttpResponse<byte[]> response = restClient.send(request, BodyHandlers.ofByteArray());
+   return response != null ? response.body() : new byte[0];
   }
 
   private void writeGeotiff(byte[] geotiff) {
@@ -64,26 +62,24 @@ public class MintAccessor {
   private List<String> lookupDataSetLocations(MintQueryParameters params) {
     URI uri;
     try {
-      uri =
-          new URIBuilder()
-              .setScheme("http")
-              .setHost("mint-demo.westus2.cloudapp.azure.com")
-              .setPath("/data_sets")
-              .setParameter("standard_name", params.getStandardName())
-              .setParameter("start_time", params.getStartTime())
-              .setParameter("end_time", params.getEndTime())
-              .setParameter("location", params.getLocation())
-              .build();
+      uri = new URI("http://mint-demo.westus2.cloudapp.azure.com/data_sets?"
+           +  restClient.newParamsBuilder()
+              .add("standard_name", params.getStandardName())
+              .add("start_time", params.getStartTime())
+              .add("end_time", params.getEndTime())
+              .add("location", params.getLocation())
+              .build());
     } catch (URISyntaxException e) {
       throw new RuntimeException("Error building the query URI", e);
     }
 
-    String json = restClient.execute(new HttpGet(uri), String.class);
+    HttpRequest request = HttpRequest.newBuilder().uri(uri).build();
+    HttpResponse<String> response = restClient.send(request, BodyHandlers.ofString());
 
     String jsonPath = "$.results.bindings[0:].variable_id.value";
     List<String> locationUrls;
     try {
-      locationUrls = JsonPath.read(json, jsonPath);
+      locationUrls = JsonPath.read(response.body(), jsonPath);
     } catch (com.jayway.jsonpath.PathNotFoundException ex) {
       throw new RuntimeException("Expected field not found in precipitationQuery result", ex);
     }
@@ -102,17 +98,16 @@ public class MintAccessor {
 
   private List<String> lookupGeotiffLocations(String variableId) {
     String jsonOut = "{ \"variable_id\":\"" + variableId + "\"}";
-    StringEntity entity = new StringEntity(jsonOut, ContentType.APPLICATION_JSON);
-    HttpPost httppost =
-        new HttpPost("http://mint-demo.westus2.cloudapp.azure.com/data_sets/get_location_url");
-    httppost.setEntity(entity);
-
-    String jsonIn = restClient.execute(httppost, String.class);
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("http://mint-demo.westus2.cloudapp.azure.com/data_sets/get_location_url"))
+        .POST(BodyPublishers.ofString(jsonOut))
+        .build();
+    HttpResponse<String> response = restClient.send(request, BodyHandlers.ofString());
 
     String jsonPath = "$.results.bindings[0:].storage_path.value";
     List<String> locationUrls;
     try {
-      locationUrls = JsonPath.read(jsonIn, jsonPath);
+      locationUrls = JsonPath.read(response.body(), jsonPath);
     } catch (com.jayway.jsonpath.PathNotFoundException ex) {
       throw new RuntimeException("Expected field not found in query result", ex);
     }
