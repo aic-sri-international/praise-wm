@@ -67,15 +67,18 @@ const updateCurModelFromEditor = async (state, commit, getters):
   return getters[MODEL.GET.CUR_MODEL_DTO];
 };
 
-const setCurrentModel = (commit, model: SegmentedModelDto) => {
-  commit(MODEL.SET.CUR_MODEL_DTO, model);
+const setCurrentModel = async (commit, model: SegmentedModelDto) => {
+  commit(MODEL.SET.MODEL_DTO, model);
+  // Make sure the watcher for MODEL.GET.MODEL_NAMES completes before
+  // the watcher for MODEL.GET.CUR_MODEL_NAME is called.
+  await Vue.nextTick();
   commit(MODEL.SET.CUR_MODEL_NAME, model.name);
 
   const curQuery =
       (model.queries && model.queries.length) ? model.queries[0] : '';
   commit(MODEL.SET.CUR_QUERY, curQuery);
 
-  commit(MODEL.SET.CLEAR_QUERY_RESULT);
+  commit(MODEL.SET.CLEAR_QUERY_RESULTS);
   commit(MODEL.SET.EDITOR_TRANSITION, editorTransitions.LOAD);
 };
 
@@ -151,18 +154,23 @@ export default {
       console.warn(`current model cannot be set because it does not exist: ${modelName}`);
     }
   },
-  async [MODEL.ACTION.LOAD_MODEL_FROM_DISK]({ commit }, payload: FileInfo[]) {
-    if (payload.length === 0) {
-      return;
-    }
-    const { text } = payload[0];
-    let model: ?SegmentedModelDto = validateAndCleanModel(JSON.parse(text));
-    if (!model) {
-      return;
-    }
+  async [MODEL.ACTION.LOAD_MODELS_FROM_DISK]({ state, commit }, payload: FileInfo[]) {
+    const models: SegmentedModelDto[]
+        = payload.reduce((accum, fileInfo) => {
+          const model: ?SegmentedModelDto
+              = validateAndCleanModel(JSON.parse(fileInfo.text));
+          if (model) {
+            accum.push(minimizeModel(model));
+          }
+          return accum;
+        }, []);
 
-    model = minimizeModel(model);
-
-    setCurrentModel(commit, model);
+    if (models.length) {
+      commit(
+        MODEL.SET.MODEL_DTOS,
+        Object.values(state.modelDtos).concat(models),
+      );
+      setCurrentModel(commit, models[0]);
+    }
   },
 };

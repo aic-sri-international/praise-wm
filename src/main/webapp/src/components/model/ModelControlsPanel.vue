@@ -49,7 +49,7 @@
             v-tippy>
         </action-button>
         <action-button
-            @clicked="()=>$emit('clearQueryResults')"
+            @clicked="clearQueryResults"
             title="Remove query results"
             type="broom"
             v-tippy>
@@ -92,7 +92,12 @@
     <b-popover :show="showHelp" placement="right" target="querySolverOptionsId" triggers="">
       Query solver tuning parameters
     </b-popover>
-    <input-text-file @change="loadModelFromDisk" accept=".json" ref="input_ref"></input-text-file>
+    <input-text-file
+        @change="loadModelsFromDisk"
+        accept=".json"
+        :multiple="true"
+        ref="input_ref">
+    </input-text-file>
   </div>
 </template>
 
@@ -135,7 +140,7 @@
     methods: {
       ...mapActions(MODEL.MODULE, [
         MODEL.ACTION.INITIALIZE,
-        MODEL.ACTION.LOAD_MODEL_FROM_DISK,
+        MODEL.ACTION.LOAD_MODELS_FROM_DISK,
         MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK,
         MODEL.ACTION.CHANGE_CURRENT_MODEL,
         MODEL.ACTION.RUN_QUERY,
@@ -145,6 +150,7 @@
         MODEL.SET.CUR_MODEL_QUERIES,
         MODEL.SET.NUMBER_OF_INITIAL_SAMPLES,
         MODEL.SET.NUMBER_OF_DISCRETE_VALUES,
+        MODEL.SET.CLEAR_QUERY_RESULTS,
       ]),
       initModelNames(names: string[]) {
         const options = [];
@@ -172,18 +178,20 @@
         }
         this.$refs.queryOption_ref.showList(false);
         this.$refs.queryOption_ref.addCurrentEntry();
-        this.runQuery();
+        this[MODEL.ACTION.RUN_QUERY]();
       },
     },
     watch: {
-      curModelName(curModelName: string) {
-        const ix = this.modelOptions.findIndex(option => option.text === curModelName);
+      curModelName(curName: string, oldName: string) {
+        const ix = this.modelOptions.findIndex(option => option.text === curName);
+        console.log(`curName: ${curName}, old: ${oldName} ix=${ix}`);
         if (ix !== -1) {
           this.modelOptionSelected = ix;
         }
       },
-      modelNames(modelNames: string[]) {
-        this.initModelNames(modelNames);
+      modelNames(names: string[]) {
+        console.log(`modelNames: ${JSON.stringify(names, null, 2)}`);
+        this.initModelNames(names);
       },
     },
   };

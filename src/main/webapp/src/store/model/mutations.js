@@ -22,7 +22,7 @@ export default {
         return accum;
       }, {});
   },
-  [MODEL.SET.CUR_MODEL_DTO](state: VuexModelState, modelDto: SegmentedModelDto) {
+  [MODEL.SET.MODEL_DTO](state: VuexModelState, modelDto: SegmentedModelDto) {
     Vue.set(state.modelDtos, modelDto.name, modelDto);
   },
   [MODEL.SET.CUR_MODEL_NAME](state: VuexModelState, name: string) {
@@ -56,7 +56,7 @@ export default {
     }
     state.queryResultsIx = queryResultsIx;
   },
-  [MODEL.SET.CLEAR_QUERY_RESULT](state: VuexModelState) {
+  [MODEL.SET.CLEAR_QUERY_RESULTS](state: VuexModelState) {
     state.queryResults = [];
     state.queryResultsIx = -1;
   },

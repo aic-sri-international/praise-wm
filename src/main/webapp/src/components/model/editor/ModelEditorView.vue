@@ -71,7 +71,7 @@
     methods: {
       ...mapMutations(MODEL.MODULE, [
         MODEL.SET.EDITOR_TRANSITION,
-        MODEL.SET.CUR_MODEL_DTO,
+        MODEL.SET.MODEL_DTO,
       ]),
       getUpdatedModel() {
         const model: SegmentedModelDto = this.curModelDto;
@@ -99,7 +99,7 @@
           this.loadModel();
         } else if (newTransition === editorTransitions.STORE) {
           const model: SegmentedModelDto = this.getUpdatedModel();
-          this.setCurModelDto(model);
+          this.setModelDto(model);
           this.setEditorTransition(editorTransitions.NONE);
         }
       },

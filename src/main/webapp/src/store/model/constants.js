@@ -18,13 +18,13 @@ const MODEL_VXC = {
   SET: {
     EDITOR_TRANSITION: 'setEditorTransition',
     MODEL_DTOS: 'setModelDtos',
-    CUR_MODEL_DTO: 'setCurModelDto',
+    MODEL_DTO: 'setModelDto',
     CUR_MODEL_NAME: 'setCurModelName',
     CUR_QUERY: 'setCurQuery',
     CUR_MODEL_QUERIES: 'setCurModelQueries',
     QUERY_RESULT: 'setQueryResult',
     QUERY_RESULT_IX: 'setQueryResultIx',
-    CLEAR_QUERY_RESULT: 'clearQueryResult',
+    CLEAR_QUERY_RESULTS: 'clearQueryResults',
     IS_QUERY_ACTIVE: 'setQueryActive',
     NUMBER_OF_INITIAL_SAMPLES: 'setNumberOfInitialSamples',
     NUMBER_OF_DISCRETE_VALUES: 'setNumberOfDiscreteValues',
@@ -35,7 +35,7 @@ const MODEL_VXC = {
     CANCEL_QUERY: 'cancelQuery',
     SAVE_CURRENT_MODEL_TO_DISK: 'saveCurrentModelToDisk',
     CHANGE_CURRENT_MODEL: 'changeCurrentModel',
-    LOAD_MODEL_FROM_DISK: 'loadModelFromDisk',
+    LOAD_MODELS_FROM_DISK: 'loadModelsFromDisk',
   },
 };
 

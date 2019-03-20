@@ -28,7 +28,13 @@ const getters = {
     if (!state.curModelName) {
       return [];
     }
-    const queries: string[] = state.modelDtos[state.curModelName].queries || [];
+    const model: ?SegmentedModelDto = state.modelDtos[state.curModelName];
+    let queries = [];
+    if (model) {
+      // We might be in the middle of a transition to a new set of loaded models
+      // or removal of the current model
+      queries = state.modelDtos[state.curModelName].queries || [];
+    }
     return [...queries];
   },
   [MODEL.GET.CUR_MODEL_DTO]: (state: VuexModelState): SegmentedModelDto => {

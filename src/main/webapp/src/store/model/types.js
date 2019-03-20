@@ -16,8 +16,8 @@ type EditorTransition = $Values<typeof editorTransitions>;
 
 type VuexModelState = {
   editorTransition: EditorTransition,
-  curModelName: string,
   curQuery: string,
+  curModelName: string,
   modelDtos: { [string]: SegmentedModelDto },
   queryResults: ExpressionResultDto[],
   queryResultsIx: number,
