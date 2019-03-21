@@ -27,7 +27,7 @@ buildClient:
   stage: buildClient
   tags:
     - shared
-  image: node:8.11.2
+  image: node:10.15.3
   script:
     - cd src/main/webapp
     - yarn
