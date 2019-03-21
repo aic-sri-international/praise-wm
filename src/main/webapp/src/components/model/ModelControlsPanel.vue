@@ -108,7 +108,7 @@
   import EditableDatalist from '@/components/EditableDatalist';
   import InputTextFile from '@/components/InputTextFile';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import { mapGetters, mapMutations, mapActions } from 'vuex';
+  import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
   export default {
     name: 'ModelControlsPanel',
@@ -128,13 +128,15 @@
       ...mapGetters(HELP.MODULE, [
         HELP.GET.SHOW_HELP,
       ]),
+      ...mapState(MODEL.MODULE, [
+        'curModelName',
+        'numberOfInitialSamples',
+        'numberOfDiscreteValues',
+      ]),
       ...mapGetters(MODEL.MODULE, [
         MODEL.GET.MODEL_NAMES,
         MODEL.GET.CUR_MODEL_DTO,
-        MODEL.GET.CUR_MODEL_NAME,
         MODEL.GET.CUR_QUERIES,
-        MODEL.GET.NUMBER_OF_INITIAL_SAMPLES,
-        MODEL.GET.NUMBER_OF_DISCRETE_VALUES,
       ]),
     },
     methods: {
@@ -182,15 +184,13 @@
       },
     },
     watch: {
-      curModelName(curName: string, oldName: string) {
+      curModelName(curName: string) {
         const ix = this.modelOptions.findIndex(option => option.text === curName);
-        console.log(`curName: ${curName}, old: ${oldName} ix=${ix}`);
         if (ix !== -1) {
           this.modelOptionSelected = ix;
         }
       },
       modelNames(names: string[]) {
-        console.log(`modelNames: ${JSON.stringify(names, null, 2)}`);
         this.initModelNames(names);
       },
     },

@@ -30,11 +30,6 @@ export type ModelQueryOptions = {
   numberOfDiscreteValues: number,
 };
 
-export type EditorReferences = {
-  dclEditor: Object,
-  segmentedModelEditor: Object,
-};
-
 export type ModelQueryDto = { model: string } & ModelQueryOptions;
 
 export type FormattedPageModelDto = {
@@ -47,11 +42,14 @@ export type ModelRuleDto = {
   rule: string,
 };
 
-export type SegmentedModelDto = {
-  name: string,
+export type ModelEditorData = {
   description?: string,
   declarations?: string,
   rules: ModelRuleDto[],
+}
+
+export type SegmentedModelDto = ModelEditorData & {
+  name: string,
   queries?: string[],
 }
 

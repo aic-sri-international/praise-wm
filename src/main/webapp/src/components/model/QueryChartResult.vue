@@ -28,12 +28,14 @@
 <script>
   // @flow
   import debounce from 'lodash/debounce';
+  import { mapState, mapMutations } from 'vuex';
+  import { MODEL_VXC as MODEL } from '@/store';
   import QueryGraphControls from './QueryGraphControls';
   import type {
-    GraphQueryResultDto,
     GraphRequestDto,
     GraphRequestResultDto,
     GraphQueryVariableResults,
+    ExpressionResultDto,
   } from './types';
   import { fetchGraph } from './dataSourceProxy';
 
@@ -41,11 +43,6 @@
     name: 'QueryChartResult',
     components: {
       QueryGraphControls,
-    },
-    props: {
-      graphQueryResult: {
-        type: Object,
-      },
     },
     data() {
       return {
@@ -56,16 +53,22 @@
       };
     },
     methods: {
+      ...mapMutations(MODEL.MODULE, [
+        MODEL.SET.IS_QUERY_ACTIVE,
+      ]),
       initialize() {
-        // eslint-disable-next-line prefer-destructuring
-        const graphQueryResult: GraphQueryResultDto = this.graphQueryResult;
-        if (graphQueryResult) {
+        if (this.queryResultsIx < 0) {
+          return;
+        }
+        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
+        const { graphQueryResultDto } = expressionResultDto;
+        if (graphQueryResultDto) {
           const gqvr: GraphQueryVariableResults = {
-            xmVariables: [...graphQueryResult.xmVariables],
-            graphVariableSets: [...graphQueryResult.graphVariableSets],
+            xmVariables: [...graphQueryResultDto.xmVariables],
+            graphVariableSets: [...graphQueryResultDto.graphVariableSets],
           };
 
-          this.imageData = graphQueryResult.imageData;
+          this.imageData = graphQueryResultDto.imageData;
           this.graphQueryVariableResults = gqvr;
         } else {
           this.imageData = null;
@@ -75,13 +78,13 @@
       async queryForNewGraph() {
         const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
         try {
-          this.$emit('querySent');
+          this[MODEL.SET.IS_QUERY_ACTIVE](true);
           const graph: GraphRequestResultDto = await fetchGraph(request);
           this.imageData = graph.imageData;
         } catch (err) {
         // errors already logged/displayed
         } finally {
-          this.$emit('queryReturned');
+          this[MODEL.SET.IS_QUERY_ACTIVE](false);
         }
       },
       onControlChanged() {
@@ -91,8 +94,14 @@
         this.debounced$();
       },
     },
+    computed: {
+      ...mapState(MODEL.MODULE, [
+        'queryResults',
+        'queryResultsIx',
+      ]),
+    },
     watch: {
-      graphQueryResult() {
+      queryResultsIx() {
         if (this.debounced$) {
           this.debounced$.cancel();
         }

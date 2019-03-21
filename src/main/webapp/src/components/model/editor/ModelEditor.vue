@@ -31,7 +31,6 @@
   import type { ModelRuleDto } from '@/components/model/types';
   import ModelRuleEditor from './ModelRuleEditor';
 
-
   type ModelRuleWrapper = {
     modelRule: ModelRuleDto,
     toggleMetadata: boolean,

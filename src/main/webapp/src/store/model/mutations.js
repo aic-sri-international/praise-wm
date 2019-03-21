@@ -5,6 +5,7 @@ import { oneLine } from 'common-tags';
 import isEqual from 'lodash/isEqual';
 
 import type {
+  ModelEditorData,
   SegmentedModelDto,
   ExpressionResultDto,
 } from '@/components/model/types';
@@ -24,6 +25,13 @@ export default {
   },
   [MODEL.SET.MODEL_DTO](state: VuexModelState, modelDto: SegmentedModelDto) {
     Vue.set(state.modelDtos, modelDto.name, modelDto);
+  },
+  [MODEL.SET.UPDATE_MODEL_DTO](state: VuexModelState, { modelName, modelEditorData }) {
+    const model: SegmentedModelDto = state.modelDtos[modelName];
+    const med: ModelEditorData = modelEditorData;
+    model.description = med.description;
+    model.declarations = med.declarations;
+    model.rules = med.rules;
   },
   [MODEL.SET.CUR_MODEL_NAME](state: VuexModelState, name: string) {
     state.curModelName = name;
@@ -47,7 +55,7 @@ export default {
     state.queryResults = [queryResult].concat(state.queryResults);
     state.queryResultsIx = state.queryResults.length ? 0 : -1;
   },
-  [MODEL.SET.QUERY_RESULT_IX](state: VuexModelState, queryResultsIx: number) {
+  [MODEL.SET.QUERY_RESULTS_IX](state: VuexModelState, queryResultsIx: number) {
     const maxIx = state.queryResults.length - 1;
     if (queryResultsIx < -1 || queryResultsIx > maxIx) {
       throw Error(oneLine`MODEL.SET.QUERY_RESULT_IX: 

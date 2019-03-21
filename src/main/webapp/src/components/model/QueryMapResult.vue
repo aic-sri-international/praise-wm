@@ -32,6 +32,8 @@
 <script>
   // @flow
   import debounce from 'lodash/debounce';
+  import { mapState, mapMutations } from 'vuex';
+  import { MODEL_VXC as MODEL } from '@/store';
   import OlMap from '@/components/openlayers/OlMap';
   import QueryGraphControls from './QueryGraphControls';
   import type {
@@ -39,7 +41,9 @@
     GraphRequestDto,
     GraphQueryVariableResults,
     GraphRequestResultDto,
+    ExpressionResultDto,
   } from './types';
+
   import { fetchGraph } from './dataSourceProxy';
 
   const pageBannerHeight = 74;
@@ -49,11 +53,6 @@
     components: {
       OlMap,
       QueryGraphControls,
-    },
-    props: {
-      graphQueryResult: {
-        type: Object,
-      },
     },
     data() {
       return {
@@ -65,16 +64,22 @@
       };
     },
     methods: {
+      ...mapMutations(MODEL.MODULE, [
+        MODEL.SET.IS_QUERY_ACTIVE,
+      ]),
+      getCurrentGraphQueryResultDto() : ?GraphQueryResultDto {
+        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
+        return expressionResultDto.graphQueryResultDto;
+      },
       initialize() {
-        // eslint-disable-next-line prefer-destructuring
-        const graphQueryResult: GraphQueryResultDto = this.graphQueryResult;
-        if (graphQueryResult) {
+        const graphQueryResultDto: ?GraphQueryResultDto = this.getCurrentGraphQueryResultDto();
+        if (graphQueryResultDto) {
           const gqvr: GraphQueryVariableResults = {
-            xmVariables: [...graphQueryResult.xmVariables],
-            graphVariableSets: [...graphQueryResult.graphVariableSets],
+            xmVariables: [...graphQueryResultDto.xmVariables],
+            graphVariableSets: [...graphQueryResultDto.graphVariableSets],
           };
-          if (this.graphQueryResult.mapRegionNameToValue) {
-            this.mapRegionNameToValue = this.graphQueryResult.mapRegionNameToValue;
+          if (graphQueryResultDto.mapRegionNameToValue) {
+            this.mapRegionNameToValue = graphQueryResultDto.mapRegionNameToValue;
           }
           this.graphQueryVariableResults = gqvr;
         } else {
@@ -84,19 +89,24 @@
       },
       async queryForNewMapData() {
         let xmVariableChanged = false;
+        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
+        const { graphQueryResultDto } = expressionResultDto;
+        if (!graphQueryResultDto) {
+          throw Error('graphQueryResultDto is not set');
+        }
         const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
         try {
-          this.$emit('querySent');
+          this[MODEL.SET.IS_QUERY_ACTIVE](true);
           const graph: GraphRequestResultDto = await fetchGraph(request);
           this.mapRegionNameToValue = graph.mapRegionNameToValue;
-          if (request.xmVariable !== this.graphQueryResult.xmVariables[0]) {
+          if (request.xmVariable !== graphQueryResultDto.xmVariables[0]) {
             xmVariableChanged = true;
-            this.graphQueryResult.xmVariables[0] = request.xmVariable;
+            // this.graphQueryResult.xmVariables[0] = request.xmVariable;
           }
         } catch (err) {
           // errors already logged/displayed
         } finally {
-          this.$emit('queryReturned');
+          this[MODEL.SET.IS_QUERY_ACTIVE](false);
         }
         if (xmVariableChanged) {
           this.initialize();
@@ -135,13 +145,21 @@
         });
       },
     },
+    computed: {
+      ...mapState(MODEL.MODULE, [
+        'queryResults',
+        'queryResultsIx',
+      ]),
+    },
     watch: {
-      graphQueryResult() {
+      queryResultsIx() {
         if (this.debounced$) {
           this.debounced$.cancel();
         }
-        this.initialize();
-        this.updateMapHeightOffset(true);
+        if (this.queryResultsIx > -1) {
+          this.initialize();
+          this.updateMapHeightOffset(true);
+        }
       },
       showMap(newValue: boolean) {
         if (newValue) {
@@ -156,7 +174,7 @@
       this.updateMapHeightOffset(false);
     },
     created() {
-      if (this.graphQueryResult) {
+      if (this.queryResultsIx > -1) {
         this.initialize();
       }
     },

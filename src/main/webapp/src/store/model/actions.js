@@ -28,7 +28,7 @@ const loadModels = async (): Promise<SegmentedModelDto[]> => {
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const waitForTransitionToComplete = async (getters) => {
+const waitForTransitionToComplete = async (state) => {
   const max = 20;
   const ms = 5;
   let count = 0;
@@ -36,7 +36,7 @@ const waitForTransitionToComplete = async (getters) => {
   // This should usually be sufficient
   await Vue.nextTick();
 
-  while (count <= max && getters[MODEL.GET.EDITOR_TRANSITION] !== editorTransitions.NONE) {
+  while (count <= max && state.editorTransition !== editorTransitions.NONE) {
     // eslint-disable-next-line no-await-in-loop
     await wait(ms);
     count += 1;
@@ -50,7 +50,6 @@ const waitForTransitionToComplete = async (getters) => {
   return Promise.resolve();
 };
 
-
 const updateCurModelFromEditor = async (state, commit, getters):
     Promise<SegmentedModelDto> => {
   if (!state.curModelName) {
@@ -62,7 +61,7 @@ const updateCurModelFromEditor = async (state, commit, getters):
   }
   commit(MODEL.SET.EDITOR_TRANSITION, editorTransitions.STORE);
 
-  await waitForTransitionToComplete(getters);
+  await waitForTransitionToComplete(state);
 
   return getters[MODEL.GET.CUR_MODEL_DTO];
 };
@@ -149,7 +148,7 @@ export default {
   async [MODEL.ACTION.CHANGE_CURRENT_MODEL]({ state, commit }, modelName: string) {
     const model : SegmentedModelDto = state.modelDtos[modelName];
     if (model) {
-      setCurrentModel(commit, model);
+      await setCurrentModel(commit, model);
     } else {
       console.warn(`current model cannot be set because it does not exist: ${modelName}`);
     }
@@ -170,7 +169,12 @@ export default {
         MODEL.SET.MODEL_DTOS,
         Object.values(state.modelDtos).concat(models),
       );
-      setCurrentModel(commit, models[0]);
+      await setCurrentModel(commit, models[0]);
+      await Vue.nextTick();
+      // We need to reset the cur model name since the UI model selection
+      // component would have triggered a change after getting a new
+      // list of model names.
+      commit(MODEL.SET.CUR_MODEL_NAME, models[0].name);
     }
   },
 };

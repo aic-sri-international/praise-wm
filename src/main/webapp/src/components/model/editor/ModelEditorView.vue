@@ -31,13 +31,14 @@
 
 <script>
   // @flow
-  import { mapGetters, mapMutations } from 'vuex';
+  import { mapState, mapGetters, mapMutations } from 'vuex';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
   import { editorTransitions } from '@/store/model/types';
   import type { EditorTransition } from '@/store/model/types';
   import type {
     SegmentedModelDto,
     ModelRuleDto,
+    ModelEditorData,
   } from '@/components/model/types';
   import Editor from './Editor';
   import ModelEditor from './ModelEditor';
@@ -64,33 +65,32 @@
         HELP.GET.SHOW_HELP,
       ]),
       ...mapGetters(MODEL.MODULE, [
-        MODEL.GET.EDITOR_TRANSITION,
         MODEL.GET.CUR_MODEL_DTO,
+      ]),
+      ...mapState(MODEL.MODULE, [
+        'editorTransition',
       ]),
     },
     methods: {
       ...mapMutations(MODEL.MODULE, [
         MODEL.SET.EDITOR_TRANSITION,
-        MODEL.SET.MODEL_DTO,
+        MODEL.SET.UPDATE_MODEL_DTO,
       ]),
-      getUpdatedModel() {
-        const model: SegmentedModelDto = this.curModelDto;
+      getUpdatedModel(): ModelEditorData {
         const rules: ModelRuleDto[] = this.$refs.seg_model_editor_ref.getModelRules();
         return {
-          name: model.name,
           description: this.description.trim(),
           declarations: this.$refs.dcl_editor_ref.getValue().trim(),
           rules,
-          queries: model.queries,
         };
       },
       loadModel() {
-        const model: SegmentedModelDto = this.curModelDto;
+        const model: SegmentedModelDto = this[MODEL.GET.CUR_MODEL_DTO];
         this.description = model.description;
         this.declarations = model.declarations;
         this.rules = model.rules;
         this.dclEditInitFlag = !this.dclEditInitFlag;
-        this.setEditorTransition(editorTransitions.NONE);
+        this[MODEL.SET.EDITOR_TRANSITION](editorTransitions.NONE);
       },
     },
     watch: {
@@ -98,9 +98,10 @@
         if (newTransition === editorTransitions.LOAD) {
           this.loadModel();
         } else if (newTransition === editorTransitions.STORE) {
-          const model: SegmentedModelDto = this.getUpdatedModel();
-          this.setModelDto(model);
-          this.setEditorTransition(editorTransitions.NONE);
+          const modelEditorData: ModelEditorData = this.getUpdatedModel();
+          const modelName = this[MODEL.GET.CUR_MODEL_DTO].name;
+          this[MODEL.SET.UPDATE_MODEL_DTO]({ modelName, modelEditorData });
+          this[MODEL.SET.EDITOR_TRANSITION](editorTransitions.NONE);
         }
       },
     },
