@@ -43,7 +43,7 @@ buildServer:
   stage: buildServer
   tags:
     - shared
-  image: openjdk:11.0.2-jdk-slim
+  image: adoptopenjdk/openjdk11:jdk-11.0.2.9-slim
   dependencies:
     - buildClient
   services:
