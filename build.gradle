@@ -155,6 +155,7 @@ repositories {
     maven { url "http://repo.boundlessgeo.com/main/" }
     maven { url "http://maven.geomajas.org/" }
     maven { url "http://repo.maven.apache.org/maven2" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     mavenLocal()
 }
 
