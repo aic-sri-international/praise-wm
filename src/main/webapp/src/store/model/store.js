@@ -1,6 +1,6 @@
 // @flow
-import { emptyModelDto, EMPTY_MODEL_NAME } from '@/store/model/util';
 import cloneDeep from 'lodash/cloneDeep';
+import { emptyModelDto, EMPTY_MODEL_NAME } from '@/store/model/util';
 import type {
   ExpressionResultDto,
   SegmentedModelDto,
@@ -37,6 +37,8 @@ const getters = {
     }
     return cloneDeep(state.modelDtos[state.curModelName]);
   },
+  [MODEL.GET.CUR_RESULT]: (state: VuexModelState): ?ExpressionResultDto =>
+    (state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx]),
   [MODEL.GET.IS_QUERY_ACTIVE]: (state: VuexModelState):
       boolean => state.queryStartTime !== 0,
   [MODEL.GET.DISPLAY_CHART]: (state: VuexModelState): boolean => {

@@ -76,6 +76,14 @@ export default class AceModelEditor {
     return this.editor.getValue();
   }
 
+  setReadOnly(readOnly: boolean) {
+    this.editor.setReadOnly(readOnly);
+  }
+
+  getReadOnly() {
+    this.editor.getReadOnly();
+  }
+
   clearSelection() {
     this.editor.clearSelection();
   }

@@ -33,6 +33,7 @@
       },
       readOnly: {
         type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -84,6 +85,9 @@
     watch: {
       editorInitFlag() {
         this.$nextTick(() => this.initEditorText());
+      },
+      readOnly(readOnly: boolean) {
+        this.editor$.setReadOnly(readOnly);
       },
     },
     mounted() {

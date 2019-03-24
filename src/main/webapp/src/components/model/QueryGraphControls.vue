@@ -5,6 +5,7 @@
         <div v-if="control.isSlider">
           <graph-variable-set-slider
               v-if="!isFixedSetOfEnums(control)"
+              :isDisabled="isQueryActive"
               :style="control.style"
               @sliderChanged="(v) => onSliderChanged(index, v)"
               direction="ltr"
@@ -19,6 +20,7 @@
                          :prepend="control.gvs.name">
             <b-form-select
                 @input="()=>onDropdownSelectionChanged()"
+                :disabled="isQueryActive"
                 v-model="control.ddSelection"
                 :options="control.gvs.enums">
             </b-form-select>
@@ -39,12 +41,16 @@
 
 <script>
   // @flow
+  import debounce from 'lodash/debounce';
   import cloneDeep from 'lodash/cloneDeep';
   import ContextMenu from 'vue-context-menu';
+  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { MODEL_VXC as MODEL } from '@/store';
   import GraphVariableSetSlider from './GraphVariableSetSlider';
   import { getRangeLabel } from './types';
   import type {
     GraphVariableSet,
+    ExpressionResultDto,
     GraphQueryVariableResults,
     GraphRequestDto,
 } from './types';
@@ -66,11 +72,6 @@
       GraphVariableSetSlider,
       ContextMenu,
     },
-    props: {
-      graphQueryVariableResults: {
-        type: Object,
-      },
-    },
     data() {
       return {
         controls: [],
@@ -84,6 +85,9 @@
       };
     },
     methods: {
+      ...mapActions(MODEL.MODULE, [
+        MODEL.ACTION.RUN_QUERY_FUNCTION,
+      ]),
       onRightMouseClick(event: any, index: number) {
         if (!this.controls[index].isXmVariable) {
           this.menu.curXVarName = this.getCurrentXm();
@@ -97,7 +101,6 @@
       switchXm() {
         console.log(`switchXm: ${this.lastRightClickData.index}`);
         this.nextXm = this.menu.curVarName;
-        this.$emit('controlChanged');
       },
       isFixedSetOfEnums(control: Control) {
         return control.isXmVariable && control.gvs.enums;
@@ -144,42 +147,15 @@
           ctrl.style += `margin-left: ${ml}px; margin-right: ${mr}px;`;
         });
       },
-      buildGraphRequest() : GraphRequestDto {
-        const xmVarName = this.nextXm || this.getCurrentXm();
-        const request: GraphRequestDto = {
-          xmVariable: xmVarName,
-          graphVariableSets: [],
-        };
-
-        this.controls.forEach((c) => {
-          const gvs: GraphVariableSet = cloneDeep(c.gvs);
-          if (gvs.range && c.sliderChanged) {
-            // eslint-disable-next-line prefer-destructuring
-            gvs.range.first = c.sliderChanged[0];
-            // eslint-disable-next-line prefer-destructuring
-            gvs.range.last = c.sliderChanged[1];
-          } else if (this.isFixedSetOfEnums(c)) {
-            // Do not change the set of enums
-          } else if (gvs.enums && c.sliderChanged) {
-            gvs.enums = [c.sliderChanged];
-          } else if (gvs.enums && !c.isSlider && c.ddSelection) {
-            gvs.enums = [c.ddSelection];
-          } else if (gvs.enums) {
-            gvs.enums = [gvs.enums[0]];
-          }
-          request.graphVariableSets.push(gvs);
-        });
-
-        this.nextXm = null;
-
-        return request;
-      },
       getVariableSets(isXm: boolean, xmName: string): GraphVariableSet[] {
         const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
-        return gqvr.graphVariableSets
+        return !gqvr ? [] : gqvr.graphVariableSets
           .filter(s => (isXm ? s.name === xmName : s.name !== xmName));
       },
       initialize() {
+        if (this.queryResultsIx < 0) {
+          return;
+        }
         const xmVariable: string = this.getCurrentXm();
         // Show the current xm at the top
         const sets: GraphVariableSet[] = [
@@ -252,14 +228,75 @@
       onSliderChanged(controlIx: number, value: any) {
         const control : Control = this.controls[controlIx];
         control.sliderChanged = value;
-        this.$emit('controlChanged');
+        this.onControlChanged();
       },
       onDropdownSelectionChanged() {
-        this.$emit('controlChanged');
+        this.onControlChanged();
+      },
+      onControlChanged() {
+        if (!this.debounced$) {
+          this.debounced$ = debounce(this.queryForNewGraph, 250, { trailing: true });
+        }
+        this.debounced$();
+      },
+      async queryForNewGraph() {
+        const request: GraphRequestDto = this.buildGraphRequest();
+        try {
+          await this[MODEL.ACTION.RUN_QUERY_FUNCTION](request);
+        } catch (err) {
+          // errors already logged/displayed
+        }
+      },
+      buildGraphRequest() : GraphRequestDto {
+        const xmVarName = this.nextXm || this.getCurrentXm();
+        const request: GraphRequestDto = {
+          xmVariable: xmVarName,
+          graphVariableSets: [],
+        };
+
+        this.controls.forEach((c) => {
+          const gvs: GraphVariableSet = cloneDeep(c.gvs);
+          if (gvs.range && c.sliderChanged) {
+            // eslint-disable-next-line prefer-destructuring
+            gvs.range.first = c.sliderChanged[0];
+            // eslint-disable-next-line prefer-destructuring
+            gvs.range.last = c.sliderChanged[1];
+          } else if (this.isFixedSetOfEnums(c)) {
+            // Do not change the set of enums
+          } else if (gvs.enums && c.sliderChanged) {
+            gvs.enums = [c.sliderChanged];
+          } else if (gvs.enums && !c.isSlider && c.ddSelection) {
+            gvs.enums = [c.ddSelection];
+          } else if (gvs.enums) {
+            gvs.enums = [gvs.enums[0]];
+          }
+          request.graphVariableSets.push(gvs);
+        });
+
+        this.nextXm = null;
+
+        return request;
+      },
+    },
+    computed: {
+      ...mapState(MODEL.MODULE, [
+        'queryResults',
+        'queryResultsIx',
+      ]),
+      ...mapGetters(MODEL.MODULE, [
+        MODEL.GET.IS_QUERY_ACTIVE,
+      ]),
+      graphQueryVariableResults() : ?GraphQueryVariableResults {
+        const result: ?ExpressionResultDto
+            = this.queryResultsIx > -1 ? this.queryResults[this.queryResultsIx] : null;
+        return result ? result.graphQueryResultDto : null;
       },
     },
     watch: {
-      graphQueryVariableResults() {
+      queryResultsIx() {
+        if (this.debounced$) {
+          this.debounced$.cancel();
+        }
         this.initialize();
       },
     },

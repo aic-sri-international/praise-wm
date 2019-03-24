@@ -4,6 +4,7 @@
         <span v-show="modelRuleWrapper.openMetadata">
           <editor ref="metadata_ref"
                   type="text"
+                  :readOnly="readOnly"
                   styleClass="metadata"
                   :editorInitFlag="editorInitFlag"
                   :value="modelRuleWrapper.modelRule.metadata">
@@ -12,6 +13,7 @@
         </span>
         <editor ref="rule_ref"
                 type="hogm"
+                :readOnly="readOnly"
                 :editorInitFlag="editorInitFlag"
                 :value="modelRuleWrapper.modelRule.rule">
         </editor>
@@ -46,6 +48,9 @@
           required: false,
           default: false,
         },
+      },
+      readOnly: {
+        type: Boolean,
       },
     },
     data() {

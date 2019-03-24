@@ -6,6 +6,7 @@ const MODEL_VXC = {
     MODEL_NAMES: 'modelNames',
     CUR_QUERIES: 'curQueries',
     CUR_MODEL_DTO: 'curModelDto',
+    CUR_RESULT: 'curResult',
     IS_QUERY_ACTIVE: 'isQueryActive',
     DISPLAY_CHART: 'displayChart',
   },
@@ -27,6 +28,8 @@ const MODEL_VXC = {
   ACTION: {
     INITIALIZE: 'initialize',
     RUN_QUERY: 'runQuery',
+    RUN_QUERY_FUNCTION: 'runQueryFunction',
+    X_AXIS_SWAP: 'xAxisSwap',
     CANCEL_QUERY: 'cancelQuery',
     SAVE_CURRENT_MODEL_TO_DISK: 'saveCurrentModelToDisk',
     CHANGE_CURRENT_MODEL: 'changeCurrentModel',

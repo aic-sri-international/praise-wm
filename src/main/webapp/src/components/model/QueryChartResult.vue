@@ -7,11 +7,7 @@
       <div v-show="showChart" class="top-level-container">
         <div>
           <img @click.stop="showChart = true" :src="imageData">
-          <query-graph-controls
-              ref="queryGraphControls_ref"
-              @controlChanged="onControlChanged"
-              :graph-query-variable-results="graphQueryVariableResults">
-          </query-graph-controls>
+          <query-graph-controls></query-graph-controls>
         </div>
       </div>
     </transition>
@@ -27,17 +23,10 @@
 
 <script>
   // @flow
-  import debounce from 'lodash/debounce';
-  import { mapState, mapMutations } from 'vuex';
+  import { mapGetters } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
   import QueryGraphControls from './QueryGraphControls';
-  import type {
-    GraphRequestDto,
-    GraphRequestResultDto,
-    GraphQueryVariableResults,
-    ExpressionResultDto,
-  } from './types';
-  import { fetchGraph } from './dataSourceProxy';
+  import type { ExpressionResultDto } from './types';
 
   export default {
     name: 'QueryChartResult',
@@ -47,64 +36,31 @@
     data() {
       return {
         imageData: null,
-        graphQueryVariableResults: null,
         showChart: false,
         showIcon: false,
       };
     },
     methods: {
-      ...mapMutations(MODEL.MODULE, [
-        MODEL.SET.IS_QUERY_ACTIVE,
-      ]),
       initialize() {
-        if (this.queryResultsIx < 0) {
+        if (!this[MODEL.GET.CUR_RESULT]) {
           return;
         }
-        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
+        const expressionResultDto: ExpressionResultDto = this[MODEL.GET.CUR_RESULT];
         const { graphQueryResultDto } = expressionResultDto;
         if (graphQueryResultDto) {
-          const gqvr: GraphQueryVariableResults = {
-            xmVariables: [...graphQueryResultDto.xmVariables],
-            graphVariableSets: [...graphQueryResultDto.graphVariableSets],
-          };
-
           this.imageData = graphQueryResultDto.imageData;
-          this.graphQueryVariableResults = gqvr;
         } else {
           this.imageData = null;
-          this.graphQueryVariableResults = null;
         }
-      },
-      async queryForNewGraph() {
-        const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        try {
-          this[MODEL.SET.IS_QUERY_ACTIVE](true);
-          const graph: GraphRequestResultDto = await fetchGraph(request);
-          this.imageData = graph.imageData;
-        } catch (err) {
-        // errors already logged/displayed
-        } finally {
-          this[MODEL.SET.IS_QUERY_ACTIVE](false);
-        }
-      },
-      onControlChanged() {
-        if (!this.debounced$) {
-          this.debounced$ = debounce(this.queryForNewGraph, 250, { trailing: true });
-        }
-        this.debounced$();
       },
     },
     computed: {
-      ...mapState(MODEL.MODULE, [
-        'queryResults',
-        'queryResultsIx',
+      ...mapGetters(MODEL.MODULE, [
+        MODEL.GET.CUR_RESULT,
       ]),
     },
     watch: {
-      queryResultsIx() {
-        if (this.debounced$) {
-          this.debounced$.cancel();
-        }
+      [MODEL.GET.CUR_RESULT]() {
         this.initialize();
       },
       showChart(newValue: boolean) {

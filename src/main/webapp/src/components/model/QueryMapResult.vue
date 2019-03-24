@@ -7,16 +7,11 @@
       <div v-show="showMap" class="top-level-container">
         <ol-map
             ref="map_ref"
-            :heightOffset="mapHeightOffset"
+            :heightOffset="mapHeightOffset "
           @closeMap="showMap = true"
           :mapRegionNameToValue="mapRegionNameToValue">
         </ol-map>
-        <query-graph-controls
-            v-if="graphQueryVariableResults"
-            ref="queryGraphControls_ref"
-            @controlChanged="onControlChanged"
-            :graph-query-variable-results="graphQueryVariableResults">
-        </query-graph-controls>
+        <query-graph-controls v-if="curResult" ref="queryGraphControls_ref"></query-graph-controls>
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
@@ -31,20 +26,11 @@
 
 <script>
   // @flow
-  import debounce from 'lodash/debounce';
-  import { mapState, mapMutations } from 'vuex';
+  import { mapGetters } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
   import OlMap from '@/components/openlayers/OlMap';
   import QueryGraphControls from './QueryGraphControls';
-  import type {
-    GraphQueryResultDto,
-    GraphRequestDto,
-    GraphQueryVariableResults,
-    GraphRequestResultDto,
-    ExpressionResultDto,
-  } from './types';
-
-  import { fetchGraph } from './dataSourceProxy';
+  import type { ExpressionResultDto } from './types';
 
   const pageBannerHeight = 74;
 
@@ -56,7 +42,6 @@
     },
     data() {
       return {
-        graphQueryVariableResults: null,
         mapRegionNameToValue: null,
         showMap: false,
         showIcon: false,
@@ -64,59 +49,20 @@
       };
     },
     methods: {
-      ...mapMutations(MODEL.MODULE, [
-        MODEL.SET.IS_QUERY_ACTIVE,
-      ]),
-      getCurrentGraphQueryResultDto() : ?GraphQueryResultDto {
-        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
-        return expressionResultDto.graphQueryResultDto;
-      },
       initialize() {
-        const graphQueryResultDto: ?GraphQueryResultDto = this.getCurrentGraphQueryResultDto();
+        if (!this[MODEL.GET.CUR_RESULT]) {
+          this.mapRegionNameToValue = null;
+          return;
+        }
+        const expressionResultDto: ExpressionResultDto = this[MODEL.GET.CUR_RESULT];
+        const { graphQueryResultDto } = expressionResultDto;
         if (graphQueryResultDto) {
-          const gqvr: GraphQueryVariableResults = {
-            xmVariables: [...graphQueryResultDto.xmVariables],
-            graphVariableSets: [...graphQueryResultDto.graphVariableSets],
-          };
           if (graphQueryResultDto.mapRegionNameToValue) {
             this.mapRegionNameToValue = graphQueryResultDto.mapRegionNameToValue;
           }
-          this.graphQueryVariableResults = gqvr;
         } else {
-          this.graphQueryVariableResults = null;
           this.mapRegionNameToValue = null;
         }
-      },
-      async queryForNewMapData() {
-        let xmVariableChanged = false;
-        const expressionResultDto: ExpressionResultDto = this.queryResults[this.queryResultsIx];
-        const { graphQueryResultDto } = expressionResultDto;
-        if (!graphQueryResultDto) {
-          throw Error('graphQueryResultDto is not set');
-        }
-        const request: GraphRequestDto = this.$refs.queryGraphControls_ref.buildGraphRequest();
-        try {
-          this[MODEL.SET.IS_QUERY_ACTIVE](true);
-          const graph: GraphRequestResultDto = await fetchGraph(request);
-          this.mapRegionNameToValue = graph.mapRegionNameToValue;
-          if (request.xmVariable !== graphQueryResultDto.xmVariables[0]) {
-            xmVariableChanged = true;
-            // this.graphQueryResult.xmVariables[0] = request.xmVariable;
-          }
-        } catch (err) {
-          // errors already logged/displayed
-        } finally {
-          this[MODEL.SET.IS_QUERY_ACTIVE](false);
-        }
-        if (xmVariableChanged) {
-          this.initialize();
-        }
-      },
-      onControlChanged() {
-        if (!this.debounced$) {
-          this.debounced$ = debounce(this.queryForNewMapData, 250, { trailing: true });
-        }
-        this.debounced$();
       },
       updateMapHeightOffset(alwaysResize: boolean) {
         this.$nextTick(() => {
@@ -129,37 +75,24 @@
             }
             return;
           }
-          // We do not yet have the complete client height for the queryGraphControls
-          // component. Set the mapHeightOffset to the partial height of the queryGraphControls
-          // component to trigger a recomputation.
+          // Set the mapHeightOffset to the height of the queryGraphControls
           const qgc = this.$refs.queryGraphControls_ref.$el;
           this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
-          setTimeout(() => {
-            // Wait for clientHeight to be recomputed, them set the offset to what should be
-            // the complete clientHeight.
-            this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
-            this.$nextTick(() => {
-              this.$refs.map_ref.updateMapSize();
-            });
-          }, 68);
+          this.$nextTick(() => {
+            this.$refs.map_ref.updateMapSize();
+          });
         });
       },
     },
     computed: {
-      ...mapState(MODEL.MODULE, [
-        'queryResults',
-        'queryResultsIx',
+      ...mapGetters(MODEL.MODULE, [
+        MODEL.GET.CUR_RESULT,
       ]),
     },
     watch: {
-      queryResultsIx() {
-        if (this.debounced$) {
-          this.debounced$.cancel();
-        }
-        if (this.queryResultsIx > -1) {
-          this.initialize();
-          this.updateMapHeightOffset(true);
-        }
+      [MODEL.GET.CUR_RESULT]() {
+        this.initialize();
+        this.updateMapHeightOffset(true);
       },
       showMap(newValue: boolean) {
         if (newValue) {
@@ -174,9 +107,7 @@
       this.updateMapHeightOffset(false);
     },
     created() {
-      if (this.queryResultsIx > -1) {
-        this.initialize();
-      }
+      this.initialize();
     },
   };
 </script>

@@ -1,36 +1,37 @@
 <template>
   <div class="container">
     <div class="row">
-        <input style="text-align: left"
-                 :style="currentStyle"
-                 ref="input"
-                 v-tippy
-                 :title="tooltip"
-                 :disabled="disabled"
+      <input :class="{ disabledBackground: disabled }"
+             :disabled="disabled"
+             :style="styles"
+             :title="tooltip"
+             @blur="onBlur"
+             @input="updateDigitsValue($event.target.value)"
+             ref="input"
+             style="text-align: left"
+             v-tippy/>
+      <div class="column shift-left">
+        <div class="row">
+          <b-btn :disabled="disabledUpArrow"
                  @blur="onBlur"
-                 @input="updateDigitsValue($event.target.value)"/>
-        <div class="column shift-left">
-          <div class="row">
-            <b-btn variant="outline-secondary"
-                   class="button-class"
-                   @blur="onBlur"
-                   @click.stop="onStepClick($event, true)"
-                   :disabled="upArrowIsDisabled">
-              <div class="arrow-up"></div>
-            </b-btn>
-          </div>
-          <span style="height: .5px"></span>
-            <div class="row">
-              <b-btn variant="outline-secondary"
-                     ref="downButton_ref"
-                     class="button-class"
-                     @blur="onBlur"
-                     @click.stop="onStepClick($event, false)"
-                     :disabled="downArrowIsDisabled">
-                <div class="arrow-down"></div>
-              </b-btn>
-            </div>
+                 @click.stop="onStepClick($event, true)"
+                 class="button-class"
+                 variant="outline-secondary">
+            <div :class="{ 'arrow-up-disabled': disabledUpArrow}" class="arrow-up"></div>
+          </b-btn>
         </div>
+        <span style="height: .5px"></span>
+        <div class="row">
+          <b-btn :disabled="disabledDownArrow"
+                 @blur="onBlur"
+                 @click.stop="onStepClick($event, false)"
+                 class="button-class"
+                 ref="downButton_ref"
+                 variant="outline-secondary">
+            <div :class="{ 'arrow-down-disabled': disabledDownArrow}" class="arrow-down"></div>
+          </b-btn>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -80,6 +81,7 @@
             paddingRight: 0,
             maxWidth: '130px',
             height: '30px',
+            fontSize: '0.9rem',
           };
         },
       },
@@ -105,14 +107,15 @@
 
         return msg;
       },
-      currentStyle() {
-        return !this.disabled
-          ? this.styles
-          : { ...this.styles, backgroundColor: 'lightgrey' };
+      disabledUpArrow() {
+        return this.disabled || this.upArrowIsDisabled;
+      },
+      disabledDownArrow() {
+        return this.disabled || this.downArrowIsDisabled;
       },
     },
     methods: {
-      ensureMax(numInput: number) : number {
+      ensureMax(numInput: number): number {
         let num = numInput;
 
         if (num > this.max) {
@@ -123,7 +126,7 @@
 
         return num;
       },
-      ensureMinMax(numInput: number) : number {
+      ensureMinMax(numInput: number): number {
         let num = numInput;
 
         num = this.ensureMax(numInput);
@@ -223,39 +226,57 @@
 
 <style scoped>
   .container {
-    display:flex;
+    display: flex;
   }
+
   .row {
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
   }
+
   .column {
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
   }
+
   .shift-left {
     margin-left: -20px;
   }
+
   .button-class {
-    height:4px;
+    height: 4px;
     width: 34px;
   }
-  .arrow-up {
+
+  [class*="arrow-"] {
     margin-top: -3px;
     margin-left: -4px;
     width: 0;
     height: 0;
     border-style: solid;
-    border-width: 0 7px 6px 7px;
-    border-color: transparent transparent #0040ff transparent;
   }
+
+  .arrow-up {
+    border-width: 0 7px 6px 7px;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: #0040ff;
+    border-left-color: transparent;
+  }
+
   .arrow-down {
-    margin-top: -3px;
-    margin-left: -4px;
-    width: 0;
-    height: 0;
-    border-style: solid;
     border-width: 6px 7px 0 7px;
-    border-color: #0040ff transparent transparent transparent;
+    border-top-color: #0040ff;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+  }
+
+  .arrow-up-disabled {
+    border-bottom-color: grey;
+  }
+
+  .arrow-down-disabled {
+    border-top-color: grey;
   }
 </style>

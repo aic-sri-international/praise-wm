@@ -4,18 +4,14 @@
       <model-editor-view class="model-editor-view"></model-editor-view>
       <div class="modelControlsContainer">
         <model-controls-panel></model-controls-panel>
-        <div>
-          <query-results class="query-results mt-2 mb-2" v-if="queryResultsIx !== -1"></query-results>
-        </div>
+        <query-results class="query-results mt-2 mb-2" v-if="queryResultsIx !== -1"></query-results>
       </div>
       <spinner :show="isQueryActive" @click="interruptQueries()"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightColId">
       <!--@TODO update when the HOGM solver can return map related query results-->
-      <div class="query-chart" v-if="displayChart">
-        <query-chart-result></query-chart-result>
-      </div>
-      <query-map-result v-if="!displayChart"></query-map-result>
+     <query-chart-result class="query-chart" v-if="displayChart"></query-chart-result>
+     <query-map-result v-if="!displayChart"></query-map-result>
 
       <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
       <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->

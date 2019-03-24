@@ -7,6 +7,8 @@
                          rows="1"
                          size="sm"
                          v-model="description"
+                         :disabled="isQueryActive"
+                         :class="{ disabledBackground: isQueryActive }"
                          wrap="off">
         </b-form-textarea>
       <!--For some reason we need to set placement to 'left' to display on the right-->
@@ -16,15 +18,22 @@
     </div>
     <div class="modelEditor">
       <div class="dcl-editor" id="dclEditorId">
-        <editor :editorInitFlag="dclEditInitFlag" :value="declarations"
-                ref="dcl_editor_ref" type="hogm">
+        <editor :editorInitFlag="dclEditInitFlag"
+                :value="declarations"
+                ref="dcl_editor_ref"
+                :readOnly="isQueryActive"
+                type="hogm">
         </editor>
       </div>
       <b-popover :show="showHelp" target="dclEditorId" triggers="">
         <div class="help-title">Global model declarations section</div>
         You can optionally include rules in this section.
       </b-popover>
-      <model-editor id="modelEditorId" :rules="rules" ref="seg_model_editor_ref"></model-editor>
+      <model-editor
+          id="modelEditorId"
+          :rules="rules"
+          :readOnly="isQueryActive"
+          ref="seg_model_editor_ref"></model-editor>
     </div>
   </div>
 </template>
@@ -66,6 +75,7 @@
       ]),
       ...mapGetters(MODEL.MODULE, [
         MODEL.GET.CUR_MODEL_DTO,
+        MODEL.GET.IS_QUERY_ACTIVE,
       ]),
       ...mapState(MODEL.MODULE, [
         'editorTransition',

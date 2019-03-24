@@ -36,6 +36,10 @@
       allowUpperRangeValueToChange: {
         type: Boolean,
       },
+      isDisabled: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -49,7 +53,7 @@
           min: 0,
           max: 0,
           interval: 1,
-          disabled: false,
+          disabled: this.isDisabled,
           lazy: true,
           tooltip: 'always',
           enableCross: false,
@@ -154,6 +158,9 @@
       },
     },
     watch: {
+      isDisabled(newValue: boolean) {
+        this.slider.disabled = newValue;
+      },
       graphVariableSet() {
         this.setOptions();
       },

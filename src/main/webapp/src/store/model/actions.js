@@ -1,18 +1,22 @@
 /* eslint-disable no-console */
 // @flow
 import Vue from 'vue';
+import cloneDeep from 'lodash/cloneDeep';
 import { oneLine } from 'common-tags';
 import type {
   SegmentedModelDto,
   ModelQueryDto,
   ExpressionResultDto,
+  GraphRequestDto,
+  GraphRequestResultDto,
 } from '@/components/model/types';
 import type { FileInfo } from '@/utils';
 import {
   fetchSegmentedModels,
   solve,
+  fetchGraph,
 } from '@/components/model/dataSourceProxy';
-import { downloadFile } from '@/utils';
+import { downloadFile, getDate } from '@/utils';
 import { editorTransitions } from './types';
 import MODEL from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
@@ -131,13 +135,44 @@ export default {
       result = await solve(query);
     } catch (err) {
       // errors already logged/displayed
+    } finally {
+      commit(MODEL.SET.IS_QUERY_ACTIVE, false);
     }
-    commit(MODEL.SET.IS_QUERY_ACTIVE, false);
 
     if (!result) {
       return;
     }
     commit(MODEL.SET.QUERY_RESULT, result);
+  },
+  async [MODEL.ACTION.RUN_QUERY_FUNCTION]({ state, commit }, request: GraphRequestDto) {
+    commit(MODEL.SET.IS_QUERY_ACTIVE, true);
+
+    const lastQueryResult: ExpressionResultDto = cloneDeep(state.queryResults[0]);
+    let completionTimeInMillis = 0;
+
+    let result: ?GraphRequestResultDto;
+    try {
+      const now = Date.now();
+      result = await fetchGraph(request);
+      completionTimeInMillis = Date.now() - now;
+    } catch (err) {
+      // errors already logged/displayed
+    } finally {
+      commit(MODEL.SET.IS_QUERY_ACTIVE, false);
+    }
+
+    if (!result) {
+      return;
+    }
+
+    lastQueryResult.graphQueryResultDto
+      = { ...lastQueryResult.graphQueryResultDto, ...result };
+
+    lastQueryResult.completionDate = getDate().toUTCString();
+    lastQueryResult.queryDuration = completionTimeInMillis;
+    lastQueryResult.answers = ['Function Completed'];
+
+    commit(MODEL.SET.QUERY_RESULT, lastQueryResult);
   },
   async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
     const curModel : SegmentedModelDto =

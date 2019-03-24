@@ -4,6 +4,7 @@
       <div style="display: flex; flex-direction: row">
         <b-input-group class="ml-1" prepend="Model" size="sm">
           <b-form-select
+              :disabled="isQueryActive"
               :options="modelOptions"
               @input="(modelIx)=>modelSelectionChanged(modelIx)"
               id="modelSelectionId"
@@ -15,6 +16,7 @@
             @clicked="$refs.input_ref.click()"
             title="Open and read model from disk"
             type="open"
+            :disabled="isQueryActive"
             v-tippy>
         </action-button>
         <action-button
@@ -27,6 +29,7 @@
             @clicked="initialize"
             title="Reload models from server"
             type="sync"
+            :disabled="isQueryActive"
             v-tippy>
         </action-button>
       </div>
@@ -39,6 +42,7 @@
             id="modelQueryId"
             label="Query"
             placeholder="Please enter a query ..."
+            :disabled="isQueryActive"
             ref="queryOption_ref">
         </editable-datalist>
         <span class="ml-1"></span>
@@ -46,12 +50,14 @@
             @clicked="submitQuery"
             title="Run the query"
             type="play"
+            :disabled="isQueryActive"
             v-tippy>
         </action-button>
         <action-button
             @clicked="clearQueryResults"
             title="Remove query results"
             type="broom"
+            :disabled="isQueryActive"
             v-tippy>
         </action-button>
       </div>
@@ -63,6 +69,7 @@
               :min="1"
               :step="(curNum, isIncrement) => isIncrement ? curNum * 2 : curNum / 2"
               :value="numberOfInitialSamples"
+              :disabled="isQueryActive"
               @blur="data => setNumberOfInitialSamples(data)">
           </numeric-input>
         </div>
@@ -72,6 +79,7 @@
               :max="1000"
               :min="2"
               :value="numberOfDiscreteValues"
+              :disabled="isQueryActive"
               @blur="data => setNumberOfDiscreteValues(data)">
           </numeric-input>
         </div>
@@ -137,6 +145,7 @@
         MODEL.GET.MODEL_NAMES,
         MODEL.GET.CUR_MODEL_DTO,
         MODEL.GET.CUR_QUERIES,
+        MODEL.GET.IS_QUERY_ACTIVE,
       ]),
     },
     methods: {

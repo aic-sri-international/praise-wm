@@ -4,7 +4,7 @@ import Vue from 'vue';
 import encode from 'lean-he/encode';
 import { serverTimeDeltaInMillis } from './services/http';
 
-function getDate() {
+function getDate() : Date {
   return new Date(Date.now() + serverTimeDeltaInMillis());
 }
 

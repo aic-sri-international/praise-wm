@@ -3,7 +3,11 @@
     <div v-if="rules.length" id="popupId" style="height: 1px;text-align: right">.</div>
     <div v-for="(mrw, index) in mrws"
          @contextmenu.prevent="$refs.ctxmenu_ref.open($event, { index: index })">
-      <model-rule-editor :model-rule-wrapper="mrw" :ref="getRefName(index)"></model-rule-editor>
+      <model-rule-editor
+          :model-rule-wrapper="mrw"
+          :ref="getRefName(index)"
+          :readOnly="readOnly">
+      </model-rule-editor>
     </div>
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
       <div>
@@ -52,6 +56,9 @@
             rule: '',
           };
         },
+      },
+      readOnly: {
+        type: Boolean,
       },
     },
     data() {

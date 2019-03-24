@@ -7,6 +7,8 @@
              type="text"
              autocomplete="off"
              class="form-control"
+             :disabled="disabled"
+             :class="{ disabledBackground: disabled }"
              :placeholder="placeholder"/>
       <b-input-group-append>
         <b-btn variant="outline-secondary" @click.stop="displayList = !displayList">
@@ -20,6 +22,7 @@
         v-model="modelOptionSelected"
         @click.native="modelOptionChange"
         multiple
+        :disabled="disabled"
         :options="modelOptions">
     </b-form-select>
     <context-menu id="context-menu" ref="ctxmenu_ref" @ctx-open="setCurrentRightClickData">
@@ -60,6 +63,10 @@
       options: {
         type: Array,
         required: true,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
