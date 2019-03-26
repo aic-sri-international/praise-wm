@@ -183,9 +183,13 @@ export default {
     const expressionResult: ExpressionResultDto = lastQueryResult.expressionResult;
     expressionResult.graphQueryResultDto = {
       ...expressionResult.graphQueryResultDto,
-      ...result,
       xmVariables: [payload.request.xmVariable], // in case there was an x-axis swap
     };
+
+    // Explict assignment to set target to undefined if not contained in the result
+    expressionResult.graphQueryResultDto.imageData = result.imageData;
+    expressionResult.graphQueryResultDto.mapRegionNameToValue
+        = result.mapRegionNameToValue;
 
     expressionResult.completionDate = getDate().toUTCString();
     expressionResult.queryDuration = completionTimeInMillis;

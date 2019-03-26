@@ -174,8 +174,10 @@
           maxTextWidthLast = Math.max(this.getTextWidth(last), maxTextWidthLast);
         });
 
-        const ml = Math.ceil(maxTextWidthFirst / 2);
-        const mr = Math.ceil(maxTextWidthLast / 2);
+        const tooltipBorderPad = 4;
+
+        const ml = Math.ceil(maxTextWidthFirst / 2) + tooltipBorderPad;
+        const mr = Math.ceil(maxTextWidthLast / 2) + tooltipBorderPad;
 
         this.controls.forEach((ctrl) => {
           // eslint-disable-next-line
