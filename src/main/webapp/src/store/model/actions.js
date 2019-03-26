@@ -7,8 +7,11 @@ import type {
   SegmentedModelDto,
   ModelQueryDto,
   ExpressionResultDto,
+  QueryResultWrapper,
+  QueryGraphControlsCurValues,
   GraphRequestDto,
   GraphRequestResultDto,
+  GraphQueryResultDto,
 } from '@/components/model/types';
 import type { FileInfo } from '@/utils';
 import {
@@ -20,6 +23,11 @@ import { downloadFile, getDate } from '@/utils';
 import { editorTransitions } from './types';
 import MODEL from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
+
+type RunQueryFunctionPayload = {
+  request: GraphRequestDto,
+  curControlValues?: QueryGraphControlsCurValues,
+};
 
 const loadModels = async (): Promise<SegmentedModelDto[]> => {
   try {
@@ -142,18 +150,24 @@ export default {
     if (!result) {
       return;
     }
-    commit(MODEL.SET.QUERY_RESULT, result);
+
+    const queryResultWrapper: QueryResultWrapper = {
+      isFunctionQuery: false,
+      expressionResult: result,
+    };
+    commit(MODEL.SET.QUERY_RESULT, queryResultWrapper);
   },
-  async [MODEL.ACTION.RUN_QUERY_FUNCTION]({ state, commit }, request: GraphRequestDto) {
+  async [MODEL.ACTION.RUN_QUERY_FUNCTION]({ state, commit }, payload: RunQueryFunctionPayload) {
     commit(MODEL.SET.IS_QUERY_ACTIVE, true);
 
-    const lastQueryResult: ExpressionResultDto = cloneDeep(state.queryResults[0]);
+    const lastQueryResult: QueryResultWrapper = cloneDeep(state.queryResults[0]);
+    lastQueryResult.isFunctionQuery = true;
     let completionTimeInMillis = 0;
 
     let result: ?GraphRequestResultDto;
     try {
       const now = Date.now();
-      result = await fetchGraph(request);
+      result = await fetchGraph(payload.request);
       completionTimeInMillis = Date.now() - now;
     } catch (err) {
       // errors already logged/displayed
@@ -165,14 +179,49 @@ export default {
       return;
     }
 
-    lastQueryResult.graphQueryResultDto
-      = { ...lastQueryResult.graphQueryResultDto, ...result };
+    // eslint-disable-next-line prefer-destructuring
+    const expressionResult: ExpressionResultDto = lastQueryResult.expressionResult;
+    expressionResult.graphQueryResultDto = {
+      ...expressionResult.graphQueryResultDto,
+      ...result,
+      xmVariables: [payload.request.xmVariable], // in case there was an x-axis swap
+    };
 
-    lastQueryResult.completionDate = getDate().toUTCString();
-    lastQueryResult.queryDuration = completionTimeInMillis;
-    lastQueryResult.answers = ['Function Completed'];
+    expressionResult.completionDate = getDate().toUTCString();
+    expressionResult.queryDuration = completionTimeInMillis;
+    expressionResult.answers = ['Function Completed'];
 
+    lastQueryResult.expressionResult = expressionResult;
+    lastQueryResult.queryGraphControlsCurValues = payload.curControlValues;
     commit(MODEL.SET.QUERY_RESULT, lastQueryResult);
+  },
+  async [MODEL.ACTION.X_AXIS_SWAP]({ state, dispatch }, { xm }) {
+    // Get the variables from the original query
+    const queryResultWrapper: QueryResultWrapper
+        = state.queryResults.find((qw: QueryResultWrapper) => !qw.isFunctionQuery);
+    if (!queryResultWrapper) {
+      // Should never happen
+      console.error('MODEL.ACTION.X_AXIS_SWAP query entry not found');
+      return;
+    }
+
+    const origQueryResult: ?GraphQueryResultDto
+        = queryResultWrapper.expressionResult.graphQueryResultDto;
+    if (!origQueryResult) {
+      // Should never happen
+      console.error('MODEL.ACTION.X_AXIS_SWAP graphQueryResultDto entry not found');
+      return;
+    }
+
+    const request: GraphRequestDto = {
+      xmVariable: xm,
+      graphVariableSets: cloneDeep(origQueryResult.graphVariableSets),
+    };
+
+    const payload: RunQueryFunctionPayload = {
+      request,
+    };
+    await dispatch(MODEL.ACTION.RUN_QUERY_FUNCTION, payload);
   },
   async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
     const curModel : SegmentedModelDto =

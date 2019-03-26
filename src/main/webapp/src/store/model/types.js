@@ -2,7 +2,7 @@
 
 import type {
   SegmentedModelDto,
-  ExpressionResultDto,
+  QueryResultWrapper,
 } from '@/components/model/types';
 
 export const editorTransitions = {
@@ -19,7 +19,7 @@ type VuexModelState = {
   curQuery: string,
   curModelName: string,
   modelDtos: { [string]: SegmentedModelDto },
-  queryResults: ExpressionResultDto[],
+  queryResults: QueryResultWrapper[],
   queryResultsIx: number,
   queryStartTime: number,
   numberOfInitialSamples: number,

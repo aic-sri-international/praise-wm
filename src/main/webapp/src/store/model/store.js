@@ -2,7 +2,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import { emptyModelDto, EMPTY_MODEL_NAME } from '@/store/model/util';
 import type {
-  ExpressionResultDto,
+  ExpressionResultDto, QueryResultWrapper,
   SegmentedModelDto,
 } from '@/components/model/types';
 import { modelQueryDtoDefaults } from '@/components/model/types';
@@ -38,12 +38,15 @@ const getters = {
     return cloneDeep(state.modelDtos[state.curModelName]);
   },
   [MODEL.GET.CUR_RESULT]: (state: VuexModelState): ?ExpressionResultDto =>
+    (state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx].expressionResult),
+  [MODEL.GET.CUR_RESULT_WRAPPER]: (state: VuexModelState): ?QueryResultWrapper =>
     (state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx]),
   [MODEL.GET.IS_QUERY_ACTIVE]: (state: VuexModelState):
       boolean => state.queryStartTime !== 0,
   [MODEL.GET.DISPLAY_CHART]: (state: VuexModelState): boolean => {
     if (state.queryResultsIx >= 0) {
-      const queryResult : ExpressionResultDto = state.queryResults[state.queryResultsIx];
+      const queryResult : ExpressionResultDto
+          = state.queryResults[state.queryResultsIx].expressionResult;
       const { graphQueryResultDto } = queryResult;
       return graphQueryResultDto !== undefined
           && graphQueryResultDto.imageData !== undefined

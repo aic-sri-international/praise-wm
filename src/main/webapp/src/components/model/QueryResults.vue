@@ -18,7 +18,7 @@
   import moment from 'moment';
   import { mapState, mapGetters, mapMutations } from 'vuex';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import type { ExpressionResultDto } from './types';
+  import type { QueryResultWrapper } from './types';
 
   export default {
     name: 'QueryResults',
@@ -35,18 +35,19 @@
       ...mapMutations(MODEL.MODULE, [
         MODEL.SET.QUERY_RESULTS_IX,
       ]),
-      formatResult(r: ExpressionResultDto, index: number) {
+      formatResult(r: QueryResultWrapper, index: number) {
+        const expr = r.expressionResult;
         let answer;
-        if (Array.isArray(r.answers)) {
-          answer = r.answers.join('\n');
+        if (Array.isArray(expr.answers)) {
+          answer = expr.answers.join('\n');
         }
 
         if (answer) {
           if (answer.startsWith('Error:')) {
             return answer;
           }
-          const time = moment(r.completionDate).format('h:mm:ss a');
-          return `[${this.queryResults.length - index}] ${answer} (${r.queryDuration} ms, ${time})`;
+          const time = moment(expr.completionDate).format('h:mm:ss a');
+          return `[${this.queryResults.length - index}] ${answer} (${expr.queryDuration} ms, ${time})`;
         }
         return r;
       },

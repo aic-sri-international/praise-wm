@@ -5,6 +5,8 @@
         <div v-if="control.isSlider">
           <graph-variable-set-slider
               v-if="!isFixedSetOfEnums(control)"
+              :key="controlsCreationToggle"
+              :ref="getSliderRefName(index)"
               :isDisabled="isQueryActive"
               :style="control.style"
               @sliderChanged="(v) => onSliderChanged(index, v)"
@@ -44,20 +46,22 @@
   import debounce from 'lodash/debounce';
   import cloneDeep from 'lodash/cloneDeep';
   import ContextMenu from 'vue-context-menu';
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapGetters, mapActions } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
   import GraphVariableSetSlider from './GraphVariableSetSlider';
   import { getRangeLabel } from './types';
   import type {
     GraphVariableSet,
-    ExpressionResultDto,
+    QueryResultWrapper,
     GraphQueryVariableResults,
     GraphRequestDto,
+    QueryGraphControlsCurValues,
 } from './types';
 
   type Control = {
     gvs: GraphVariableSet,
     sliderChanged: any,
+    sliderCurIndexes?: number | number[],
     isSlider: boolean,
     isXmVariable: boolean,
     ddSelection: ?string,
@@ -74,23 +78,24 @@
     },
     data() {
       return {
+        suppressControlChangeNotification: false,
+        controlsCreationToggle: false,
         controls: [],
-        maxSliderTextWidth: null,
         lastRightClickData: null,
         menu: {
           curXVarName: '',
           curVarName: '',
         },
-        nextXm: null,
       };
     },
     methods: {
       ...mapActions(MODEL.MODULE, [
         MODEL.ACTION.RUN_QUERY_FUNCTION,
+        MODEL.ACTION.X_AXIS_SWAP,
       ]),
       onRightMouseClick(event: any, index: number) {
         if (!this.controls[index].isXmVariable) {
-          this.menu.curXVarName = this.getCurrentXm();
+          this.menu.curXVarName = this.currentXm;
           this.menu.curVarName = this.controls[index].gvs.name;
           this.$refs.ctxmenu_ref.open(event, { index });
         }
@@ -98,9 +103,45 @@
       setCurrentRightClickData(data: any) {
         this.lastRightClickData = data;
       },
-      switchXm() {
-        console.log(`switchXm: ${this.lastRightClickData.index}`);
-        this.nextXm = this.menu.curVarName;
+      getSliderRefName(ix) {
+        return `slider_${ix}_ref`;
+      },
+      async switchXm() {
+        try {
+          await this[MODEL.ACTION.X_AXIS_SWAP]({ xm: this.menu.curVarName });
+        } catch (err) {
+          // errors already logged/displayed
+        }
+      },
+      buildQueryGraphControlsCurValues() : ?QueryGraphControlsCurValues {
+        if (!this.controls.length) {
+          return null;
+        }
+        const values: QueryGraphControlsCurValues = {};
+        const sliderMap = {};
+        const inputMap = {};
+
+        let ix = 0;
+        this.controls.forEach((c: Control) => {
+          // Only include the current values if there have been any changes
+          if (c.isSlider) {
+            if (c.sliderCurIndexes !== undefined) {
+              const refName = this.getSliderRefName(ix);
+              sliderMap[refName] = c.sliderCurIndexes;
+            }
+          } else if (c.ddSelection !== undefined) {
+            inputMap[ix] = c.ddSelection;
+          }
+          ix += 1;
+        });
+
+        if (Object.keys(sliderMap).length) {
+          values.sliderRefNameToIndex = sliderMap;
+        }
+        if (Object.keys(inputMap).length) {
+          values.inputFieldIndexToValue = inputMap;
+        }
+        return values;
       },
       isFixedSetOfEnums(control: Control) {
         return control.isXmVariable && control.gvs.enums;
@@ -111,12 +152,6 @@
         canvasContext.font = '14px sans-serif';
         const metrics = canvasContext.measureText(text);
         return metrics.width;
-      },
-      getCurrentXm() {
-        // The first entry in the xm array is the initial xm for the graph
-        // We currently do not support changing it
-        const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
-        return gqvr.xmVariables[0];
       },
       completeControlsInit() {
         let maxTextWidthFirst = 0;
@@ -152,11 +187,11 @@
         return !gqvr ? [] : gqvr.graphVariableSets
           .filter(s => (isXm ? s.name === xmName : s.name !== xmName));
       },
-      initialize() {
+      async initialize() {
         if (this.queryResultsIx < 0) {
           return;
         }
-        const xmVariable: string = this.getCurrentXm();
+        const xmVariable: string = this.currentXm;
         // Show the current xm at the top
         const sets: GraphVariableSet[] = [
           ...this.getVariableSets(true, xmVariable),
@@ -216,7 +251,7 @@
             gvs,
             isSlider: currentIsSlider,
             sliderChanged: null,
-            isXmVariable: this.getCurrentXm() === gvs.name,
+            isXmVariable: this.currentXm === gvs.name,
             ddSelection: currentIsSlider ? null : getFirstEnum(),
             style: getStyle(),
           };
@@ -224,31 +259,58 @@
 
         this.controls = sets.map(toControl);
         this.completeControlsInit();
+        const lastControlValues: ?QueryGraphControlsCurValues = this.queryGraphControlsCurValues;
+        if (!lastControlValues) {
+          // Force all controls to be recreated if not using prior values
+          this.controlsCreationToggle = !this.controlsCreationToggle;
+          return;
+        }
+
+        if (lastControlValues.sliderRefNameToIndex) {
+          try {
+            this.suppressControlChangeNotification = true;
+            await this.$nextTick();
+            const that = this;
+            Object.entries(lastControlValues.sliderRefNameToIndex).forEach((keyValue) => {
+              const refName: string = keyValue[0];
+              const index = keyValue[1];
+              const slider = that.$refs[refName][0];
+              slider.setIndex(index);
+            });
+          } finally {
+            this.suppressControlChangeNotification = false;
+          }
+        }
       },
-      onSliderChanged(controlIx: number, value: any) {
+      onSliderChanged(controlIx: number, { value, index }) {
         const control : Control = this.controls[controlIx];
         control.sliderChanged = value;
+        control.sliderCurIndexes = index;
         this.onControlChanged();
       },
       onDropdownSelectionChanged() {
         this.onControlChanged();
       },
       onControlChanged() {
-        if (!this.debounced$) {
-          this.debounced$ = debounce(this.queryForNewGraph, 250, { trailing: true });
+        if (!this.suppressControlChangeNotification) {
+          if (!this.debounced$) {
+            this.debounced$ = debounce(this.queryForNewGraph, 250, { trailing: true });
+          }
+          this.debounced$();
         }
-        this.debounced$();
       },
       async queryForNewGraph() {
         const request: GraphRequestDto = this.buildGraphRequest();
         try {
-          await this[MODEL.ACTION.RUN_QUERY_FUNCTION](request);
+          const curControlValues: ?QueryGraphControlsCurValues
+              = this.buildQueryGraphControlsCurValues();
+          await this[MODEL.ACTION.RUN_QUERY_FUNCTION]({ request, curControlValues });
         } catch (err) {
           // errors already logged/displayed
         }
       },
       buildGraphRequest() : GraphRequestDto {
-        const xmVarName = this.nextXm || this.getCurrentXm();
+        const xmVarName = this.currentXm;
         const request: GraphRequestDto = {
           xmVariable: xmVarName,
           graphVariableSets: [],
@@ -273,27 +335,31 @@
           request.graphVariableSets.push(gvs);
         });
 
-        this.nextXm = null;
-
         return request;
       },
     },
     computed: {
-      ...mapState(MODEL.MODULE, [
-        'queryResults',
-        'queryResultsIx',
-      ]),
       ...mapGetters(MODEL.MODULE, [
         MODEL.GET.IS_QUERY_ACTIVE,
+        MODEL.GET.CUR_RESULT_WRAPPER,
       ]),
       graphQueryVariableResults() : ?GraphQueryVariableResults {
-        const result: ?ExpressionResultDto
-            = this.queryResultsIx > -1 ? this.queryResults[this.queryResultsIx] : null;
-        return result ? result.graphQueryResultDto : null;
+        const resultsWrapper: ?QueryResultWrapper = this[MODEL.GET.CUR_RESULT_WRAPPER];
+        return resultsWrapper ? resultsWrapper.expressionResult.graphQueryResultDto : null;
+      },
+      queryGraphControlsCurValues() : ?QueryGraphControlsCurValues {
+        const resultsWrapper: ?QueryResultWrapper = this[MODEL.GET.CUR_RESULT_WRAPPER];
+        return resultsWrapper ? resultsWrapper.queryGraphControlsCurValues : null;
+      },
+      currentXm() {
+        // The first entry in the xm array is the initial xm for the graph
+        // We currently do not support changing it
+        const gqvr : GraphQueryVariableResults = this.graphQueryVariableResults;
+        return gqvr.xmVariables[0];
       },
     },
     watch: {
-      queryResultsIx() {
+      [MODEL.GET.CUR_RESULT_WRAPPER]() {
         if (this.debounced$) {
           this.debounced$.cancel();
         }

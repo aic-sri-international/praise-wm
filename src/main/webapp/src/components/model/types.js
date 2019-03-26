@@ -102,3 +102,14 @@ export type ExpressionResultDto = {
   explanationTree: ExplanationTree,
   graphQueryResultDto?: GraphQueryResultDto,
 }
+
+export type QueryGraphControlsCurValues = {
+  sliderRefNameToIndex?: { [string]: number | number[] },
+  inputFieldIndexToValue?: { [number]: string },
+}
+
+export type QueryResultWrapper = {
+  isFunctionQuery: boolean,
+  expressionResult: ExpressionResultDto,
+  queryGraphControlsCurValues?: QueryGraphControlsCurValues,
+}

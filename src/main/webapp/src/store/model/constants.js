@@ -7,6 +7,7 @@ const MODEL_VXC = {
     CUR_QUERIES: 'curQueries',
     CUR_MODEL_DTO: 'curModelDto',
     CUR_RESULT: 'curResult',
+    CUR_RESULT_WRAPPER: 'curResultWrapper',
     IS_QUERY_ACTIVE: 'isQueryActive',
     DISPLAY_CHART: 'displayChart',
   },

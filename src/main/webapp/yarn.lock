@@ -8072,6 +8072,11 @@ void-elements@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
 
+vue-class-component@^7.0.1:
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.0.2.tgz#c5f35a91c0e9341532392b84d606a84911fb13bc"
+  integrity sha512-8xw/wkZI2tgHcwvkSRC1ax7GeP1CG27wKhedvOAdjdASm05VU4RijGsCYti6s6CzBioBL5BQUmntQQTCsp1wnQ==
+
 vue-context-menu@^2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/vue-context-menu/-/vue-context-menu-2.0.6.tgz#185107cd3ae51f25c53266a2751008fa7da4f34e"
@@ -8120,15 +8125,24 @@ vue-observe-visibility@^0.4.3:
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/vue-observe-visibility/-/vue-observe-visibility-0.4.3.tgz#b2694a83c94b274f566e03a497df51540e2daedc"
 
+vue-property-decorator@^8.0.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/vue-property-decorator/-/vue-property-decorator-8.1.0.tgz#66493a5350e7f643e852e7698ec2c883554daa79"
+  integrity sha512-TUWpbadApSW/sx9hlbrUq092ULm4E3RkL5X4fFhkiJ88/Y99lVubjh3bd3VbFQ8JRlKaTeqMOKaFHQRzWBCFPg==
+  dependencies:
+    vue-class-component "^7.0.1"
+
 vue-router@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.2.tgz#dedc67afe6c4e2bc25682c8b1c2a8c0d7c7e56be"
   integrity sha512-opKtsxjp9eOcFWdp6xLQPLmRGgfM932Tl56U9chYTnoWqKxQ8M20N7AkdEbM5beUh6wICoFGYugAX9vQjyJLFg==
 
-vue-slider-component@^3.0.7:
-  version "3.0.7"
-  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-3.0.7.tgz#f08f33cd7e9aac5379194fcaebd5ce01e3892a59"
-  integrity sha512-s2VYcMfK2ByKtT1okboAMa3Vn65LmX63UkMB/1TpBp+NMnAZugKlA5rQsfAkSjuYKdP4VeFjG6/weofAgPunlg==
+vue-slider-component@^3.0.16:
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-3.0.16.tgz#067257c0c306b48437baa856e4608e840bd4cac6"
+  integrity sha512-Ioe2tuTulU5gSeY2xDXC5wi0j1OZK6CY6M9QH53Om6Bf896bUnfI0L+fZKrk96ckq0FBj+zYuRPb1qaBJWqmrg==
+  dependencies:
+    vue-property-decorator "^8.0.0"
 
 vue-snotify@^3.0.4:
   version "3.2.1"

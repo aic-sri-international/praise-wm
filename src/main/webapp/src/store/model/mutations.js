@@ -7,7 +7,7 @@ import isEqual from 'lodash/isEqual';
 import type {
   ModelEditorData,
   SegmentedModelDto,
-  ExpressionResultDto,
+  QueryResultWrapper,
 } from '@/components/model/types';
 import MODEL from './constants';
 import type { EditorTransition, VuexModelState } from './types';
@@ -51,7 +51,7 @@ export default {
       }
     }
   },
-  [MODEL.SET.QUERY_RESULT](state: VuexModelState, queryResult: ExpressionResultDto) {
+  [MODEL.SET.QUERY_RESULT](state: VuexModelState, queryResult: QueryResultWrapper) {
     state.queryResults = [queryResult].concat(state.queryResults);
     state.queryResultsIx = state.queryResults.length ? 0 : -1;
   },

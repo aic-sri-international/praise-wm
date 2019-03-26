@@ -73,6 +73,12 @@
       };
     },
     methods: {
+      getIndex() : number | number[] {
+        return this.$refs.vueSlider_ref.getIndex();
+      },
+      setIndex(index: number | number[]) {
+        return this.$refs.vueSlider_ref.setIndex(index);
+      },
       sendChangeEvent(value: any) {
         let newValue: any = value;
 
@@ -84,9 +90,9 @@
           newValue = [this.slider.value, this.slider.max];
         }
 
-        this.$emit('sliderChanged', newValue);
+        this.$emit('sliderChanged', { value: newValue, index: this.getIndex() });
       },
-      setbottomTextStyle(mt: number, mb: number) {
+      setBottomTextStyle(mt: number, mb: number) {
         this.bottomTextStyle = `margin-top: ${mt}px; margin-bottom: ${mb}px`;
       },
       setOptions() {
@@ -118,7 +124,7 @@
 
         if (params.enums) {
           this.slider.data = [...params.enums];
-          this.setbottomTextStyle(-40, 80);
+          this.setBottomTextStyle(-40, 80);
           // eslint-disable-next-line prefer-destructuring
           this.slider.value = this.slider.data[0];
           this.slider.min = 0;
@@ -140,7 +146,7 @@
           // eslint-disable-next-line prefer-destructuring
           const range: ?GraphVariableRangeDto = params.range;
           if (range) {
-            this.setbottomTextStyle(-44, 60);
+            this.setBottomTextStyle(-44, 60);
             const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
             this.slider.data = null;
             this.slider.value
