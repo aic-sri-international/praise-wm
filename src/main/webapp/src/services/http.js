@@ -312,9 +312,12 @@ export const http = {
       return { filename: resp.filename };
     });
   },
-  post(path: string, body: { }) {
+  post(path: string, body: { }, init?: Object) {
     const req : Request = new Request(path, {
-      method: 'POST', mode: 'cors', ...getHeadersAndBody(body),
+      method: 'POST',
+      mode: 'cors',
+      ...getHeadersAndBody(body),
+      ...(init || {}),
     });
     return fetchData({ request: req });
   },

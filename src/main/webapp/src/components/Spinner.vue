@@ -1,5 +1,5 @@
 <template>
-  <div @click.stop="$emit('onClick')" class="spinner" id="spinnerId"
+  <div @click.stop="$emit('click')" class="spinner" id="spinnerId"
        v-if="show">
         <span class="fa-layers fa-fw">
            <i class="fas fa-spinner fa-pulse" :data-fa-transform="transform" :style="`color: ${color}`" ></i>

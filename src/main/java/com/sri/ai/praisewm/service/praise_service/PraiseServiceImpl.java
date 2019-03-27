@@ -182,6 +182,10 @@ public class PraiseServiceImpl implements PraiseService, Service {
   @Override
   public void interruptSolver(SolverInterruptDto solverInterruptDto) {
     LOG.info("Calling interruptSolver..");
+    // The client only allows one solver or subsequent buildGraph request to be
+    // run at a time. @TODO The client's session id should be associated with the solver or
+    // buildGraph request and this method should interrupt the one (if any) that is active.
+    //
     interruptSolvers();
     LOG.info("Returned from call to interruptSolver");
   }

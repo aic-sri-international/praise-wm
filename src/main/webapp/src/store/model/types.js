@@ -22,6 +22,7 @@ type VuexModelState = {
   queryResults: QueryResultWrapper[],
   queryResultsIx: number,
   queryStartTime: number,
+  abortQueryFlag: boolean,
   numberOfInitialSamples: number,
   numberOfDiscreteValues: number,
 };

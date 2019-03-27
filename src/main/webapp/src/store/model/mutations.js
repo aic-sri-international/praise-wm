@@ -68,6 +68,9 @@ export default {
     state.queryResults = [];
     state.queryResultsIx = -1;
   },
+  [MODEL.SET.ABORT_QUERY](state: VuexModelState, abort: boolean) {
+    state.abortQueryFlag = abort;
+  },
   [MODEL.SET.IS_QUERY_ACTIVE](state: VuexModelState, isActive: boolean) {
     state.queryStartTime = isActive ? Date.now() : 0;
   },

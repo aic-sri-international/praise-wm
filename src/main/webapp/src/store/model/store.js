@@ -69,6 +69,7 @@ const store: VuexModelStore = {
     queryResults: [],
     queryResultsIx: -1,
     queryStartTime: 0,
+    abortQueryFlag: false,
     numberOfInitialSamples: modelQueryDtoDefaults.numberOfInitialSamples,
     numberOfDiscreteValues: modelQueryDtoDefaults.numberOfDiscreteValues,
   },

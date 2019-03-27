@@ -23,6 +23,7 @@ const MODEL_VXC = {
     QUERY_RESULTS_IX: 'setQueryResultsIx',
     CLEAR_QUERY_RESULTS: 'clearQueryResults',
     IS_QUERY_ACTIVE: 'setQueryActive',
+    ABORT_QUERY: 'setAbortQuery',
     NUMBER_OF_INITIAL_SAMPLES: 'setNumberOfInitialSamples',
     NUMBER_OF_DISCRETE_VALUES: 'setNumberOfDiscreteValues',
   },

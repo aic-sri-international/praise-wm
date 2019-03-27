@@ -20,9 +20,33 @@ import {
   fetchGraph,
 } from '@/components/model/dataSourceProxy';
 import { downloadFile, getDate } from '@/utils';
+import { store as rootStore, vxcFp } from '@/store/index';
 import { editorTransitions } from './types';
 import MODEL from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
+
+
+const watchForAbortFlag = (): { unwatch: Function, signal: Object } => {
+  const controller = new window.AbortController();
+  rootStore.commit(vxcFp(MODEL, MODEL.SET.ABORT_QUERY), false);
+  const start = Date.now();
+
+  const unwatch = rootStore.watch(
+    () => rootStore.state.model.abortQueryFlag,
+    (abortQueryFlag) => {
+      if (abortQueryFlag) {
+        try {
+          controller.abort();
+        } finally {
+          // eslint-disable-next-line no-console
+          console.log(`Query aborted after ${Date.now() - start}ms`);
+          rootStore.commit(vxcFp(MODEL, MODEL.SET.ABORT_QUERY), false);
+        }
+      }
+    },
+  );
+  return { unwatch, signal: controller.signal };
+};
 
 type RunQueryFunctionPayload = {
   request: GraphRequestDto,
@@ -139,11 +163,13 @@ export default {
     commit(MODEL.SET.IS_QUERY_ACTIVE, true);
 
     let result: ?ExpressionResultDto;
+    const { unwatch, signal } = watchForAbortFlag();
     try {
-      result = await solve(query);
+      result = await solve(query, { signal });
     } catch (err) {
       // errors already logged/displayed
     } finally {
+      unwatch();
       commit(MODEL.SET.IS_QUERY_ACTIVE, false);
     }
 
@@ -165,13 +191,15 @@ export default {
     let completionTimeInMillis = 0;
 
     let result: ?GraphRequestResultDto;
+    const { unwatch, signal } = watchForAbortFlag();
     try {
       const now = Date.now();
-      result = await fetchGraph(payload.request);
+      result = await fetchGraph(payload.request, { signal });
       completionTimeInMillis = Date.now() - now;
     } catch (err) {
       // errors already logged/displayed
     } finally {
+      unwatch();
       commit(MODEL.SET.IS_QUERY_ACTIVE, false);
     }
 

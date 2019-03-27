@@ -31,7 +31,7 @@ async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
   return Promise.resolve(result);
 }
 
-async function solve(model: ModelQueryDto): Promise<ExpressionResultDto> {
+async function solve(model: ModelQueryDto, init?: Object): Promise<ExpressionResultDto> {
   const path = 'solve';
   let url;
 
@@ -40,12 +40,12 @@ async function solve(model: ModelQueryDto): Promise<ExpressionResultDto> {
   } else {
     url = toApiUrl(path);
   }
-  const result = await http.post(url, model);
+  const result = await http.post(url, model, init);
   return Promise.resolve(result);
 }
 
-async function fetchGraph(request: GraphRequestDto): Promise<GraphRequestResultDto> {
-  const result = await http.post(toApiUrl('buildGraph'), request);
+async function fetchGraph(request: GraphRequestDto, init?: Object): Promise<GraphRequestResultDto> {
+  const result = await http.post(toApiUrl('buildGraph'), request, init);
   return Promise.resolve(result);
 }
 

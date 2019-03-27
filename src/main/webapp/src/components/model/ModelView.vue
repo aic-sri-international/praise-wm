@@ -6,7 +6,8 @@
         <model-controls-panel></model-controls-panel>
         <query-results class="query-results mt-2 mb-2" v-if="queryResultsIx !== -1"></query-results>
       </div>
-      <spinner :show="isQueryActive" @click="interruptQueries()"></spinner>
+      <spinner hoverText="Click here to abort the query"
+               :show="isQueryActive" @click="interruptQuery()"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightColId">
       <!--@TODO update when the HOGM solver can return map related query results-->
@@ -27,7 +28,7 @@
   import Split from 'split.js';
   import Spinner from '@/components/Spinner';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
   import ModelEditorView from './editor/ModelEditorView';
   import Editor from './editor/Editor';
   import Explanations from './explanations/Explanations';
@@ -69,8 +70,12 @@
       ...mapActions(MODEL.MODULE, [
         MODEL.ACTION.INITIALIZE,
       ]),
-      interruptQueries() {
-        interruptSolver();
+      ...mapMutations(MODEL.MODULE, [
+        MODEL.SET.ABORT_QUERY,
+      ]),
+      async interruptQuery() {
+        await interruptSolver();
+        this[MODEL.SET.ABORT_QUERY](true);
       },
     },
     async created() {
