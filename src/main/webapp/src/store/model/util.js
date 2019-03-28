@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // @flow
 
-import type { ModelRuleDto, SegmentedModelDto } from '@/components/model/types';
+import type { ModelRuleDto, SegmentedModelDto } from './types';
 
 export const EMPTY_MODEL_NAME = 'EMPTY';
 

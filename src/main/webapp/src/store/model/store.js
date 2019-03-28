@@ -1,19 +1,17 @@
 // @flow
 import cloneDeep from 'lodash/cloneDeep';
-import { emptyModelDto, EMPTY_MODEL_NAME } from '@/store/model/util';
-import type {
-  ExpressionResultDto, QueryResultWrapper,
-  SegmentedModelDto,
-} from '@/components/model/types';
-import { modelQueryDtoDefaults } from '@/components/model/types';
-import mutations from './mutations';
-import actions from './actions';
-import MODEL from './constants';
-import { editorTransitions } from './types';
 import type {
   VuexModelStore,
   VuexModelState,
+  ExpressionResultDto,
+  QueryResultWrapper,
+  SegmentedModelDto,
 } from './types';
+import { modelQueryDtoDefaults, editorTransitions } from './types';
+import mutations from './mutations';
+import actions from './actions';
+import MODEL from './constants';
+import { emptyModelDto, EMPTY_MODEL_NAME } from './util';
 
 const getters = {
   [MODEL.GET.MODEL_NAMES]: (state: VuexModelState):

@@ -86,6 +86,9 @@ declare module 'lodash/cloneDeep' {
 declare module 'lodash/debounce' {
   declare module.exports: any;
 }
+declare module 'lodash/get' {
+  declare module.exports: any;
+}
 declare module 'lodash/uniqBy' {
   declare module.exports: any;
 }

@@ -28,9 +28,9 @@
   // @flow
   import { mapGetters } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
+  import type { ExpressionResultDto } from '@/store/model/types';
   import OlMap from '@/components/openlayers/OlMap';
   import QueryGraphControls from './QueryGraphControls';
-  import type { ExpressionResultDto } from './types';
 
   const pageBannerHeight = 74;
 

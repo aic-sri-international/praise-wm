@@ -3,6 +3,16 @@
 import Vue from 'vue';
 import cloneDeep from 'lodash/cloneDeep';
 import { oneLine } from 'common-tags';
+import type { FileInfo } from '@/utils';
+import { downloadFile, getDate } from '@/utils';
+import { abortWatcher } from '@/store';
+import {
+  fetchSegmentedModels,
+  solve,
+  fetchGraph,
+  interruptSolver,
+} from './dataSourceProxy';
+
 import type {
   SegmentedModelDto,
   ModelQueryDto,
@@ -12,41 +22,18 @@ import type {
   GraphRequestDto,
   GraphRequestResultDto,
   GraphQueryResultDto,
-} from '@/components/model/types';
-import type { FileInfo } from '@/utils';
-import {
-  fetchSegmentedModels,
-  solve,
-  fetchGraph,
-} from '@/components/model/dataSourceProxy';
-import { downloadFile, getDate } from '@/utils';
-import { store as rootStore, vxcFp } from '@/store/index';
+} from './types';
 import { editorTransitions } from './types';
 import MODEL from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
 
-
-const watchForAbortFlag = (): { unwatch: Function, signal: Object } => {
-  const controller = new window.AbortController();
-  rootStore.commit(vxcFp(MODEL, MODEL.SET.ABORT_QUERY), false);
-  const start = Date.now();
-
-  const unwatch = rootStore.watch(
-    () => rootStore.state.model.abortQueryFlag,
-    (abortQueryFlag) => {
-      if (abortQueryFlag) {
-        try {
-          controller.abort();
-        } finally {
-          // eslint-disable-next-line no-console
-          console.log(`Query aborted after ${Date.now() - start}ms`);
-          rootStore.commit(vxcFp(MODEL, MODEL.SET.ABORT_QUERY), false);
-        }
-      }
-    },
-  );
-  return { unwatch, signal: controller.signal };
-};
+const queryAbortWatcher = (): { unwatch: Function, signal: Object } => abortWatcher(
+  MODEL.MODULE,
+  'abortQueryFlag',
+  MODEL.SET.ABORT_QUERY,
+  'Query',
+  interruptSolver,
+);
 
 type RunQueryFunctionPayload = {
   request: GraphRequestDto,
@@ -163,7 +150,7 @@ export default {
     commit(MODEL.SET.IS_QUERY_ACTIVE, true);
 
     let result: ?ExpressionResultDto;
-    const { unwatch, signal } = watchForAbortFlag();
+    const { unwatch, signal } = queryAbortWatcher();
     try {
       result = await solve(query, { signal });
     } catch (err) {
@@ -191,7 +178,7 @@ export default {
     let completionTimeInMillis = 0;
 
     let result: ?GraphRequestResultDto;
-    const { unwatch, signal } = watchForAbortFlag();
+    const { unwatch, signal } = queryAbortWatcher();
     try {
       const now = Date.now();
       result = await fetchGraph(payload.request, { signal });

@@ -18,7 +18,7 @@
   import moment from 'moment';
   import { mapState, mapGetters, mapMutations } from 'vuex';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import type { QueryResultWrapper } from './types';
+  import type { QueryResultWrapper } from '@/store/model/types';
 
   export default {
     name: 'QueryResults',

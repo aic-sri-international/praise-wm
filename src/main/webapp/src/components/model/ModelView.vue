@@ -7,7 +7,7 @@
         <query-results class="query-results mt-2 mb-2" v-if="queryResultsIx !== -1"></query-results>
       </div>
       <spinner hoverText="Click here to abort the query"
-               :show="isQueryActive" @click="interruptQuery()"></spinner>
+               :show="isQueryActive" @click="setAbortQuery(true)"></spinner>
     </div>
     <div class="right-column" id="segModelEditorViewRightColId">
       <!--@TODO update when the HOGM solver can return map related query results-->
@@ -38,7 +38,6 @@
   import QueryChartResult from './QueryChartResult';
   import QueryMapResult from './QueryMapResult';
   import MapImage from './MapImage';
-  import { interruptSolver } from './dataSourceProxy';
 
   export default {
     name: 'ModelView',
@@ -73,12 +72,8 @@
       ...mapMutations(MODEL.MODULE, [
         MODEL.SET.ABORT_QUERY,
       ]),
-      async interruptQuery() {
-        await interruptSolver();
-        this[MODEL.SET.ABORT_QUERY](true);
-      },
     },
-    async created() {
+    created() {
       this[MODEL.ACTION.INITIALIZE]();
     },
     mounted() {

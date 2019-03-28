@@ -48,15 +48,16 @@
   import ContextMenu from 'vue-context-menu';
   import { mapGetters, mapActions } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
-  import GraphVariableSetSlider from './GraphVariableSetSlider';
-  import { getRangeLabel } from './types';
   import type {
     GraphVariableSet,
     QueryResultWrapper,
     GraphQueryVariableResults,
     GraphRequestDto,
     QueryGraphControlsCurValues,
-} from './types';
+  } from '@/store/model/types';
+
+  import GraphVariableSetSlider from './GraphVariableSetSlider';
+  import { getSliderRangeLabel } from './util';
 
   type Control = {
     gvs: GraphVariableSet,
@@ -166,8 +167,8 @@
             last = ctrl.gvs.enums[ctrl.gvs.enums.length - 1];
           } else if (ctrl.gvs.range) {
             const { range } = ctrl.gvs;
-            first = getRangeLabel(range.first, range.unitSymbol);
-            last = getRangeLabel(range.last, range.unitSymbol);
+            first = getSliderRangeLabel(range.first, range.unitSymbol);
+            last = getSliderRangeLabel(range.last, range.unitSymbol);
           }
 
           maxTextWidthFirst = Math.max(this.getTextWidth(first), maxTextWidthFirst);

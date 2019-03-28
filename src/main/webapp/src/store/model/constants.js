@@ -32,7 +32,6 @@ const MODEL_VXC = {
     RUN_QUERY: 'runQuery',
     RUN_QUERY_FUNCTION: 'runQueryFunction',
     X_AXIS_SWAP: 'xAxisSwap',
-    CANCEL_QUERY: 'cancelQuery',
     SAVE_CURRENT_MODEL_TO_DISK: 'saveCurrentModelToDisk',
     CHANGE_CURRENT_MODEL: 'changeCurrentModel',
     LOAD_MODELS_FROM_DISK: 'loadModelsFromDisk',

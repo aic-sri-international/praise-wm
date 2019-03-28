@@ -23,14 +23,6 @@ async function fetchExamples(): Promise<ModelPagesDto[]> {
   return Promise.resolve(result);
 }
 
-async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
-  let result: SegmentedModelDto[] = [];
-
-  // $FlowFixMe
-  result = await http.get(toApiUrl('segmentedModels'));
-  return Promise.resolve(result);
-}
-
 async function solve(model: ModelQueryDto, init?: Object): Promise<ExpressionResultDto> {
   const path = 'solve';
   let url;
@@ -41,16 +33,6 @@ async function solve(model: ModelQueryDto, init?: Object): Promise<ExpressionRes
     url = toApiUrl(path);
   }
   const result = await http.post(url, model, init);
-  return Promise.resolve(result);
-}
-
-async function fetchGraph(request: GraphRequestDto, init?: Object): Promise<GraphRequestResultDto> {
-  const result = await http.post(toApiUrl('buildGraph'), request, init);
-  return Promise.resolve(result);
-}
-
-async function interruptSolver() {
-  const result = await http.post(toApiUrl('interruptSolver'), {});
   return Promise.resolve(result);
 }
 
@@ -67,10 +49,7 @@ async function fromFormattedPageModel(formattedModel: FormattedPageModelDto)
 
 export {
   fetchExamples,
-  fetchSegmentedModels,
   solve,
-  fetchGraph,
-  interruptSolver,
   toFormattedPageModel,
   fromFormattedPageModel,
 };

@@ -303,9 +303,12 @@ export const http = {
       console.error(`Error on logout request: ${e.message}`);
     });
   },
-  download(path: string, body?: { }) : Promise<Object> {
+  download(path: string, body?: { }, init?: Object) : Promise<Object> {
     const req : Request = new Request(path, {
-      method: 'POST', mode: 'cors', ...getHeadersAndBody(body),
+      method: 'POST',
+      mode: 'cors',
+      ...getHeadersAndBody(body),
+      ...(init || {}),
     });
     return fetchData({ request: req, isBlob: true }).then((resp: BlobResponse) => {
       downloadFile(URL.createObjectURL(resp.blob), resp.filename);
@@ -321,21 +324,30 @@ export const http = {
     });
     return fetchData({ request: req });
   },
-  get(path: string) {
+  get(path: string, init?: Object) {
     const req : Request = new Request(path, {
-      method: 'GET', mode: 'cors', ...getHeadersAndBody(),
+      method: 'GET',
+      mode: 'cors',
+      ...getHeadersAndBody(),
+      ...(init || {}),
     });
     return fetchData({ request: req });
   },
-  put(path: string, body: { }) {
+  put(path: string, body: { }, init?: Object) {
     const req : Request = new Request(path, {
-      method: 'PUT', mode: 'cors', ...getHeadersAndBody(body),
+      method: 'PUT',
+      mode: 'cors',
+      ...getHeadersAndBody(body),
+      ...(init || {}),
     });
     return fetchData({ request: req });
   },
-  delete(path:string) {
+  delete(path:string, init?: Object) {
     const req : Request = new Request(path, {
-      method: 'DELETE', mode: 'cors', ...getHeadersAndBody(),
+      method: 'DELETE',
+      mode: 'cors',
+      ...getHeadersAndBody(),
+      ...(init || {}),
     });
     return fetchData({ request: req });
   },

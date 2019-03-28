@@ -25,8 +25,8 @@
   // @flow
   import { mapGetters } from 'vuex';
   import { MODEL_VXC as MODEL } from '@/store';
+  import type { ExpressionResultDto } from '@/store/model/types';
   import QueryGraphControls from './QueryGraphControls';
-  import type { ExpressionResultDto } from './types';
 
   export default {
     name: 'QueryChartResult',

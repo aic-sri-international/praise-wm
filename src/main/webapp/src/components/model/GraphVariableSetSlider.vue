@@ -16,8 +16,8 @@
   // eslint-disable-next-line flowtype-errors/show-errors
   import 'vue-slider-component/theme/default.css';
 
-  import { getRangeLabel } from './types';
-  import type { GraphVariableSet, GraphVariableRangeDto } from './types';
+  import type { GraphVariableSet, GraphVariableRangeDto } from '@/store/model/types';
+  import { getSliderRangeLabel } from './util';
 
   const defaultColor = '#3498db';
 
@@ -147,7 +147,7 @@
           const range: ?GraphVariableRangeDto = params.range;
           if (range) {
             this.setBottomTextStyle(-44, 60);
-            const formatterFunc = (text?: string) => (num: number) => getRangeLabel(num, text);
+            const formatterFunc = (text?: string) => (num: number) => getSliderRangeLabel(num, text);
             this.slider.data = null;
             this.slider.value
                 = this.allowUpperRangeValueToChange ? [range.first, range.last] : range.first;

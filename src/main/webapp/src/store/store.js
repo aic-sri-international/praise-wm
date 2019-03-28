@@ -1,7 +1,7 @@
 // @flow
 import Vue from 'vue';
 import Vuex from 'vuex';
-
+import get from 'lodash/get';
 import user from './user/store';
 import sidebar from './sidebar/store';
 import notifications from './notifications/store';
@@ -31,5 +31,38 @@ export const store = new Vuex.Store({
   },
   strict: process.env.NODE_ENV !== 'production',
 });
+
+export const abortWatcher = (
+  moduleName: string,
+  stateFieldAbortFlagPath: string,
+  abortFlagMutationName: string,
+  type: string = 'Action',
+  preAbort?: Function,
+) => {
+  const controller = new window.AbortController();
+  const mutation = `${moduleName}/${abortFlagMutationName}`;
+
+  store.commit(mutation, false);
+  const start = Date.now();
+
+  const unwatch = store.watch(
+    state => get(state[moduleName], stateFieldAbortFlagPath),
+    async (abortFlag) => {
+      if (abortFlag) {
+        try {
+          if (preAbort) {
+            await preAbort();
+          }
+          controller.abort();
+        } finally {
+          // eslint-disable-next-line no-console
+          console.log(`${type || 'Action'} aborted after ${Date.now() - start}ms`);
+          store.commit(mutation, false);
+        }
+      }
+    },
+  );
+  return { unwatch, signal: controller.signal };
+};
 
 export default store;

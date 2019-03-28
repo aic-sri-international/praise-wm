@@ -1,6 +1,6 @@
 // @flow
 
-export { store } from './store';
+export { store, abortWatcher } from './store';
 export { default as USER_VXC } from './user/constants';
 export { default as SIDEBAR_VXC } from './sidebar/constants';
 export { default as NOTIFICATIONS_VXC } from './notifications/constants';

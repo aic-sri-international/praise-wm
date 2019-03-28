@@ -8,9 +8,10 @@ import type {
   ModelEditorData,
   SegmentedModelDto,
   QueryResultWrapper,
-} from '@/components/model/types';
+  EditorTransition,
+  VuexModelState,
+} from './types';
 import MODEL from './constants';
-import type { EditorTransition, VuexModelState } from './types';
 
 export default {
   [MODEL.SET.EDITOR_TRANSITION](state: VuexModelState, editorTransition: EditorTransition) {
