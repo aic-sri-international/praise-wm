@@ -43,12 +43,12 @@
   import { mapState, mapGetters, mapMutations } from 'vuex';
   import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
   import { editorTransitions } from '@/store/model/types';
-  import type { EditorTransition } from '@/store/model/types';
   import type {
+    EditorTransition,
     SegmentedModelDto,
     ModelRuleDto,
     ModelEditorData,
-  } from '@/components/model/types';
+  } from '@/store/model/types';
   import Editor from './Editor';
   import ModelEditor from './ModelEditor';
 

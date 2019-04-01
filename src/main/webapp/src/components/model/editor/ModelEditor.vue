@@ -32,7 +32,7 @@
   import { mapGetters } from 'vuex';
   import { HELP_VXC as HELP } from '@/store';
   import ContextMenu from 'vue-context-menu';
-  import type { ModelRuleDto } from '@/components/model/types';
+  import type { ModelRuleDto } from '@/store/model/types';
   import ModelRuleEditor from './ModelRuleEditor';
 
   type ModelRuleWrapper = {

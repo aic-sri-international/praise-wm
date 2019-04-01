@@ -4,7 +4,7 @@
       <div @contextmenu.prevent="onRightMouseClick($event, index)">
         <div v-if="control.isSlider">
           <graph-variable-set-slider
-              v-if="!isFixedSetOfEnums(control)"
+              v-if="!control.isXmVariable"
               :key="controlsCreationToggle"
               :ref="getSliderRefName(index)"
               :isDisabled="isQueryActive"
@@ -16,7 +16,7 @@
           ></graph-variable-set-slider>
         </div>
         <div v-else :style="control.style">
-          <b-input-group v-if="!isFixedSetOfEnums(control)"
+          <b-input-group v-if="!control.isXmVariable"
                          size="sm"
                          class="ml-1"
                          :prepend="control.gvs.name">

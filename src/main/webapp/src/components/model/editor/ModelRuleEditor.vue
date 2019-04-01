@@ -23,7 +23,7 @@
 
 <script>
   // @flow
-  import type { ModelRuleDto } from '@/components/model/types';
+  import type { ModelRuleDto } from '@/store/model/types';
   import Editor from './Editor';
 
   export default {
