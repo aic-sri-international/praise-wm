@@ -2,6 +2,7 @@ package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.praise.PRAiSEConfiguration;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.sampling.HOGMMultiQuerySamplingProblemSolver;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
 import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
@@ -92,6 +93,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
   }
 
   public ExpressionResultDto solveProblem(String sessionId, ModelQueryDto modelQuery) {
+    PRAiSEConfiguration.setUseUniformSamplingBackup(true);
     ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
     ExpressoConfiguration
         .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
