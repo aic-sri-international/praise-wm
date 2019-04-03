@@ -107,10 +107,7 @@ public class ModelWatcher {
                       // a model name is required - error already logged getModelName method
                       return;
                     }
-                    ntm.setText(
-                        String.format(
-                            msg + ": %s",
-                            modelName));
+                    ntm.setText(String.format(msg + ": %s", modelName));
                   }
                   eventBus.post(ntm);
                 });

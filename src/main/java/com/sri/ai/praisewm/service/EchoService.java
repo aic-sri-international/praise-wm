@@ -13,5 +13,5 @@ public class EchoService implements Service {
             serviceManager.getConfiguration(),
             serviceManager.getSparkService(),
             serviceManager.getEventBus());
-    }
+  }
 }

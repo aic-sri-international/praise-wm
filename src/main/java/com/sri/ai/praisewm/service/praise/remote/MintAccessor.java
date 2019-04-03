@@ -48,7 +48,7 @@ public class MintAccessor {
   private byte[] downloadGeotiff(String locationUrl) {
     HttpRequest request = HttpRequest.newBuilder().uri(URI.create(locationUrl)).build();
     HttpResponse<byte[]> response = restClient.send(request, BodyHandlers.ofByteArray());
-   return response != null ? response.body() : new byte[0];
+    return response != null ? response.body() : new byte[0];
   }
 
   private void writeGeotiff(byte[] geotiff) {
@@ -62,13 +62,16 @@ public class MintAccessor {
   private List<String> lookupDataSetLocations(MintQueryParameters params) {
     URI uri;
     try {
-      uri = new URI("http://mint-demo.westus2.cloudapp.azure.com/data_sets?"
-           +  restClient.newParamsBuilder()
-              .add("standard_name", params.getStandardName())
-              .add("start_time", params.getStartTime())
-              .add("end_time", params.getEndTime())
-              .add("location", params.getLocation())
-              .build());
+      uri =
+          new URI(
+              "http://mint-demo.westus2.cloudapp.azure.com/data_sets?"
+                  + restClient
+                      .newParamsBuilder()
+                      .add("standard_name", params.getStandardName())
+                      .add("start_time", params.getStartTime())
+                      .add("end_time", params.getEndTime())
+                      .add("location", params.getLocation())
+                      .build());
     } catch (URISyntaxException e) {
       throw new RuntimeException("Error building the query URI", e);
     }
@@ -98,10 +101,13 @@ public class MintAccessor {
 
   private List<String> lookupGeotiffLocations(String variableId) {
     String jsonOut = "{ \"variable_id\":\"" + variableId + "\"}";
-    HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create("http://mint-demo.westus2.cloudapp.azure.com/data_sets/get_location_url"))
-        .POST(BodyPublishers.ofString(jsonOut))
-        .build();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(
+                URI.create(
+                    "http://mint-demo.westus2.cloudapp.azure.com/data_sets/get_location_url"))
+            .POST(BodyPublishers.ofString(jsonOut))
+            .build();
     HttpResponse<String> response = restClient.send(request, BodyHandlers.ofString());
 
     String jsonPath = "$.results.bindings[0:].storage_path.value";

@@ -15,42 +15,19 @@ import org.slf4j.LoggerFactory;
 public class RestClient {
   private static final Logger LOG = LoggerFactory.getLogger(RestClient.class);
   private final HttpClient httpclient;
-  public class ParamsBuilder {
-    private StringBuilder sb = new StringBuilder();
-    public ParamsBuilder add(String name, String value) {
-      if (sb.length() > 0) {
-        sb.append('&');
-      }
-      sb.append(name).append('=').append(URLEncoder.encode(value, StandardCharsets.UTF_8));
-      return this;
-    }
-    public String build() {
-      return sb.toString();
-    }
-  }
-  public ParamsBuilder newParamsBuilder() {
-    return new ParamsBuilder();
-  }
 
   public RestClient() {
-    httpclient = HttpClient.newBuilder()
-        .followRedirects(Redirect.NORMAL)
-        .connectTimeout(Duration.ofSeconds(20))
-        .build();
-  }
-
-  public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
-    try {
-      return httpclient.send(request, responseBodyHandler);
-    } catch (Exception e) {
-      LOG.error("HTTP send error on " + request, e);
-      return null;
-    }
+    httpclient =
+        HttpClient.newBuilder()
+            .followRedirects(Redirect.NORMAL)
+            .connectTimeout(Duration.ofSeconds(20))
+            .build();
   }
 
   public static void main(String[] args) {
     RestClient restClient = new RestClient();
-    String q = "https://edcintl.cr.usgs.gov/fews_geoengine4/rest/dataset/fewschirps?listCoverages=true";
+    String q =
+        "https://edcintl.cr.usgs.gov/fews_geoengine4/rest/dataset/fewschirps?listCoverages=true";
 
     HttpRequest request = HttpRequest.newBuilder().uri(URI.create(q)).build();
     HttpResponse<String> response = restClient.send(request, BodyHandlers.ofString());
@@ -60,4 +37,33 @@ public class RestClient {
     }
   }
 
+  public ParamsBuilder newParamsBuilder() {
+    return new ParamsBuilder();
+  }
+
+  public <T> HttpResponse<T> send(
+      HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
+    try {
+      return httpclient.send(request, responseBodyHandler);
+    } catch (Exception e) {
+      LOG.error("HTTP send error on " + request, e);
+      return null;
+    }
+  }
+
+  public class ParamsBuilder {
+    private StringBuilder sb = new StringBuilder();
+
+    public ParamsBuilder add(String name, String value) {
+      if (sb.length() > 0) {
+        sb.append('&');
+      }
+      sb.append(name).append('=').append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+      return this;
+    }
+
+    public String build() {
+      return sb.toString();
+    }
+  }
 }
