@@ -5,6 +5,22 @@ import round from 'lodash/round';
 import Feature from 'ol/Feature';
 import { Fill, Stroke, Style } from 'ol/style';
 
+const rgbaObject = { arr: [] };
+
+const getRbgaArray = () => {
+  if (!rgbaObject.arr.length) {
+    const numberOfColors = 40;
+    const hexArray: string[]
+        = chroma.scale([
+          '#FFFFFF', // white
+          '#0000FF', // blue
+        ]).mode('lch').colors(numberOfColors);
+    rgbaObject.arr = hexArray.map(hex => chroma(hex).rgba());
+  }
+
+  return rgbaObject.arr.slice(0);
+};
+
 export const props = {
   State: 'ADMIN1',
   County: 'ADMIN2',
@@ -60,100 +76,45 @@ class FeatureCollectionHandler {
       return;
     }
 
-    // Round all values to 4 digits of precision to minimize unique values
-    const roundedMap = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
+    // Multiple by 1000 & round, determine min and max values
+    let minValue = Number.MAX_SAFE_INTEGER;
+    let maxValue = 0;
+    const normalizedMap = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
       const [region, value] = entry;
+
+      let val: any = value;
+      if (val < 0) {
+        // eslint-disable-next-line no-console
+        console.error(`map values cannot be less that zero: ${val}`);
+        val = 0;
+      }
+      const normalized = round(val * 1000);
+
+      if (normalized < minValue) {
+        minValue = normalized;
+      }
+
+      if (normalized > maxValue) {
+        maxValue = normalized;
+      }
       // eslint-disable-next-line no-param-reassign
-      accum[region] = round(value, 4);
+      accum[region] = normalized;
       return accum;
     }, {});
 
-    // eslint-disable-next-line
-    const valArray: number[] = Object.values(roundedMap);
+    const rgbaArray = getRbgaArray();
+    const divisorToGetSlot = (maxValue - minValue) / (rgbaArray.length - 1);
 
-    // Sort entries by value in ascending order returning array of arrays
-    // eslint-disable-next-line
-    const sortedMapAsArrays: [] = Object.entries(roundedMap).sort((a, b) => {
-      // eslint-disable-next-line
-      const v1: number = a[1];
-      // eslint-disable-next-line
-      const v2: number = b[1];
-      if (v1 > v2) {
-        return 1;
-      }
-      if (v1 < v2) {
-        return -1;
-      }
-      return 0;
-    });
-
-    // We want white to always represent a zero value and no other value.
-    // So we need to know if we already have an entry with a zero value
-    // before we create the hexArray.
-    let includesZeroValue: boolean = false;
-
-    // #of unique values
-    const numUniqueValues
-        = sortedMapAsArrays.reduce((accum: number, regionValue: [], ix: number) => {
-          // eslint-disable-next-line
-          const val = regionValue[1];
-
-          if (val === 0) {
-            includesZeroValue = true;
-          }
-          if (ix > 0) {
-            const priorRegionValue = sortedMapAsArrays[ix - 1];
-            const priorVal = priorRegionValue[1];
-            if (val === priorVal) {
-              return accum;
-            }
-          }
-
-          return accum + 1;
-        }, 0);
-
-    const computeNumberOfColors = () : number => {
-      let numColors = numUniqueValues;
-
-      if (numUniqueValues === 1 && valArray[0] === 0) {
-        // The chroma.scale method we use will not include white if ask
-        // it to only create 1 color.
-        numColors += 1;
-      } else if (!includesZeroValue) {
-        numColors += 1;
-      }
-
-      return numColors;
-    };
-
-    const numberOfColors: number = computeNumberOfColors();
-    const hexArray: string[]
-        = chroma.scale([
-          '#FFFFFF', // white
-          '#0000FF', // blue
-        ]).mode('lch').colors(numberOfColors);
-
-
-    let hexArrayIx = includesZeroValue ? 0 : 1;
-
-    const mapOfValueToHex = sortedMapAsArrays.reduce((accum, val) => {
-      const num : number = val[1];
-
-      if (accum[num] === undefined) {
-        // eslint-disable-next-line no-param-reassign
-        accum[num] = hexArray[hexArrayIx];
-        hexArrayIx += 1;
-      }
-
-      return accum;
-    }, {});
-
-
-    this.regionToRgba = sortedMapAsArrays.reduce((accum, entry) => {
+    this.regionToRgba = Object.entries(normalizedMap).reduce((accum, entry) => {
+      const getSlot = (value: any) => {
+        if (divisorToGetSlot !== 0) {
+          return round((value - minValue) / divisorToGetSlot);
+        }
+        return minValue === 0 ? 0 : rgbaArray.length - 1;
+      };
       const [region, value] = entry;
-      const hex: string = mapOfValueToHex[value];
       // eslint-disable-next-line no-param-reassign
-      accum[region] = chroma(hex).rgba();
+      accum[region] = rgbaArray[getSlot(value)];
       return accum;
     }, {});
   }
