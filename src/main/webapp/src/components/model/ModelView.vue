@@ -32,7 +32,6 @@
   import ModelEditorView from './editor/ModelEditorView';
   import Editor from './editor/Editor';
   import Explanations from './explanations/Explanations';
-  import SegmentedModelEditor from './editor/ModelEditor';
   import ModelControlsPanel from './ModelControlsPanel';
   import QueryResults from './QueryResults';
   import QueryChartResult from './QueryChartResult';
@@ -44,7 +43,6 @@
     components: {
       ModelEditorView,
       Editor,
-      SegmentedModelEditor,
       ModelControlsPanel,
       QueryResults,
       QueryChartResult,
