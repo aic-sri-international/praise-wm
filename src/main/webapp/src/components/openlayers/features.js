@@ -76,36 +76,30 @@ class FeatureCollectionHandler {
       return;
     }
 
-    // Multiple by 1000 & round, determine min and max values
     let minValue = Number.MAX_SAFE_INTEGER;
     let maxValue = 0;
-    const normalizedMap = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
-      const [region, value] = entry;
 
+    Object.values(this.mapRegionNameToValue).forEach((value) => {
       let val: any = value;
       if (val < 0) {
         // eslint-disable-next-line no-console
         console.error(`map values cannot be less that zero: ${val}`);
         val = 0;
       }
-      const normalized = round(val * 1000);
 
-      if (normalized < minValue) {
-        minValue = normalized;
+      if (val < minValue) {
+        minValue = val;
       }
 
-      if (normalized > maxValue) {
-        maxValue = normalized;
+      if (val > maxValue) {
+        maxValue = val;
       }
-      // eslint-disable-next-line no-param-reassign
-      accum[region] = normalized;
-      return accum;
-    }, {});
+    });
 
     const rgbaArray = getRbgaArray();
     const divisorToGetSlot = (maxValue - minValue) / (rgbaArray.length - 1);
 
-    this.regionToRgba = Object.entries(normalizedMap).reduce((accum, entry) => {
+    this.regionToRgba = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
       const getSlot = (value: any) => {
         if (divisorToGetSlot !== 0) {
           return round((value - minValue) / divisorToGetSlot);

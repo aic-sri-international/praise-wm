@@ -11,7 +11,7 @@
           @closeMap="showMap = true"
           :mapRegionNameToValue="mapRegionNameToValue">
         </ol-map>
-        <query-graph-controls v-if="curResult" ref="queryGraphControls_ref"></query-graph-controls>
+        <query-graph-controls v-if="mapRegionNameToValue && curResult" ref="queryGraphControls_ref"></query-graph-controls>
       </div>
     </transition>
     <div @click.stop="showIcon = !showIcon">
