@@ -1,25 +1,8 @@
 // @flow
 
-import chroma from 'chroma-js';
-import round from 'lodash/round';
 import Feature from 'ol/Feature';
 import { Fill, Stroke, Style } from 'ol/style';
-
-const rgbaObject = { arr: [] };
-
-const getRbgaArray = () => {
-  if (!rgbaObject.arr.length) {
-    const numberOfColors = 40;
-    const hexArray: string[]
-        = chroma.scale([
-          '#FFFFFF', // white
-          '#0000FF', // blue
-        ]).mode('lch').colors(numberOfColors);
-    rgbaObject.arr = hexArray.map(hex => chroma(hex).rgba());
-  }
-
-  return rgbaObject.arr.slice(0);
-};
+import RgbaFactory from './rgbaFactory';
 
 export const props = {
   State: 'ADMIN1',
@@ -72,45 +55,10 @@ class FeatureCollectionHandler {
   }
 
   initRgba() {
-    if (!this.mapRegionNameToValue) {
-      return;
+    if (this.mapRegionNameToValue) {
+      this.regionToRgba
+          = new RgbaFactory(this.mapRegionNameToValue).createRegionToRgbaMap();
     }
-
-    let minValue = Number.MAX_SAFE_INTEGER;
-    let maxValue = 0;
-
-    Object.values(this.mapRegionNameToValue).forEach((value) => {
-      let val: any = value;
-      if (val < 0) {
-        // eslint-disable-next-line no-console
-        console.error(`map values cannot be less that zero: ${val}`);
-        val = 0;
-      }
-
-      if (val < minValue) {
-        minValue = val;
-      }
-
-      if (val > maxValue) {
-        maxValue = val;
-      }
-    });
-
-    const rgbaArray = getRbgaArray();
-    const divisorToGetSlot = (maxValue - minValue) / (rgbaArray.length - 1);
-
-    this.regionToRgba = Object.entries(this.mapRegionNameToValue).reduce((accum, entry) => {
-      const getSlot = (value: any) => {
-        if (divisorToGetSlot !== 0) {
-          return round((value - minValue) / divisorToGetSlot);
-        }
-        return minValue === 0 ? 0 : rgbaArray.length - 1;
-      };
-      const [region, value] = entry;
-      // eslint-disable-next-line no-param-reassign
-      accum[region] = rgbaArray[getSlot(value)];
-      return accum;
-    }, {});
   }
 
   setUseCountyFlag() {
