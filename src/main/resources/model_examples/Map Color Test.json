@@ -1,0 +1,10 @@
+{
+  "name": "Map Color Test",
+  "description": "Map Color Test",
+  "declarations": "sort Counties: 9,  TonjNorth, TonjEast, Panyijiar, Mayendit, Wau, Raga, Ibba, Mayom, JurRiver;\n\nrandom precip : Counties -> [-2000;2000];\n\nprecip(TonjNorth) = 1000;\nprecip(TonjEast) = 900;\nprecip(Panyijiar) = 800;\nprecip(Mayendit) = 200;\nprecip(Wau) = 0;\nprecip(JurRiver) = -200;\nprecip(Raga) = -800;\nprecip(Ibba) = -900;\nprecip(Mayom) = -1000;",
+  "rules": [],
+  "queries": [
+    "for all County in Counties : mean(precip(County))",
+    "capital"
+  ]
+}

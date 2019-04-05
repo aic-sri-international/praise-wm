@@ -35,12 +35,16 @@ export default class RgbaFactor {
     pos: {
       min: Number.MAX_SAFE_INTEGER,
       max: Number.MIN_SAFE_INTEGER,
+      // First slot with a discernible non-white color
+      firstNonZeroValueSlot: 3,
       divisorToGetSlot: -1,
       rgbaArray: [],
     },
     neg: {
       min: Number.MAX_SAFE_INTEGER,
       max: Number.MIN_SAFE_INTEGER,
+      // First slot with a discernible non-white color
+      firstNonZeroValueSlot: 3,
       divisorToGetSlot: -1,
       rgbaArray: [],
     },
@@ -70,7 +74,8 @@ export default class RgbaFactor {
 
     const setRangeData = (entry: Object, rgbaArray: Array<any>) => {
       entry.rgbaArray = rgbaArray;
-      entry.divisorToGetSlot = (entry.max - entry.min) / (rgbaArray.length - 1);
+      entry.divisorToGetSlot
+          = (entry.max - entry.min) / (rgbaArray.length - entry.firstNonZeroValueSlot - 1);
     };
 
     if (this.rangeData.pos.max !== Number.MIN_SAFE_INTEGER) {
@@ -87,11 +92,29 @@ export default class RgbaFactor {
       const getRgba = (value: any) => {
         const data = value < 0 ? this.rangeData.neg : this.rangeData.pos;
         let slot;
+        const absVal = round(Math.abs(value), 4);
 
-        if (data.divisorToGetSlot !== 0) {
-          slot = round((Math.abs(value) - data.min) / data.divisorToGetSlot);
+        if (absVal === 0) {
+          slot = 0;
         } else {
-          slot = data.min === 0 ? 0 : data.rgbaArray.length - 1;
+          slot = round(absVal / data.divisorToGetSlot) + data.firstNonZeroValueSlot;
+        }
+
+        if (absVal === 0) {
+          slot = 0;
+        } else if (data.divisorToGetSlot !== 0) {
+          slot = round((absVal - data.min) / data.divisorToGetSlot)
+              + data.firstNonZeroValueSlot;
+        } else {
+          // if divisorToGetSlot === 0, then data.min === data.max and since
+          // absVal === 0 has already been handled, set to the max slot
+          slot = data.rgbaArray.length - 1;
+          // sanity check and to guard against a subsequent change to the
+          // algorithm
+          if (data.min !== data.max || data.max === 0) {
+            // eslint-disable-next-line
+            console.error('Logic error');
+          }
         }
 
         return data.rgbaArray[slot];
