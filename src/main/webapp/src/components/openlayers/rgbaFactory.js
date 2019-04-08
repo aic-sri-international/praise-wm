@@ -33,19 +33,12 @@ const getRgbaArray = (isPositive) => {
 export default class RgbaFactor {
   rangeData = {
     pos: {
-      min: Number.MAX_SAFE_INTEGER,
       max: Number.MIN_SAFE_INTEGER,
-      // First slot with a discernible non-white color
-      firstNonZeroValueSlot: 3,
-      divisorToGetSlot: -1,
       rgbaArray: [],
     },
     neg: {
-      min: Number.MAX_SAFE_INTEGER,
+      // Maximum absolute value
       max: Number.MIN_SAFE_INTEGER,
-      // First slot with a discernible non-white color
-      firstNonZeroValueSlot: 3,
-      divisorToGetSlot: -1,
       rgbaArray: [],
     },
   };
@@ -63,28 +56,13 @@ export default class RgbaFactor {
 
       val = Math.abs(val);
 
-      if (val < data.min) {
-        data.min = val;
-      }
-
       if (val > data.max) {
         data.max = val;
       }
     });
 
-    const setRangeData = (entry: Object, rgbaArray: Array<any>) => {
-      entry.rgbaArray = rgbaArray;
-      entry.divisorToGetSlot
-          = (entry.max - entry.min) / (rgbaArray.length - entry.firstNonZeroValueSlot - 1);
-    };
-
-    if (this.rangeData.pos.max !== Number.MIN_SAFE_INTEGER) {
-      setRangeData(this.rangeData.pos, getRgbaArray(true));
-    }
-
-    if (this.rangeData.neg.max !== Number.MIN_SAFE_INTEGER) {
-      setRangeData(this.rangeData.neg, getRgbaArray(false));
-    }
+    this.rangeData.pos.rgbaArray = getRgbaArray(true);
+    this.rangeData.neg.rgbaArray = getRgbaArray(false);
   }
 
   createRegionToRgbaMap() {
@@ -92,31 +70,12 @@ export default class RgbaFactor {
       const getRgba = (value: any) => {
         const data = value < 0 ? this.rangeData.neg : this.rangeData.pos;
         let slot;
-        const absVal = round(Math.abs(value), 4);
 
-        if (absVal === 0) {
+        if (data.max === 0) {
           slot = 0;
         } else {
-          slot = round(absVal / data.divisorToGetSlot) + data.firstNonZeroValueSlot;
+          slot = round((Math.abs(value) / data.max) * (data.rgbaArray.length - 1));
         }
-
-        if (absVal === 0) {
-          slot = 0;
-        } else if (data.divisorToGetSlot !== 0) {
-          slot = round((absVal - data.min) / data.divisorToGetSlot)
-              + data.firstNonZeroValueSlot;
-        } else {
-          // if divisorToGetSlot === 0, then data.min === data.max and since
-          // absVal === 0 has already been handled, set to the max slot
-          slot = data.rgbaArray.length - 1;
-          // sanity check and to guard against a subsequent change to the
-          // algorithm
-          if (data.min !== data.max || data.max === 0) {
-            // eslint-disable-next-line
-            console.error('Logic error');
-          }
-        }
-
         return data.rgbaArray[slot];
       };
 
