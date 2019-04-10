@@ -1,5 +1,6 @@
 package com.sri.ai.praisewm.service.praise_service;
 
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
 import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.GraphQueryResultDto;
@@ -46,6 +47,8 @@ public class QueryFunctionManager {
             variableSetOfValuesMap, graphRequestDto.getXmVariable());
 
     GraphSetMaker graphSetMaker = GraphSetMaker.graphSetMaker();
+    graphSetMaker.setDecimalFormatter((value)-> DefaultSymbol.createSymbol(value).toString());
+
     graphSetMaker.setFunctions(entry.getFunctions());
 
     GraphPlot graphPlot = graphSetMaker.plot(assignmentOnNonXAxisVariables, xAxisVariable);

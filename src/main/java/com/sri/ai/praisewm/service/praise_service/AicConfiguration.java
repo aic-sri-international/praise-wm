@@ -14,7 +14,10 @@ public class AicConfiguration {
    * @param isInitialQuery
    */
   public static void initialize(boolean isInitialQuery) {
-    PRAiSEConfiguration.setUseUniformSamplingBackup(isInitialQuery);
+    if (isInitialQuery) {
+      PRAiSEConfiguration.setUseUniformSamplingBackup(true);
+    }
+
     ExpressoConfiguration.setDisplayNumericsExactlyForSymbols(false);
     ExpressoConfiguration
         .setDisplayNumericsMostDecimalPlacesInApproximateRepresentationOfNumericalSymbols(3);
