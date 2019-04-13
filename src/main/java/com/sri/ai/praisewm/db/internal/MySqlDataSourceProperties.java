@@ -3,7 +3,7 @@ package com.sri.ai.praisewm.db.internal;
 import java.util.Properties;
 import org.apache.commons.lang3.Validate;
 
-/** MySqlDataSourceProperties. */
+/** Utility class to set properties used by a MySQL DataSource */
 class MySqlDataSourceProperties extends Properties {
   public void setUser(String user) {
     Validate.notBlank(user, "user cannot be null");

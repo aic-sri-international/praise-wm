@@ -8,7 +8,9 @@ import org.jooq.SQLDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** DataSourceFactory */
+/**
+ * Factory class to get a new database connection wrapped within a {@link JooqConnectionContext}.
+ */
 public class DataSourceFactory implements JooqConnectionContextFactory {
   private static final Logger LOG = LoggerFactory.getLogger(DataSourceFactory.class);
   private DataSource dataSource;

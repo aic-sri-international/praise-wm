@@ -45,7 +45,6 @@ public class SecurityServiceImpl implements Service, SecurityService {
   private ScheduledExecutorService sessionTimeoutScheduler =
       Executors.newSingleThreadScheduledExecutor();
   private Long sessionTimeoutInMillis;
-  private Integer localPort;
   private Integer wsReconnectInterval;
   private Integer maxReconnectAttempts;
   private Integer wsClientInactivityTimeout;
@@ -62,7 +61,6 @@ public class SecurityServiceImpl implements Service, SecurityService {
     initTimeoutScheduler(serviceManager);
 
     PropertiesWrapper config = serviceManager.getConfiguration();
-    localPort = config.asInt("server.port");
     wsReconnectInterval = config.asInt("client.ws.reconnectIntervalInMillis");
     maxReconnectAttempts = config.asInt("client.ws.maxReconnectAttempts");
     wsClientInactivityTimeout = config.asInt("client.ws.inactivityTimeoutInMillis");
@@ -228,19 +226,6 @@ public class SecurityServiceImpl implements Service, SecurityService {
     NotificationEvent event = new SessionLogoutEvent().setText("LOGOUT").setSessionId(sessionId);
     removeSession(sessionInfo, (SessionLogoutEvent) event);
     return true;
-  }
-
-  private int getLocalPort() {
-    // This is a bit of a kluge to get websockets working when using the Webpack dev server.
-    // Since we use different ports for REST and Websockets, the client determines the WS port
-    // by bumping the port it gets from window.location port by 1. However, the Webpack dev server
-    // expects WS traffic to use the same port as HTTP, so, we pass the HTTP port in the header
-    // and the client compares it to the window.location port (which will be the port of the
-    // proxy server rather than the actual server port). If they differ, it knows not to increment
-    // the port to get the WS port. This should also work in production when using a proxy server
-    // as long as the ports differ.
-
-    return localPort;
   }
 
   private void removeSession(SessionInfo sessionInfo, SessionCloseEvent closeEvent) {

@@ -48,10 +48,22 @@ public final class JooqDbUtil {
     return step.from(table).fetch().into(returnType);
   }
 
+  /**
+   * Create an {@link ExclusiveFields} filter.
+   *
+   * @param exclusiveField one or more fields to exclude
+   * @return the exclusive fields filter
+   */
   public static ExclusiveFields exclusiveFields(Field<?>... exclusiveField) {
     return new ExclusiveFields(exclusiveField);
   }
 
+  /**
+   * Create an {@link InclusiveFields} filter.
+   *
+   * @param inclusiveField one or more fields to include
+   * @return the inclusive fields filter
+   */
   public static InclusiveFields inclusiveFields(Field<?>... inclusiveField) {
     return new InclusiveFields(inclusiveField);
   }
@@ -79,12 +91,36 @@ public final class JooqDbUtil {
     return (Number) record.key().getValue(0);
   }
 
+  /**
+   * Creates a jOOQ UpdatableRecord from a POJO.
+   *
+   * <p>The table must meet the following constaints
+   *
+   * <ul>
+   *   <li>The table has one and only 1 primary key column
+   *   <li>The primary key is a type of Integer or Long
+   * </ul>
+   *
+   * @param dslContext the DSL context
+   * @param table the jOOQ table
+   * @param pojo the POJO containing the data
+   * @return the jOOQ UpdatableRecord
+   * @throws IllegalArgumentException if constraints are not met
+   */
   private static UpdatableRecord<?> createUpdatableRecord(
       DSLContext dslContext, Table<?> table, Object pojo) {
     validatePrimaryKey(table);
     return toUpdatable(dslContext.newRecord(table, pojo), table);
   }
 
+  /**
+   * Downcasts a jOOQ Record to an UpdatableRecord.
+   *
+   * @param record the jOOQ record
+   * @param table the jOOQ table for the record
+   * @return the Record cast to an UpdatableRecord
+   * @throws IllegalArgumentException if Record is cannot be downcast to an UpdatableRecord
+   */
   private static UpdatableRecord toUpdatable(Record record, Table table) {
     Validate.isInstanceOf(
         UpdatableRecord.class,
@@ -95,14 +131,40 @@ public final class JooqDbUtil {
     return (UpdatableRecord) record;
   }
 
+  /**
+   * Update a jOOQ table using a POJO.
+   *
+   * @param dslContext the DSL context
+   * @param table the table to update
+   * @param pojo the POJO that contains the data
+   * @return true if the table was updated
+   */
   public static boolean update(DSLContext dslContext, Table table, Object pojo) {
     return update(dslContext, table, pojo, null);
   }
 
+  /**
+   * Update a table with a POJO's non-null fields.
+   *
+   * @param dslContext the DSL context
+   * @param table the table
+   * @param pojo the POJO containing the data
+   * @return true if the table was updated
+   */
   public static boolean updateNonNull(DSLContext dslContext, Table table, Object pojo) {
     return update(dslContext, table, pojo, UPDATE_NON_NULL_FIELDS_FILTER);
   }
 
+  /**
+   * Update a jOOQ table using a POJO and an optional filter
+   *
+   * @param dslContext the DSL context
+   * @param table the table
+   * @param pojo the POJO that contains the data
+   * @param filter the filter used to remove fields from the jOOQ record prior to the update, or
+   *     null to not use a filter
+   * @return true if the corresponding db row was updated
+   */
   public static boolean update(
       DSLContext dslContext, Table table, Object pojo, RecordFieldFilter filter) {
     UpdatableRecord<?> record = createUpdatableRecord(dslContext, table, pojo);
@@ -119,6 +181,12 @@ public final class JooqDbUtil {
         > 0;
   }
 
+  /**
+   * Validate that the table has one and only 1 PK column and that it is a type of Integer or Long.
+   *
+   * @param table the table to validate
+   * @throws IllegalArgumentException if the table does not meet the constraints
+   */
   private static void validatePrimaryKey(Table table) {
     List<Field> primaryKey = getPrimaryKeyFields(table.getPrimaryKey());
 
@@ -137,6 +205,14 @@ public final class JooqDbUtil {
         table.getName());
   }
 
+  /**
+   * Get the primary key fields
+   *
+   * @param uniqueKey the jOOQ UniqueKey that contains the primary key fields
+   * @return a list of primary key fields
+   * @throws IllegalArgumentException if the {@code uniqueKey} contains field objects that are not
+   *     an instanceOf Field.class
+   */
   @SuppressWarnings("unchecked")
   private static List<Field> getPrimaryKeyFields(UniqueKey uniqueKey) {
     List fields = uniqueKey.getFields();
@@ -152,16 +228,19 @@ public final class JooqDbUtil {
     return (List<Field>) fields;
   }
 
+  /** Interface for filtering jOOQ fields. */
   public interface FieldFilter {
 
     Field<?>[] getFields();
   }
 
+  /** Interface used to filter fields from a jOOQ record. */
   public interface RecordFieldFilter extends FieldFilter {
 
     RecordFieldFilter setRecord(Record record);
   }
 
+  /** Filter used to only include certain fields. */
   public static class InclusiveFields implements FieldFilter {
 
     private Field<?>[] fields;
@@ -177,6 +256,7 @@ public final class JooqDbUtil {
     }
   }
 
+  /** Filter used to exclude certain fields. */
   public static class ExclusiveFields implements FieldFilter {
 
     private Field<?>[] fields;
@@ -192,6 +272,7 @@ public final class JooqDbUtil {
     }
   }
 
+  /** Removes null values from a jOOQ record. */
   public static class RecordNonNullFieldFilter implements RecordFieldFilter {
 
     private Record record;
@@ -208,6 +289,7 @@ public final class JooqDbUtil {
     }
   }
 
+  /** Removes jOOQ fields from a jOOQ record. */
   public static class Filters {
 
     private Filters() {}

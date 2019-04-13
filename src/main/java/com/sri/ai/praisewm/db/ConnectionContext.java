@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.Savepoint;
 import org.jooq.exception.DataAccessException;
 
-/** ConnectionContext. */
+/** Provides access to the JDBC connection and low-level transaction processing. */
 public interface ConnectionContext {
   void commit() throws DataAccessException;
 

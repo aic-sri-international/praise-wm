@@ -1,2 +1,5 @@
-/** events for com.google.common.eventbus.EventBus that are handled by the notification service */
+/**
+ * Events for Google EventBus that are handled by the {@link
+ * com.sri.ai.praisewm.service.NotificationService}.
+ */
 package com.sri.ai.praisewm.event.notification;

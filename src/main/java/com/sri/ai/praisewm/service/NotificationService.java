@@ -10,8 +10,7 @@ import java.util.concurrent.TimeUnit;
  * The Notification Service sends events to UI clients using the {@link NotificationSessionManager}.
  *
  * <p>A {@code PingEvent} is broadcast to all connected clients every {@code
- * server.ws.pingClientInMillis} which is configured in the application's {@code com.jpanther.cfg}
- * file.
+ * server.ws.pingClientInMillis} which is configured in the {@code application.properties} file.
  *
  * <p>When this service's {@link #stop} method is called, it will broadcast a {@link
  * SystemShutdownEvent} to all connected clients.

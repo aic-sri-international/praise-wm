@@ -1,6 +1,6 @@
 package com.sri.ai.praisewm.event.notification;
 
-/** NotificationTextMessage. */
+/** A text message to send to UI clients. */
 public class NotificationTextMessage extends NotificationEvent {
   private String text;
 

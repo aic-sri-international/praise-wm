@@ -4,7 +4,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import spark.Request;
 
-/** BadRequestException. */
+/** Exception thrown when there is a problem with a parameter received from a REST call */
 public class BadRequestException extends RuntimeException {
   public BadRequestException(Request request, String param, Throwable cause) {
     this(request, param, null, cause);

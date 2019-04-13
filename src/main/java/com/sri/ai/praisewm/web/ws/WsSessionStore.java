@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * The WsSessionStore manages the {@link WsSessionWrapper}.
  *
  * <p>The {@code server.ws.refresh.minIntervalInMillis} passed to each {@link WsSessionWrapper} is
- * obtained from the {@code com.jpanther.cfg}.
+ * obtained from the {@code application.properties} file.
  */
 public class WsSessionStore {
   private static final Logger LOG = LoggerFactory.getLogger(WsSessionStore.class);

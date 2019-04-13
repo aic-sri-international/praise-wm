@@ -5,7 +5,7 @@ import com.sri.ai.praisewm.db.JooqTxProcessor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** JooqTxProcessorImpl */
+/** Implements the {@link JooqTxProcessor} */
 public class JooqTxProcessorImpl implements JooqTxProcessor {
   private JooqConnectionContextFactory ctxFactory;
 

@@ -15,7 +15,7 @@ import org.jooq.impl.DefaultConnectionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** DefaultJooqConnectionContext */
+/** Default implementation of the {@link JooqConnectionContext} */
 public class DefaultJooqConnectionContext implements JooqConnectionContext {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultJooqConnectionContext.class);
   private DefaultConfiguration configuration;

@@ -4,10 +4,15 @@ import com.sri.ai.praisewm.db.internal.JooqConnectionContext;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** JooqTxProcessor. */
+/** Interface used for all database access. */
 public interface JooqTxProcessor {
   /**
-   * Runs a database jooqContext and does not return a result
+   * Runs a database jooqContext and does not return a result.
+   *
+   * <p>The transaction will be committed as the last action before this method returns.
+   *
+   * <p>If an exception is thrown from this method, the database connection will first be closed and
+   * the underlying HikariCP will automatically rollback the transaction.
    *
    * @param jooqContext the jooqContext
    */
@@ -15,6 +20,11 @@ public interface JooqTxProcessor {
 
   /**
    * Runs a database jooqContext returning a result.
+   *
+   * <p>The transaction will be committed as the last action before this method returns.
+   *
+   * <p>If an exception is thrown from this method, the database connection will first be closed and
+   * the underlying HikariCP will automatically rollback the transaction.
    *
    * @param jooqContext the jooqContext
    * @param <R> the type of object to return

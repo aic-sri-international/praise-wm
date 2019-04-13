@@ -1,6 +1,9 @@
 package com.sri.ai.praisewm.web.error;
 
-/** LoginException. */
+/**
+ * Exception thrown if either the user is not found in the database, or, the password for the user
+ * does not match.
+ */
 public class LoginException extends RuntimeException {
   private String user;
   private String password;

@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** HikariDS */
+/** This class starts and shuts down the HikariCP database connection pool */
 class HikariDS {
 
   private static final Logger LOG = LoggerFactory.getLogger(HikariDS.class);

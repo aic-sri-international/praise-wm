@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Completes application initialization and starts the webserver. */
 public class Application {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 

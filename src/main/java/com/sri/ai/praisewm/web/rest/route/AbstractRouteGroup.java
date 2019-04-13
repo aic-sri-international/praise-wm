@@ -3,7 +3,7 @@ package com.sri.ai.praisewm.web.rest.route;
 import spark.Route;
 import spark.RouteGroup;
 
-/** AbstractRouteGroup. */
+/** Base abstract class for all route classes */
 public abstract class AbstractRouteGroup implements RouteGroup {
   private spark.Service sparkService;
 

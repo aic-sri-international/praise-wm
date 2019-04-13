@@ -21,8 +21,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * SystemStatusService is the main service to process and handle functions related to the system
- * status.
+ * SystemStatusService monitors and provides UI client notifications on the health status of the
+ * following.
+ *
+ * <ul>
+ *   <li>Database
+ * </ul>
  */
 public class SystemStatusService implements Service {
   private static final Logger LOG = LoggerFactory.getLogger(SystemStatusService.class);

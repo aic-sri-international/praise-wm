@@ -1,6 +1,10 @@
 package com.sri.ai.praisewm.event.notification;
 
-/** RefreshDataEvent. */
+/**
+ * Send to UI clients when server data has changed.
+ *
+ * <p>Client's should requery if currently displaying data that has been changed.
+ */
 public class DataRefreshEvent extends NotificationTextMessage {
   private RefreshType refreshType;
 

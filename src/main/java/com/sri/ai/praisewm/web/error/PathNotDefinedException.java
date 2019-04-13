@@ -7,7 +7,7 @@ package com.sri.ai.praisewm.web.error;
  * <ul>
  *   <li>{@link com.sri.ai.praisewm.web.WebController#API_ENDPOINT}
  *   <li>{@link com.sri.ai.praisewm.web.WebController#ADMIN_ENDPOINT}
- *   <li>{@link com.sri.ai.praisewm.web.websocket.WebSocketConstants#ENDPOINT_PREFIX}
+ *   <li>{@link com.sri.ai.praisewm.web.ws.WebSocketConstants#ENDPOINT_PREFIX}
  * </ul>
  */
 public class PathNotDefinedException extends RuntimeException {

@@ -22,18 +22,20 @@ import org.jooq.BindingSetStatementContext;
 import org.jooq.Converter;
 import org.jooq.impl.DefaultBinding;
 
-// @TODO delete me once JOOQ supports java.time.Instant string conversion - but make
+
+/** Provides access to the JDBC connection and low-level transaction processing. */
+public class TimestampUtcBinding implements Binding<Timestamp, Instant> {
+  // @TODO delete me once JOOQ supports java.time.Instant string conversion - but make
 // sure it works correctly with MySQL DateTime datatype !
 //
-public class TimestampUtcBinding implements Binding<Timestamp, Instant> {
   private static final long serialVersionUID = 1;
 
   private final Converter<Timestamp, Instant> converter;
-  private final DefaultBinding<Timestamp, Instant> delegate;
+  private final Binding<Timestamp, Instant> delegate;
 
   public TimestampUtcBinding() {
     this.converter =
-        new Converter<Timestamp, Instant>() {
+        new Converter<>() {
           @Override
           public Instant from(Timestamp databaseObject) {
             if (databaseObject == null) {
@@ -60,7 +62,7 @@ public class TimestampUtcBinding implements Binding<Timestamp, Instant> {
             return Instant.class;
           }
         };
-    this.delegate = new DefaultBinding<>(converter);
+    this.delegate = DefaultBinding.binding(converter);
   }
 
   @Override
