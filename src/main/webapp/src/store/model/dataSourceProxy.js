@@ -9,10 +9,7 @@ import type {
 } from './types';
 
 async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
-  let result: SegmentedModelDto[] = [];
-
-  // $FlowFixMe
-  result = await http.get(toApiUrl('segmentedModels'));
+  const result: any = await http.get(toApiUrl('segmentedModels'));
   return Promise.resolve(result);
 }
 

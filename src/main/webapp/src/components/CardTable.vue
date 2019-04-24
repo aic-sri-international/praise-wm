@@ -38,7 +38,7 @@
           <div class="p-2">entries</div>
           <div class="ml-auto">
             <div class="d-flex justify-content-start">
-              <b-form-group horizontal label="Search" :label-cols="4">
+              <b-form-group label="Search" :label-cols="3">
                 <b-form-input size="md" v-model="filter"
                               placeholder="Type to Search"></b-form-input>
               </b-form-group>

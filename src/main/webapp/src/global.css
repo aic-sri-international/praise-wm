@@ -21,15 +21,10 @@ h1, h2, h3, h4, h5, h6 {
   color: red;
 }
 
-.requireField::after {
-  font-family: "Font Awesome 5 Free";
-  content: "\f069";
-  font-weight: 900;
+.requiredField::after {
+  content: "*";
   color: red;
-  display: inline-block;
-  vertical-align: middle;
   padding-left: 3px;
-  font-size: 10px;
 }
 
 .help-title {

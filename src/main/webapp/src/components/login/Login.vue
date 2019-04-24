@@ -2,7 +2,7 @@
   <div v-if="autoLogin">
   </div>
   <div v-else>
-    <b-modal @shown="()=>$refs.usernameRef.focus()"
+    <b-modal @shown="focusOnUsername"
              v-model="showModal"
              size="md"
              :no-close-on-esc="true"
@@ -19,9 +19,12 @@
           <div class="row">
             <b-input-group>
               <b-input-group-text slot="prepend">
-                <i class="fa fa-user"></i>
+                <i class="fas fa-user"></i>
               </b-input-group-text>
-              <b-form-input ref="usernameRef" v-model="name" placeholder="Enter username">
+              <b-form-input
+                  ref="usernameRef"
+                  v-model="name"
+                  placeholder="Enter username">
               </b-form-input>
             </b-input-group>
           </div>
@@ -31,16 +34,26 @@
           <div class="row">
             <b-input-group>
               <b-input-group-text slot="prepend" @click.stop="toggleShowPwd">
-                <i :class="{'fa fa-unlock': showPwd, 'fa fa-lock': !showPwd }"></i>
+                <div v-show="showPwd">
+                  <i class="fas fa-unlock"></i>
+                </div>
+                <div v-show="!showPwd">
+                  <i class="fas fa-lock"></i>
+                </div>
               </b-input-group-text>
             <b-form-input ref="passwordRef" v-model="password"
-                          autocomplete="off"
-                          :type="showPwd ? 'text' : 'password'"
-                          placeholder="Enter password"
-                          @keydown.enter.native="doLogin">
-            </b-form-input>
+                  autocomplete="off"
+                  :type="showPwd ? 'text' : 'password'"
+                  placeholder="Enter password"
+                  @keydown.enter.native="doLogin">
+              </b-form-input>
               <b-input-group-text slot="append" @click.stop="toggleShowPwd">
-                <i :class="{'fa fa-eye-slash': showPwd, 'fa fa-eye': !showPwd }"></i>
+                <div v-show="showPwd">
+                  <i class="fas fa-eye-slash"></i>
+                </div>
+                <div v-show="!showPwd">
+                  <i class="fas fa-eye"></i>
+                </div>
               </b-input-group-text>
             </b-input-group>
           </div>
@@ -58,7 +71,6 @@
 
 <script>
   // @flow
-
   import { paths } from '@/router/index';
   import { login } from './dataSourceProxy';
 
@@ -68,9 +80,9 @@
       return {
         autoLogin: true,
         showModal: true,
+        showPwd: false,
         name: '',
         password: '',
-        showPwd: false,
       };
     },
     computed: {
@@ -79,15 +91,21 @@
       },
     },
     methods: {
+      focusOnUsername() {
+        this.$refs.usernameRef.focus();
+      },
       toggleShowPwd() {
         this.showPwd = !this.showPwd;
-        this.$refs.passwordRef.$el.focus();
+        this.$refs.passwordRef.focus();
       },
       async doLogin() {
         try {
-          const name = this.autoLogin ? 'admin' : this.name;
-          const password = this.autoLogin ? 'admin' : this.password;
+          const { name } = this;
+          const { password } = this;
           await login({ name, password });
+          this.name = '';
+          this.password = '';
+          this.showPwd = false;
           this.$router.push(paths.HOME);
         } catch (err) {
           // errors already logged/displayed
@@ -96,6 +114,8 @@
     },
     async created() {
       if (this.autoLogin) {
+        this.name = 'admin';
+        this.password = 'admin';
         await this.doLogin();
       }
     },

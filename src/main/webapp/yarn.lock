@@ -8133,10 +8133,10 @@ vue-router@^3.0.2:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.2.tgz#dedc67afe6c4e2bc25682c8b1c2a8c0d7c7e56be"
   integrity sha512-opKtsxjp9eOcFWdp6xLQPLmRGgfM932Tl56U9chYTnoWqKxQ8M20N7AkdEbM5beUh6wICoFGYugAX9vQjyJLFg==
 
-vue-slider-component@^3.0.16:
-  version "3.0.16"
-  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-3.0.16.tgz#067257c0c306b48437baa856e4608e840bd4cac6"
-  integrity sha512-Ioe2tuTulU5gSeY2xDXC5wi0j1OZK6CY6M9QH53Om6Bf896bUnfI0L+fZKrk96ckq0FBj+zYuRPb1qaBJWqmrg==
+vue-slider-component@^3.0.27:
+  version "3.0.27"
+  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-3.0.27.tgz#00c36d210926377057edc17b45da265cf2efd792"
+  integrity sha512-Z/Lc9sU23YbynJsWdxxcRxIP2AhcA5sp8M8Jg1l8pWwbCV/6u9grePv2gaUITY9AfNmjmVnMPkCDivqv0UmlRQ==
   dependencies:
     vue-property-decorator "^8.0.0"
 
