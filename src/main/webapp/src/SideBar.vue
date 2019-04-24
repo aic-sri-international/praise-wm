@@ -48,18 +48,6 @@
               </li>
             </ul>
           </b-collapse>
-          <!--<b-collapse class="collapse" id="maintSubmenu">-->
-            <!--<ul class="list-unstyled">-->
-              <!--<li :class="{ currentRoute : $route.path === paths.MODEL_EDITOR }">-->
-                <!--<a @click="routeTo(paths.MODEL_EDITOR)">-->
-                  <!--<i class="fas fa-edit" data-fa-transform="grow-6"></i>-->
-                  <!--<span v-if="!isSideBarCollapsed" class="ml-2">-->
-                      <!--{{titles.maint_e}}-->
-                  <!--</span>-->
-                <!--</a>-->
-              <!--</li>-->
-            <!--</ul>-->
-          <!--</b-collapse>-->
         </li>
       </ul>
     </nav>
