@@ -73,7 +73,7 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 [Client Toolset](docs/client_toolset.md)
 [Server Toolset](docs/server_toolset.md)
 
-The [WebPack DevServer](docs/webpack_dev_server.md) expects praise-wm to be running under SSL.
+The [WebPack DevServer](docs/webpack_dev_server.md) configuration will need a minor adjustment to run praise-wm under SSL.
 
 JavaScript uses the [Airbnb Javascript Style Guide][].
 

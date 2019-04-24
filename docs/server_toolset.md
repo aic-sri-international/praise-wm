@@ -2,6 +2,12 @@
 
 * [Spark][] Is used for the REST framework.
 
+* [Guava][] Google Core Libraries for Java.
+
+* [Commons Lang3][] Helper utilities for the java.lang API.
+
+* [JsonPath][] Java JsonPath implementation.
+
 * [MySQL Community Server][] for the database server.
 
      Database temporal columns should be defined using the MySQL DATETIME type and represent UTC.
@@ -22,6 +28,8 @@
 
     All conversions should typically be done using the com.praisewm.util.JsonConverter to assure expected conversion behavior throughout the application. For example, conversion support between java.time.Instant and java.lang.String.
 
+* [Logback][] logging API that natively implements the SLF4J API.
+
 * [Google's Java Formatting tool][] for code formatting.
 
     If using IntelliJ, the IntelliJ options for *Optimize Imports* and *Rearrange entries* need to be checked, however, the *Commit Default* options need to be unchecked.
@@ -33,12 +41,16 @@
 * [AssertJ][] Assertions library for unit testing
 
 [Spark]: http://sparkjava.com/
+[Guava]: https://github.com/google/guava
+[Commons Lang3]: https://commons.apache.org/proper/commons-lang/
+[JsonPath]: https://github.com/json-path/JsonPath/
 [MySQL Community Server]: https://dev.mysql.com/downloads/
 [Flyway]: https://flywaydb.org/documentation/gradle/
 [HikariCP]: https://github.com/brettwooldridge/HikariCP
 [JOOQ]: https://www.jooq.org/learn/
 [MapStruct]: http://mapstruct.org/
 [Jackson]: https://github.com/FasterXML/jackson
+[Logback]: https://logback.qos.ch/
 [Google's Java Formatting tool]: https://github.com/google/google-java-format
 [JUnit]: http://junit.org/junit4/
 [AssertJ]: http://joel-costigliola.github.io/assertj/index.html

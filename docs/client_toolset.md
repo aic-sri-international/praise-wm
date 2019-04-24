@@ -2,9 +2,13 @@
 
 * [Vue.js][] JavaScript Framework
 
+* [Vuex][] Centralized State Management for Vue.js
+
 * [BootstrapVue][] Bootstrap 4 Components For Vue.js
 
-* [Vue Awesome][] [Font Awesome] component for Vue.js, using inline SVG
+* [Vue Awesome][] [Font Awesome] component for Vue.js, using inline SVG.
+
+* [OpenLayers][] Mapping library.
 
 * [moment][] Parse, validate, manipulate, and display dates in javascript.
 
@@ -33,8 +37,10 @@
 * [Selenium][] End-to-End testing
 
 [Vue.js]: https://vuejs.org/
+[Vuex]: https://github.com/vuejs/vuex
 [BootstrapVue]: https://bootstrap-vue.github.io/
 [Vue Awesome]: https://github.com/Justineo/vue-awesome
+[OpenLayers]: https://openlayers.org/
 [moment]: https://github.com/moment/moment
 [Font Awesome]: http://fontawesome.io/
 [Webpack]: https://webpack.js.org/
