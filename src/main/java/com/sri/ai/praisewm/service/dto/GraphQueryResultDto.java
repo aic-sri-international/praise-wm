@@ -3,6 +3,10 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * GraphQueryResultDto represents data contained within and derived from a HOGM query
+ * <code>Function</code> result.
+ */
 public class GraphQueryResultDto {
   // Not empty
   // The 1st entry in the list is the xm variable used to create the imageData

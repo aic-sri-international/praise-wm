@@ -22,12 +22,11 @@ import org.jooq.BindingSetStatementContext;
 import org.jooq.Converter;
 import org.jooq.impl.DefaultBinding;
 
-
 /** Provides access to the JDBC connection and low-level transaction processing. */
 public class TimestampUtcBinding implements Binding<Timestamp, Instant> {
   // @TODO delete me once JOOQ supports java.time.Instant string conversion - but make
-// sure it works correctly with MySQL DateTime datatype !
-//
+  // sure it works correctly with MySQL DateTime datatype !
+  //
   private static final long serialVersionUID = 1;
 
   private final Converter<Timestamp, Instant> converter;

@@ -1,7 +1,9 @@
 package com.sri.ai.praisewm.service.dto;
 
+/**
+ * Will eventually contain information used to determine which query to interrupt.
+ */
+//@TODO include the client's sesson id
 public class SolverInterruptDto {
-  // Could eventually be passed an id for the specific solver to interrupt
-  // no-arg constructor for JSON conversion
   public SolverInterruptDto() {}
 }

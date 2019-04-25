@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise;
+package com.sri.ai.praisewm.service.praise_service;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Resources;
@@ -26,9 +26,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The SegmentedModelLoader loads and caches the models, making them accessible to clients.
+ * <p>
+ *  Model files are loaded at startup from the {@link #EXAMPLES_RESOURCE_DIR} resources path
+ *  and copied into the directory referenced by the <code>application.properties</code> property
+ *  {@link #MODEL_FILES_DIR_PROPERTY} if they do not already exist within that directory.
+ * <p>
+ * Files within the model directory are cached in memory as instances of {@link SegmentedModelDto}
+ * and kept current by using the services of the {@link ModelWatcher}.
+ */
 public class SegmentedModelLoader {
   private static final Logger LOG = LoggerFactory.getLogger(SegmentedModelLoader.class);
-  private static final String EXAMPLES_RESOURCE_DIR = "model_examples";
   private static final Predicate<Object> jsonFilter = o -> o.toString().endsWith(".json");
 
   private PropertiesWrapper propertiesWrapper;
@@ -36,7 +45,13 @@ public class SegmentedModelLoader {
   private Map<String, SegmentedModelDto> segmentedModelMap = Collections.emptyMap();
   private Path segmentedModelDir;
   private boolean refresh;
-
+  public static final String EXAMPLES_RESOURCE_DIR = "model_examples";
+  public static final String MODEL_FILES_DIR_PROPERTY = "server.segmentedModelFolder";
+  /**
+   * The Segmented Model Loader c
+   * @param propertiesWrapper
+   * @param eventBus
+   */
   public SegmentedModelLoader(PropertiesWrapper propertiesWrapper, EventBus eventBus) {
     this.propertiesWrapper = propertiesWrapper;
     initSegmentedModelFolder();
@@ -150,7 +165,7 @@ public class SegmentedModelLoader {
   }
 
   private void initSegmentedModelFolder() {
-    String segmentedModelFolder = propertiesWrapper.asString("server.segmentedModelFolder");
+    String segmentedModelFolder = propertiesWrapper.asString(MODEL_FILES_DIR_PROPERTY);
     segmentedModelDir = Paths.get("." + segmentedModelFolder).toAbsolutePath().normalize();
     FilesUtil.createDirectories(segmentedModelDir, "segmented models");
   }
@@ -194,7 +209,7 @@ public class SegmentedModelLoader {
         filesAlreadyExisted);
   }
 
-  public List<SegmentedModelDto> getSegmentedModels() {
+   List<SegmentedModelDto> getSegmentedModels() {
     if (refresh) {
       loadSegmentedModels();
       refresh = false;

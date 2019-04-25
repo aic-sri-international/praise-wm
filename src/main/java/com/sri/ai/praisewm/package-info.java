@@ -1,7 +1,8 @@
 /**
  * praisewm.
  *
- * <p>praisewm is started by calling {@link com.sri.ai.praisewm.ApplicationBootstrap#main(String[])}.
+ * <p>praisewm is started by calling {@link
+ * com.sri.ai.praisewm.ApplicationBootstrap#main(String[])}.
  *
  * <p>The {@link com.sri.ai.praisewm.web Web Layer} provides communication with browser clients.
  *

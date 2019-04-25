@@ -8,7 +8,8 @@ import java.util.Objects;
  * SessionInfo contains information about a UI client's Session.
  *
  * <p>This information is stored in-memory at the point a UI client is authorized, prior to
- * returning from {@code com.sri.ai.praisewm.service.SecurityService#login(User, Request, Response)}.
+ * returning from {@code com.sri.ai.praisewm.service.SecurityService#login(User, Request,
+ * Response)}.
  */
 public class SessionInfo {
 

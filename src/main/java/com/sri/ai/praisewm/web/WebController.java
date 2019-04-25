@@ -8,7 +8,7 @@ import com.sri.ai.praisewm.web.error.AuthorizationException;
 import com.sri.ai.praisewm.web.error.LoginException;
 import com.sri.ai.praisewm.web.error.PathNotDefinedException;
 import com.sri.ai.praisewm.web.error.ProcessingException;
-import com.sri.ai.praisewm.web.rest.filter.CorsFilter;
+import com.sri.ai.praisewm.web.rest.CorsFilter;
 import com.sri.ai.praisewm.web.rest.util.HttpStatus;
 import com.sri.ai.praisewm.web.ws.WebSocketConstants;
 import java.util.ArrayList;
@@ -223,13 +223,13 @@ public class WebController {
   }
 
   private void logError(Request req, Response res, Exception ex, boolean logStackTrace) {
-    LOG.error(
-        "HttpStatus={}, RemoteIp={}, Path={}, Message={}",
-        res.status(),
-        req.ip(),
-        req.pathInfo(),
-        ex.getMessage(),
-        logStackTrace ? ex : null);
+    final String format = "HttpStatus={}, RemoteIp={}, Path={}";
+    if (logStackTrace) {
+      LOG.error(format, res.status(), req.ip(), req.pathInfo(), ex);
+    } else {
+      String extFormat = format + ", Message={}";
+      LOG.error(extFormat, res.status(), req.ip(), req.pathInfo(), ex.getMessage());
+    }
   }
 
   private void setFilters() {

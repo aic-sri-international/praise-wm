@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise.remote;
+package com.sri.ai.praisewm.service.praise_service.remote;
 
 import com.sri.ai.praise.other.integration.proceduralattachment.api.ProceduralAttachments;
 import com.sri.ai.praise.other.integration.proceduralattachment.api.Procedure;

@@ -3,16 +3,11 @@ package com.sri.ai.praisewm.web.rest.route;
 import static com.sri.ai.praisewm.service.SecurityServiceImpl.getSessionId;
 
 import com.sri.ai.praisewm.service.PraiseService;
-import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
-import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
-import com.sri.ai.praisewm.util.FilesUtil;
 import com.sri.ai.praisewm.web.error.ProcessingException;
 import com.sri.ai.praisewm.web.rest.util.SparkUtil;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /** PraiseRoutes. */
 public class PraiseRoutes extends AbstractRouteGroup {
@@ -39,11 +34,6 @@ public class PraiseRoutes extends AbstractRouteGroup {
           }
         });
 
-    // get examples
-    get(
-        "/examples",
-        (req, res) -> SparkUtil.respondObjectOrNotFound(res, praiseService.getExamplePages()));
-
     // get segmented models
     get(
         "/segmentedModels",
@@ -64,7 +54,7 @@ public class PraiseRoutes extends AbstractRouteGroup {
           }
         });
 
-    // solve a Praise probabilistic model
+    // interrupt a Praise solver
     post(
         "/interruptSolver",
         (req, res) -> {
@@ -72,37 +62,5 @@ public class PraiseRoutes extends AbstractRouteGroup {
           praiseService.interruptSolver(solverInterruptDto);
           return SparkUtil.respondNoContent(res);
         });
-
-    // convert to a paged model format file
-    post(
-        "/formatModelPages",
-        (req, res) -> {
-          ModelPagesDto modelPages = SparkUtil.fromJson(req, ModelPagesDto.class);
-          return SparkUtil.respondObjectOrNotFound(
-              res, praiseService.toFormattedPageModel(modelPages));
-        });
-
-    // convert from a paged model format file
-    post(
-        "/unformatModelPages",
-        (req, res) -> {
-          FormattedPageModelDto formattedModelPages =
-              SparkUtil.fromJson(req, FormattedPageModelDto.class);
-          return SparkUtil.respondObjectOrNotFound(
-              res, praiseService.fromFormattedPageModel(formattedModelPages));
-        });
-  }
-
-  static class Image {
-    private String image;
-
-    public Image() {
-      Path imageFile = Paths.get("./SampleLineChart.png");
-      this.image = FilesUtil.imageFileToBase64DataImage(imageFile);
-    }
-
-    public String getImage() {
-      return image;
-    }
   }
 }

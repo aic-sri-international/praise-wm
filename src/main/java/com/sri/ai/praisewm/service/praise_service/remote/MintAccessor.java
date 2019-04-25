@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise.remote;
+package com.sri.ai.praisewm.service.praise_service.remote;
 
 import com.google.common.io.Files;
 import com.jayway.jsonpath.JsonPath;

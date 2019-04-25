@@ -17,6 +17,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.Validate;
 
+/**
+ * A {@link QueryFunctionCacheEntry} contains everything required to make a <code>Function</code>
+ * query.
+ */
 public class QueryFunctionCacheEntry {
   private final ExpressionWithProbabilityFunction expressionWithProbabilityFunction;
   private Map<Variable, SetOfValues> mapOfVariableToSetOfValues;

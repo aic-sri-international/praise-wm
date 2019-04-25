@@ -9,16 +9,12 @@ import com.sri.ai.praisewm.service.PraiseService;
 import com.sri.ai.praisewm.service.Service;
 import com.sri.ai.praisewm.service.ServiceManager;
 import com.sri.ai.praisewm.service.dto.ExpressionResultDto;
-import com.sri.ai.praisewm.service.dto.FormattedPageModelDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestDto;
 import com.sri.ai.praisewm.service.dto.GraphRequestResultDto;
-import com.sri.ai.praisewm.service.dto.ModelPagesDto;
 import com.sri.ai.praisewm.service.dto.ModelQueryDto;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
 import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
-import com.sri.ai.praisewm.service.praise.PageModelLoader;
-import com.sri.ai.praisewm.service.praise.SegmentedModelLoader;
-import com.sri.ai.praisewm.service.praise.remote.ProceduralAttachmentFactory;
+import com.sri.ai.praisewm.service.praise_service.remote.ProceduralAttachmentFactory;
 import com.sri.ai.praisewm.web.rest.route.PraiseRoutes;
 import com.sri.ai.praisewm.web.rest.util.RouteScope;
 import java.time.Instant;
@@ -34,10 +30,12 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * PraiseService implementation class.
+ */
 public class PraiseServiceImpl implements PraiseService, Service {
   private static final Logger LOG = LoggerFactory.getLogger(PraiseServiceImpl.class);
   private SegmentedModelLoader segmentedModelLoader;
-  private PageModelLoader pageModelLoader;
   private ProceduralAttachments proceduralAttachments;
   // Used to allow us to interrupt active solvers
   private Map<Integer, HOGMMultiQuerySamplingProblemSolver> activeSolverMap =
@@ -49,7 +47,6 @@ public class PraiseServiceImpl implements PraiseService, Service {
   public void start(ServiceManager serviceManager) {
     new PraiseRoutes(this, serviceManager.getSparkService(), RouteScope.API);
 
-    pageModelLoader = new PageModelLoader();
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
         new SegmentedModelLoader(serviceManager.getConfiguration(), serviceManager.getEventBus());
@@ -71,23 +68,9 @@ public class PraiseServiceImpl implements PraiseService, Service {
     }
   }
 
-  public List<ModelPagesDto> getExamplePages() {
-    return pageModelLoader.getExamplePages();
-  }
-
   @Override
   public List<SegmentedModelDto> getSegmentedModels() {
     return segmentedModelLoader.getSegmentedModels();
-  }
-
-  @Override
-  public FormattedPageModelDto toFormattedPageModel(ModelPagesDto modelPages) {
-    return PageModelLoader.toFormattedPageModel(modelPages);
-  }
-
-  @Override
-  public ModelPagesDto fromFormattedPageModel(FormattedPageModelDto formattedPageModel) {
-    return PageModelLoader.fromFormattedPageModel(formattedPageModel);
   }
 
   public ExpressionResultDto solveProblem(String sessionId, ModelQueryDto modelQuery) {

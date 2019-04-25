@@ -1,11 +1,11 @@
-package com.sri.ai.praisewm.web.rest.filter;
+package com.sri.ai.praisewm.web.rest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import spark.Request;
 import spark.Response;
 
-/** CorsFilter. */
+/** CorsFilter provides CORS for JavaSpark */
 public final class CorsFilter {
   private static final Map<String, String> corsHeaders = new LinkedHashMap<>();
 

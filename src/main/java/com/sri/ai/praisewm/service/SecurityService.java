@@ -1,8 +1,8 @@
 package com.sri.ai.praisewm.service;
 
 import com.sri.ai.praisewm.db.jooq.tables.pojos.User;
-import com.sri.ai.praisewm.service.dto.LoginResponseDto;
 import com.sri.ai.praisewm.event.notification.SessionLogoutEvent;
+import com.sri.ai.praisewm.service.dto.LoginResponseDto;
 import com.sri.ai.praisewm.web.error.LoginException;
 import java.util.Map;
 import spark.Request;
@@ -15,9 +15,9 @@ public interface SecurityService {
   /**
    * Handles a user's login request from the REST path {@link SecurityServiceImpl#LOGIN_PATH}.
    *
-   * <p>After the user is authenticated, {@link SecurityServiceImpl#SECURITY_HEADER_KEY} is set in the
-   * REST response header that is returned to the UI client. The client sends
-   * {@link SecurityServiceImpl#SECURITY_HEADER_KEY} back to the server will each subsequent REST call.
+   * <p>After the user is authenticated, {@link SecurityServiceImpl#SECURITY_HEADER_KEY} is set in
+   * the REST response header that is returned to the UI client. The client sends {@link
+   * SecurityServiceImpl#SECURITY_HEADER_KEY} back to the server will each subsequent REST call.
    *
    * @param user login request from client that contains a name and password field.
    * @param request the REST request object

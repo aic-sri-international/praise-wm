@@ -65,6 +65,12 @@ shadowJar {
     archiveClassifier.set('all')
 }
 
+javadoc {
+    // The JavaDoc in the generated jOOQ Java code does not contain all required return or
+    // parameter values which would cause lots of warning messages.
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 file("application.properties").withReader {
     Properties props = new Properties()
     props.load(it)
@@ -113,6 +119,10 @@ apply from: 'gradle/node.gradle'
     tasks.remove(it)
 }
 
+test {
+    useJUnitPlatform()
+}
+
 task copyClientResources(type: Copy) {
     from "${web_dist_src}"
     into "${buildDir}/resources/main/${project.ext.cfg['server.staticFolder']}"
@@ -125,8 +135,7 @@ copyClientResources.description 'Copies web client resources'
 copyClientResources.dependsOn(yarn_run_build)
 yarn_run_build.dependsOn(yarn_lint)
 
-//Commented out due to length of time to run the tests
-// yarn_run_build.dependsOn(yarn_run_unit_tests)
+yarn_run_build.dependsOn(yarn_run_unit_tests)
 
 task copyClientResourcesNoBuild(type: Copy) {
     from "${web_dist_src}"
@@ -155,7 +164,7 @@ repositories {
     maven { url "http://repo.boundlessgeo.com/main/" }
     maven { url "http://maven.geomajas.org/" }
     maven { url "http://repo.maven.apache.org/maven2" }
-    // The aic- libs are published to the oss.sonatype.org repos, since we build the aic-libs locally 
+    // The aic- libs are published to the oss.sonatype.org repos, since we build the aic-libs locally
     // during development, check the local maven repo first
     mavenLocal()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -180,13 +189,9 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api:${jaxax_annotation_api_version}"
     implementation "mysql:mysql-connector-java:${mysql_connector_java_version}"
     implementation "org.apache.commons:commons-lang3:${commons_lang3_version}"
-    implementation "org.apache.pdfbox:pdfbox:${apache_pdfbox_version}"
 
-    implementation "org.geotools:gt-geotiff:${gt_geotiff_version}"
-    implementation "org.geotools:gt-epsg-hsql:${gt_geotiff_version}"
-    testImplementation "junit:junit:${junit_version}"
-    testImplementation "org.assertj:assertj-core:${assertj_core_version}"
-    testImplementation "org.assertj:assertj-guava:${assertj_guava_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_version}"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:${junit_version}"
 }
 
 wrapper {

@@ -1,7 +1,7 @@
 package com.sri.ai.praisewm.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import org.junit.Test;
 
 /** JsonConverterTest. */
 public class JsonConverterTest {
@@ -35,7 +34,7 @@ public class JsonConverterTest {
     String json = JsonConverter.to(before);
     Inherit after = JsonConverter.from(json, Inherit.class);
 
-    assertThat(before.equals(after));
+    assertEquals(before, after);
   }
 
   @Test
@@ -45,7 +44,7 @@ public class JsonConverterTest {
 
     Instant i2 = ts.toInstant();
 
-    assertThat(now.equals(i2));
+    assertEquals(now, i2);
   }
 
   @Test
@@ -56,7 +55,7 @@ public class JsonConverterTest {
 
     String json = JsonConverter.to(samples);
     Samples s1 = JsonConverter.from(json, Samples.class);
-    assertThat(JsonConverter.to(s1)).isEqualTo(json);
+    assertEquals(JsonConverter.to(s1), json);
   }
 
   public static class Slot {

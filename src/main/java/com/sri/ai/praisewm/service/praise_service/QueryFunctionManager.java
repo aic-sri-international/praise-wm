@@ -14,6 +14,9 @@ import com.sri.ai.util.graph2d.api.GraphPlot;
 import com.sri.ai.util.graph2d.api.GraphSetMaker;
 import java.util.Map;
 
+/**
+ * The QueryFunctionManager manages a HOGM query result Function request.
+ */
 public class QueryFunctionManager {
   private final QueryFunctionCache queryFunctionCache;
 
@@ -47,7 +50,7 @@ public class QueryFunctionManager {
             variableSetOfValuesMap, graphRequestDto.getXmVariable());
 
     GraphSetMaker graphSetMaker = GraphSetMaker.graphSetMaker();
-    graphSetMaker.setDecimalFormatter((value)-> DefaultSymbol.createSymbol(value).toString());
+    graphSetMaker.setDecimalFormatter((value) -> DefaultSymbol.createSymbol(value).toString());
 
     graphSetMaker.setFunctions(entry.getFunctions());
 

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** ServiceRegistry. */
+/** The ServiceRegistry instantiates services defined in the {@code application.properties} file. */
 public final class ServiceRegistry {
   private static final Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
   private final Set<Class<? extends Service>> services = new LinkedHashSet<>();

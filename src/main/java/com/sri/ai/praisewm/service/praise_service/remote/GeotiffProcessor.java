@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise.remote;
+package com.sri.ai.praisewm.service.praise_service.remote;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;

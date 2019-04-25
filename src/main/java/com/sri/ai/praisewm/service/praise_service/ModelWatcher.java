@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise;
+package com.sri.ai.praisewm.service.praise_service;
 
 import com.google.common.eventbus.EventBus;
 import com.sri.ai.praisewm.event.notification.NotificationEvent.Broadcast;
@@ -20,6 +20,12 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The ModelWatcher watches the model's directory for adds, changes, and deletes.
+ * <p>
+ *   Clients are sent a {@link com.sri.ai.praisewm.event.notification.NotificationTextMessage}
+ *   if any model files are added, removed, or modified.
+ */
 public class ModelWatcher {
   private static final Logger LOG = LoggerFactory.getLogger(ModelWatcher.class);
   private final List<QueueEntry> msgQueue = new ArrayList<>();

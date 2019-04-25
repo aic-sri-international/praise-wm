@@ -2,6 +2,17 @@ package com.sri.ai.praisewm.service.dto;
 
 import java.util.Arrays;
 
+/**
+ * Represents a model file with extended information.
+ *
+ * <p>The format supports dividing sections of a model into individual rules with optional
+ * metadata and a set of example queries.
+ * <p>The name field is mandatory.
+ * <p>It is valid to include all declarations and rules (without metadata)
+ * in the declarations field.
+ * <p>Although it is optional to do so, it is strongly advised to include
+ * at least one query to allow a user to easily test the model.
+ */
 public class SegmentedModelDto {
   private String name;
   private String description;

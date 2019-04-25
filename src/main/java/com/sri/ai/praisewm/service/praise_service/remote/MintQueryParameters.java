@@ -1,4 +1,4 @@
-package com.sri.ai.praisewm.service.praise.remote;
+package com.sri.ai.praisewm.service.praise_service.remote;
 
 public class MintQueryParameters {
   private String standardName =
