@@ -158,28 +158,29 @@ yarn_run_build_report.group groupName
 yarn_run_build_report.description 'Build for production and view the bundle analyzer report'
 
 task yarn_run_unit_tests(type: Exec) {
-    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'unit'])
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'test'])
     setWorkingDir arr[0]
     commandLine arr[1]
 }
 yarn_run_unit_tests.group groupName
 yarn_run_unit_tests.description 'Run unit tests'
 
-task yarn_run_e2e_tests(type: Exec) {
-    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'e2e'])
-    setWorkingDir arr[0]
-    commandLine arr[1]
-}
-yarn_run_e2e_tests.group groupName
-yarn_run_e2e_tests.description 'Run end-to-end tests'
-
-task yarn_run_all_tests(type: Exec) {
-    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'test'])
-    setWorkingDir arr[0]
-    commandLine arr[1]
-}
-yarn_run_all_tests.group groupName
-yarn_run_all_tests.description 'Run all tests'
+// We don't have any e2e tests
+//task yarn_run_e2e_tests(type: Exec) {
+//    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'e2e'])
+//    setWorkingDir arr[0]
+//    commandLine arr[1]
+//}
+//yarn_run_e2e_tests.group groupName
+//yarn_run_e2e_tests.description 'Run end-to-end tests'
+//
+//task yarn_run_all_tests(type: Exec) {
+//    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['run', 'test'])
+//    setWorkingDir arr[0]
+//    commandLine arr[1]
+//}
+//yarn_run_all_tests.group groupName
+//yarn_run_all_tests.description 'Run all tests'
 
 task createNodeDirLink() {
     // create project node dir if it does not already exist

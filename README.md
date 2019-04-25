@@ -90,11 +90,9 @@ A curated list of [Vue resources][].
 **Common Tasks**
 
 1. **run** - Prepares server code as required, then runs the application
-1. **test** - Prepares server code as required, then runs the java unit tests
 1. **yarn_run_dev** -  Runs the client application with hot reload at localhost:8080
     This requires that the java application is already running, unless the java server is not being accessed.
 1. **yarn_run_unit_tests** - Runs the client unit tests
-1. **yarn_run_e2e_tests** - Runs the client end-to-end tests
 1.  **deploy** -
     1. Deletes the build directory
     1. Runs client unit tests
@@ -106,7 +104,7 @@ A curated list of [Vue resources][].
     1. Runs server unit tests
 1. **flywayClean** - Drops all objects in the configured database schemas. Run if needed due to developer modifications to existing flyway scripts.
 1. **clean** - Deletes the java build directory
-1. **createDbJar** - Creates a jar that contains a subset of database related classes that can be used by other applications. The jar contains source alongside the class files to facilitate development.
+1. **javadoc** - Generates JavaDoc HTML in the *build/docs/javadoc* directory.
 
 Run the following to display a list of all gradle tasks:
 
