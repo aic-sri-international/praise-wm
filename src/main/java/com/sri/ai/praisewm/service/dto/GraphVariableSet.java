@@ -3,7 +3,7 @@ package com.sri.ai.praisewm.service.dto;
 import java.util.List;
 import java.util.Objects;
 
-/** Class it used in both the client's request and the reply payroll */
+/** Class is used in both the client's request and the server's reply */
 public class GraphVariableSet {
   // Required
   private String name;

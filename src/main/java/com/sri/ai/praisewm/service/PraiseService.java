@@ -48,7 +48,7 @@ public interface PraiseService {
   /**
    * Get data that represents the result of a query <code>Function</code>.
    *
-   * @param sessionId
+   * @param sessionId the client's sessionId
    * @param graphRequestDto function query criteria
    * @return a graphic representation result
    */

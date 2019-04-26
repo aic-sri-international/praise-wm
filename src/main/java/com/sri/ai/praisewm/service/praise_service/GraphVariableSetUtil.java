@@ -24,7 +24,12 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-
+/**
+ * GraphVariableSetUtil data conversion utilities
+ * <p>
+ *   Contains methods to convert between HOGM query result <code>Function</code> variable/values and
+ *   DTOs, and, to determine or change the x-axis variable.
+ */
 class GraphVariableSetUtil {
   private static void setUnitValues(
       Variable variable, GraphVariableRangeDto graphVariableRangeDto) {
