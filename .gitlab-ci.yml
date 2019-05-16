@@ -31,6 +31,7 @@ buildClient:
     - cd src/main/webapp
     - yarn
     - yarn lint
+    - yarn test:unit
     - yarn build
   retry: 2
   artifacts:
@@ -52,6 +53,7 @@ buildServer:
     - echo -e "\norg.gradle.daemon=false" >> ./gradle.properties
     - ./gradlew
     - ./gradlew compileJava
+    - ./gradlew test
     - ./gradlew copyClientResourcesNoBuild
     - ./gradlew shadowJar
   retry: 2

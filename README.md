@@ -93,6 +93,7 @@ A curated list of [Vue resources][].
 1. **yarn_run_dev** -  Runs the client application with hot reload at localhost:8080
     This requires that the java application is already running, unless the java server is not being accessed.
 1. **yarn_run_unit_tests** - Runs the client unit tests
+1. **test** - Runs server unit tests
 1.  **deploy** -
     1. Deletes the build directory
     1. Runs client unit tests
