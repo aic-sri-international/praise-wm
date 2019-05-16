@@ -75,7 +75,7 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 
 The [WebPack DevServer](docs/webpack_dev_server.md) configuration will need a minor adjustment to run praise-wm under SSL.
 
-JavaScript uses the [Airbnb Javascript Style Guide][].
+JavaScript uses the [Airbnb Javascript Style Guide][] and the [Vue.js Style Guide][].
 
 Java uses the [Google Java Style Guide][].
 
@@ -127,6 +127,7 @@ Run the following to display a list of all gradle tasks:
 
 [Gradle]: https://gradle.org/
 [Airbnb Javascript Style Guide]: https://github.com/airbnb/javascript
+[Vue.js Style Guide]: https://vuejs.org/v2/style-guide/
 [Google Java Style Guide]: https://google.github.io/styleguide/javaguide.html
 [Vue resources]: https://github.com/vuejs/awesome-vue
 [gradle.properties]: ./gradle.properties

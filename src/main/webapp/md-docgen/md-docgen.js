@@ -13,9 +13,8 @@ const opn = require('opn');
 
 try {
   process.chdir('..');
-}
-catch (err) {
-  console.log('chdir: ' + err);
+} catch (err) {
+  console.log(`chdir: ${err}`);
 }
 
 const docsSrcDir = '../../../docs';

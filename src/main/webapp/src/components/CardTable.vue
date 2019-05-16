@@ -79,8 +79,6 @@
 </template>
 
 <script lang="ts">
-  import isNil from 'lodash/isNil';
-
   import { Component, Prop, Vue } from 'vue-property-decorator';
 
   type OptionEntry = {
@@ -116,12 +114,12 @@
 
     perPage = -1;
 
-    filter = null;
+    filter = '';
 
     filteredRows: Array<Object> = [];
 
     get totalRowsForPagination() {
-      return isNil(this.filter) ? this.items.length : this.filteredRows.length;
+      return this.filter ? this.filteredRows.length : this.items.length;
     }
 
     get footingMessage() {
