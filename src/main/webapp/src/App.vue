@@ -1,80 +1,87 @@
 <template>
-
-  <div id="app" :style="sideBarStyle">
+  <div
+    id="app"
+    :style="sideBarStyle"
+  >
     <top-bar
-        @notificationsClicked="onNotificationsClicked"
-        @notificationsTesterClicked="onNotificationsTesterClicked"
-        @systemsStatusClicked="onSystemsStatusClicked"
-        v-show="user.isLoggedIn"></top-bar>
+      v-show="isLoggedIn"
+      @notificationsClicked="onNotificationsClicked"
+      @notificationsTesterClicked="onNotificationsTesterClicked"
+      @systemsStatusClicked="onSystemsStatusClicked"
+    />
 
     <div class="parent">
-      <scroll-to-top-button ref="scrollToTop_ref"></scroll-to-top-button>
+      <scroll-to-top-button ref="scrollToTop_ref" />
 
-      <div class="sideBar" v-show="user.isLoggedIn">
-        <side-bar></side-bar>
+      <div
+        v-show="isLoggedIn"
+        class="sideBar"
+      >
+        <side-bar />
       </div>
 
-      <div class="contentStyle" @scroll="ev => $refs.scrollToTop_ref.onScrollEvent(ev)">
+      <div
+        class="contentStyle"
+        @scroll="ev => $refs.scrollToTop_ref.onScrollEvent(ev)"
+      >
         <notification-messages
-            v-if="showNotifications"
-            @close="showNotifications = false"
-            class="notificationsPanel">
-        </notification-messages>
+          v-if="showNotifications"
+          class="notificationsPanel"
+          @close="showNotifications = false"
+        />
         <notification-message-tester
-            v-if="showNotificationsTester"
-            class="notificationsTesterPanel">
-        </notification-message-tester>
+          v-if="showNotificationsTester"
+          class="notificationsTesterPanel"
+        />
         <system-status
-            v-if="showSystemsStatus"
-            @close="showSystemsStatus = false"
-            class="systemsStatusPanel">
-        </system-status>
-        <keep-alive>
-          <router-view id="router"></router-view>
-        </keep-alive>
-        <span v-for="msg in httpErrors">
-          {{displayError(msg)}}
+          v-if="showSystemsStatus"
+          class="systemsStatusPanel"
+          @close="showSystemsStatus = false"
+        />
+        <router-view id="router" />
+        <span
+          v-for="msg in httpErrors"
+          :key="msg.id"
+        >
+          {{ displayError(msg) }}
         </span>
-        <vue-snotify/>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-  // @flow
-
-  import Vue from 'vue';
+<script lang="ts">
+  import {
+    Vue, Component, Watch,
+  } from 'vue-property-decorator';
+  import {
+    namespace,
+  } from 'vuex-class';
 
   import BootstrapVue from 'bootstrap-vue';
   import 'bootstrap/dist/css/bootstrap.css';
   import 'bootstrap-vue/dist/bootstrap-vue.css';
 
   import Toasted from 'vue-toasted';
-  import moment from 'moment';
+  import moment, { MomentInput } from 'moment';
 
-  import ScrollToTopButton from '@/ScrollToTopButton';
-  import TopBar from '@/TopBar';
-  import SideBar from '@/SideBar';
-  import NotificationMessages from '@/NotificationMessages';
-  import MsgTester from '@/notifications/testmsg/MsgTester';
-  import SystemStatus from '@/SystemStatus';
-
-  import { mapGetters } from 'vuex';
+  import ScrollToTopButton from '@/ScrollToTopButton.vue';
+  import TopBar from '@/TopBar.vue';
+  import SideBar from '@/SideBar.vue';
+  import NotificationMessages from '@/NotificationMessages.vue';
+  import MsgTester from '@/MsgTester.vue';
+  import SystemStatus from '@/SystemStatus.vue';
   import Vue2Filters from 'vue2-filters';
   import VueTippy from 'vue-tippy';
-  import Snotify from 'vue-snotify';
-  import 'vue-snotify/styles/material.css';
 
   import {
-    USER_VXC as UC,
-    SIDEBAR_VXC as SB,
-    SYSTEM_STATUS_VXC as SS,
-    NOTIFICATIONS_VXC as NC,
-    UPLOADER_VXC as UP,
+    USER_VXC,
+    SIDEBAR_VXC,
+    NOTIFICATIONS_VXC,
     vxcFp,
   } from '@/store';
-  import type { HttpError } from '@/store/notifications/types';
+  import { HttpError } from '@/store/notifications/types';
+  import { SideBarStyle } from '@/store/sidebar/types';
 
   Vue.use(BootstrapVue);
   Vue.use(Toasted);
@@ -94,12 +101,15 @@
       },
     },
   });
-  Vue.use(Snotify);
 
-  Vue.filter('formatDateTime', value => (value ? `${moment.utc(value).format('MM/DD/YYYY HH:mm:ss')}Z` : null));
+  const dtFormat = 'MM/DD/YYYY HH:mm:ss';
+  Vue.filter('formatDateTime', (value: MomentInput) => (value ? `${moment.utc(value).format(dtFormat)}Z` : null));
 
-  export default {
-    name: 'app',
+  const userModule = namespace(USER_VXC.MODULE);
+  const sideBarModule = namespace(SIDEBAR_VXC.MODULE);
+  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
+
+  @Component({
     components: {
       TopBar,
       SideBar,
@@ -108,56 +118,52 @@
       'notification-message-tester': MsgTester,
       SystemStatus,
     },
-    data() {
-      return {
-        showNotifications: false,
-        showNotificationsTester: false,
-        showSystemsStatus: false,
-      };
-    },
-    methods: {
-      displayError(msg: HttpError) {
-        this.$$.showToastError(msg.error);
-        this.$store.commit(vxcFp(NC, NC.SET.REMOVE_HTTP_ERROR), msg.id);
-      },
-      onNotificationsClicked() {
-        this.showNotifications = !this.showNotifications;
-      },
-      onNotificationsTesterClicked() {
-        if (process.env.NODE_ENV !== 'production') {
-          this.showNotificationsTester = !this.showNotificationsTester;
-        }
-      },
-      onSystemsStatusClicked() {
-        this.showSystemsStatus = !this.showSystemsStatus;
-      },
-    },
-    computed: {
-      ...mapGetters(NC.MODULE, [
-        NC.GET.HTTP_ERRORS,
-      ]),
-      ...mapGetters(UC.MODULE, [
-        UC.GET.USER,
-      ]),
-      ...mapGetters(SB.MODULE, [
-        SB.GET.SIDEBAR_STYLE,
-      ]),
-    },
-    watch: {
-      [UC.GET.USER](user) {
-        if (!user.isLoggedIn) {
-          this.showSystemsStatus = false;
-          this.$store.commit(vxcFp(SS, SS.SET.ALL_STATUSES_UNKNOWN));
-          this.showNotifications = false;
-          this.$store.commit(vxcFp(NC, NC.SET.REMOVE_ALL_NOTIFICATIONS_FOR_UI));
-          this.$store.commit(vxcFp(UP, UP.SET.REMOVE_ALL_ENTRIES));
-        }
-      },
-    },
-  };
+  })
+  export default class App extends Vue {
+    showNotifications = false;
+
+    showNotificationsTester = false;
+
+    showSystemsStatus = false;
+
+    @userModule.State
+    isLoggedIn!: boolean;
+
+    @notificationsModule.Getter
+    httpErrors!: HttpError[];
+
+    @sideBarModule.Getter
+    sideBarStyle!: SideBarStyle;
+
+
+    @Watch('isLoggedIn')
+    onIsLoggedIn(loggedIn: boolean) {
+      this.showSystemsStatus = false;
+      this.showNotifications = false;
+    }
+
+    displayError(msg: HttpError) {
+      this.$$.showToastError(msg.error);
+      this.$store.commit(vxcFp(NOTIFICATIONS_VXC, NOTIFICATIONS_VXC.SET.REMOVE_HTTP_ERROR), msg.id);
+    }
+
+    onNotificationsClicked() {
+      this.showNotifications = !this.showNotifications;
+    }
+
+    onNotificationsTesterClicked() {
+      if (process.env.NODE_ENV !== 'production') {
+        this.showNotificationsTester = !this.showNotificationsTester;
+      }
+    }
+
+    onSystemsStatusClicked() {
+      this.showSystemsStatus = !this.showSystemsStatus;
+    }
+  }
 </script>
 
-<style>
+<style lang="scss" scoped>
   #app {
     font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;

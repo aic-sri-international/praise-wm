@@ -1,80 +1,83 @@
 <template>
   <div>
-      <div class="rule-border" >
-        <span v-show="modelRuleWrapper.openMetadata">
-          <editor ref="metadata_ref"
-                  type="text"
-                  :readOnly="readOnly"
-                  styleClass="metadata"
-                  :editorInitFlag="editorInitFlag"
-                  :value="modelRuleWrapper.modelRule.metadata">
-          </editor>
-          <hr />
-        </span>
-        <editor ref="rule_ref"
-                type="hogm"
-                :readOnly="readOnly"
-                :editorInitFlag="editorInitFlag"
-                :value="modelRuleWrapper.modelRule.rule">
-        </editor>
-      </div>
+    <div class="rule-border">
+      <span v-show="modelRuleWrapper.openMetadata">
+        <editor
+          ref="metadataRef"
+          type="text"
+          :read-only="readOnly"
+          style-class="metadata"
+          :editor-init-flag="editorInitFlag"
+          :value="modelRuleWrapper.modelRule.metadata"
+        />
+        <hr>
+      </span>
+      <editor
+        ref="ruleRef"
+        type="hogm"
+        :read-only="readOnly"
+        :editor-init-flag="editorInitFlag"
+        :value="modelRuleWrapper.modelRule.rule"
+      />
+    </div>
   </div>
 </template>
 
-<script>
-  // @flow
-  import type { ModelRuleDto } from '@/store/model/types';
-  import Editor from './Editor';
+<script lang="ts">
+  import {
+    Component, Prop, Vue, Watch,
+  } from 'vue-property-decorator';
 
-  export default {
-    name: 'ModelRuleEditor',
+  import { ModelRuleDto } from '@/store/model/types';
+  import Editor from './Editor.vue';
+  import {
+    EditorInterface,
+    ModelRuleEditorInterface,
+    ModelRuleWrapper,
+  } from '@/components/model/editor/types';
+
+  @Component({
     components: {
       Editor,
     },
-    props: {
-      modelRuleWrapper: {
-        modelRule: {
-          metadata: {
-            type: String,
-            default: '',
-          },
-          rule: {
-            type: String,
-            required: true,
-          },
-        },
-        openMetadata: {
-          type: Boolean,
-          required: false,
-          default: false,
-        },
-      },
-      readOnly: {
-        type: Boolean,
-      },
-    },
-    data() {
+  })
+  export default class ModelRuleEditor extends Vue implements ModelRuleEditorInterface {
+    @Prop({
+      type: Object,
+      required: true,
+    }) readonly modelRuleWrapper!: ModelRuleWrapper;
+
+    @Prop({
+      type: Boolean,
+      default: false,
+    }) readonly readOnly!: boolean;
+
+    $refs!: {
+      metadataRef: EditorInterface;
+      ruleRef: EditorInterface;
+    };
+
+    editorInitFlag = false;
+
+    @Watch('modelRuleWrapper')
+    onEditorInitFlag() {
+      this.editorInitFlag = !this.editorInitFlag;
+    }
+
+    getModelRule(): ModelRuleDto {
       return {
-        editorInitFlag: false,
+        metadata: this.$refs.metadataRef.getValue().trim(),
+        rule: this.$refs.ruleRef.getValue().trim(),
       };
-    },
-    methods: {
-      getModelRule(): ModelRuleDto {
-        return {
-          metadata: this.$refs.metadata_ref.getValue().trim(),
-          rule: this.$refs.rule_ref.getValue().trim(),
-        };
-      },
-    },
-    watch: {
-      modelRuleWrapper() {
-        this.editorInitFlag = !this.editorInitFlag;
-      },
-    },
-  };
+    }
+
+    focusOnRuleEditor() {
+      this.$refs.ruleRef.focus();
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .rule-border {
     border: thin double lightgrey;
     padding: 10px;

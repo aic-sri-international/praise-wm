@@ -1,0 +1,19 @@
+{
+  "name": "md-docgen",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "readme": "babel-node md-docgen.js --presets env,stage-2"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "fs-extra": "^8.0.1",
+    "markdown-it": "^8.4.2",
+    "markdown-it-github-toc": "^3.2.4",
+    "opn": "^5.4.0"
+  },
+  "devDependencies": {}
+}

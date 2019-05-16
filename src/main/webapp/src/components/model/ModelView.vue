@@ -1,119 +1,117 @@
 <template>
   <div class="top-level-container">
-    <div class="left-column" id="modelEditorViewLeftColId">
-      <model-editor-view class="model-editor-view"></model-editor-view>
+    <div
+      id="modelEditorViewLeftColId"
+      class="left-column"
+    >
+      <model-editor-view class="model-editor-view" />
       <div class="modelControlsContainer">
-        <model-controls-panel></model-controls-panel>
-        <query-results class="query-results mt-2 mb-2" v-if="queryResultsIx !== -1"></query-results>
+        <model-controls-panel />
+        <query-results
+          v-if="queryResultsIx !== -1"
+          class="query-results mt-2 mb-2"
+        />
       </div>
-      <spinner hoverText="Click here to abort the query"
-               :show="isQueryActive" @click="setAbortQuery(true)"></spinner>
+      <spinner
+        hover-text="Click here to abort the query"
+        :show="isQueryActive"
+        @click="setAbortQuery(true)"
+      />
     </div>
-    <div class="right-column" id="segModelEditorViewRightColId">
-      <!--@TODO update when the HOGM solver can return map related query results-->
-     <query-chart-result class="query-chart" v-if="displayChart"></query-chart-result>
-     <query-map-result v-if="!displayChart"></query-map-result>
+    <div
+      id="segModelEditorViewRightColId"
+      class="right-column"
+    >
+      <query-chart-result
+        v-if="displayChart"
+        class="query-chart"
+      />
+      <query-map-result v-if="!displayChart" />
 
-      <!-- @TODO replacement for the following is TBD soon, leave it commented out for now -->
+      <!-- @TODO placeholder for when hogm solver returns an explanation tree -->
       <!--<explanations :explanation-tree="explanationTree" id="explanations"></explanations>-->
     </div>
-    <b-popover :show="showHelp" target="segModelEditorViewRightColId" triggers="">
+    <b-popover
+      :show="showHelp"
+      target="segModelEditorViewRightColId"
+      triggers=""
+    >
       Visualization of query results.
     </b-popover>
   </div>
 </template>
 
-<script>
-  // @flow
+<script lang="ts">
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
   import Split from 'split.js';
-  import Spinner from '@/components/Spinner';
-  import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-  import ModelEditorView from './editor/ModelEditorView';
-  import Editor from './editor/Editor';
-  import Explanations from './explanations/Explanations';
-  import ModelControlsPanel from './ModelControlsPanel';
-  import QueryResults from './QueryResults';
-  import QueryChartResult from './QueryChartResult';
-  import QueryMapResult from './QueryMapResult';
-  import MapImage from './MapImage';
+  import Spinner from '@/components/Spinner.vue';
+  import { HELP_VXC, MODEL_VXC } from '@/store';
+  import ModelEditorView from './editor/ModelEditorView.vue';
+  import ModelControlsPanel from './ModelControlsPanel.vue';
+  import QueryResults from './QueryResults.vue';
+  import QueryChartResult from './QueryChartResult.vue';
+  import QueryMapResult from './QueryMapResult.vue';
 
-  export default {
-    name: 'ModelView',
+  const helpModule = namespace(HELP_VXC.MODULE);
+  const modelModule = namespace(MODEL_VXC.MODULE);
+
+  @Component({
     components: {
       ModelEditorView,
-      Editor,
       ModelControlsPanel,
       QueryResults,
       QueryChartResult,
-      MapImage,
-      Explanations,
       QueryMapResult,
       Spinner,
     },
-    computed: {
-      ...mapState(MODEL.MODULE, [
-        'queryResultsIx',
-      ]),
-      ...mapGetters(HELP.MODULE, [
-        HELP.GET.SHOW_HELP,
-      ]),
-      ...mapGetters(MODEL.MODULE, [
-        MODEL.GET.IS_QUERY_ACTIVE,
-        MODEL.GET.DISPLAY_CHART,
-      ]),
-    },
-    methods: {
-      ...mapActions(MODEL.MODULE, [
-        MODEL.ACTION.INITIALIZE,
-      ]),
-      ...mapMutations(MODEL.MODULE, [
-        MODEL.SET.ABORT_QUERY,
-      ]),
-    },
-    created() {
-      this[MODEL.ACTION.INITIALIZE]();
-    },
+  })
+  export default class ModelView extends Vue {
+    splitter?: Split.Instance = undefined;
+
+    @helpModule.State showHelp!: boolean;
+
+    @modelModule.State queryResultsIx!: number;
+
+    @modelModule.Getter isQueryActive!: boolean;
+
+    @modelModule.Getter displayChart!: boolean;
+
+    @modelModule.Mutation setAbortQuery!: (abortFlag: boolean) => void;
+
+    @modelModule.Action initialize!: () => Promise<any>;
+
+    async created() {
+      await this.initialize();
+    }
+
     mounted() {
       const sendResizeEvent = () => {
         // The Map component needs to get a window's resize event so that it can recompute
         // map coordinates and UI display.
         window.dispatchEvent(new Event('resize'));
       };
-      if (this.splitter$ !== undefined) {
-        this.splitter$.destroy();
+      if (this.splitter) {
+        this.splitter.destroy();
       }
-      this.splitter$ = Split(['#modelEditorViewLeftColId', '#segModelEditorViewRightColId'], {
+      this.splitter = Split(['#modelEditorViewLeftColId', '#segModelEditorViewRightColId'], {
         sizes: [60, 40],
         onDrag() {
           sendResizeEvent();
         },
       });
       sendResizeEvent();
-    },
+    }
+
     beforeDestroy() {
-      this.splitter$.destroy();
-    },
-  };
+      if (this.splitter) {
+        this.splitter.destroy();
+      }
+    }
+  }
 </script>
 
-<style>
-  .gutter {
-    background-color: #eee;
-
-    background-repeat: no-repeat;
-    background-position: 50%;
-  }
-
-  .gutter.gutter-vertical {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
-  }
-
-  .gutter.gutter-horizontal {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
-  }
-</style>
-<style scoped>
+<style lang="scss" scoped>
   .top-level-container {
     height: 100%;
     width: 100%;

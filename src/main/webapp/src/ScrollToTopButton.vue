@@ -1,33 +1,34 @@
 <template>
-    <span class="button-up-style" v-show="showScrollUpButton">
-      <b-btn href="#router"><i class="fas fa-arrow-up fa-2x"></i></b-btn>
-    </span>
+  <span
+    v-show="showScrollUpButton"
+    class="button-up-style"
+  >
+    <b-btn href="#router"><i class="fas fa-arrow-up fa-2x" /></b-btn>
+  </span>
 </template>
 
-<script>
-  // @flow
+<script lang="ts">
+  import {
+    Vue, Component,
+  } from 'vue-property-decorator';
 
-  export default {
-    name: 'ScrollToTopButton',
-    data() {
-      return {
-        scrollTop: 0,
-      };
-    },
-    methods: {
-      onScrollEvent(event: Object) {
-        this.scrollTop = event.target.scrollTop;
-      },
-    },
-    computed: {
-      showScrollUpButton() {
-        return this.scrollTop > 8;
-      },
-    },
-  };
+  @Component
+  export default class ScrollToTopButton extends Vue {
+    scrollTop = 0;
+
+    get showScrollUpButton() : boolean {
+      return this.scrollTop > 8;
+    }
+
+    onScrollEvent(event: Event) {
+      if (event.target) {
+        this.scrollTop = (event.target as Element).scrollTop;
+      }
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .button-up-style {
     z-index: 1030;
     position: fixed;

@@ -3,7 +3,7 @@
 ## Installation
 
 1. [Install Docker][]
-1. [Install Docker Compose][]
+1. [Install Docker Compose][] if not already installed during the Docker installation.
 
 ## Running the MySQL Container
 

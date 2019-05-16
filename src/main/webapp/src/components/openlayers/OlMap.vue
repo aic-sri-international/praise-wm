@@ -1,82 +1,116 @@
 <template>
   <div>
-    <div :style="mapStyle" ref="map_ref"></div>
-    <ol-popup ref="ol_popup_ref" @clicked-non-feature="$emit('closeMap')"></ol-popup>
+    <div
+      ref="mapRef"
+      :style="mapStyle"
+    />
+    <ol-popup
+      ref="olPopupRef"
+      @clicked-non-feature="$emit('closeMap')"
+    />
   </div>
 </template>
 
-<script>
-  // @flow
+<script lang="ts">
+  import {
+    Component, Vue, Prop, Watch,
+  } from 'vue-property-decorator';
+
+  // @ts-ignore
   import getCentroid from '@turf/centroid';
-  import Feature from 'ol/Feature';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
+  import OlFeature from 'ol/Feature';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import Map from 'ol/Map';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import Collection from 'ol/Collection';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import MapBrowserEvent from 'ol/MapBrowserEvent';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import View from 'ol/View';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import { transform } from 'ol/proj';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import GeoJSON from 'ol/format/GeoJSON';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
+  // @ts-ignore
+  // noinspection TypeScriptCheckImport
   import { OSM, Vector as VectorSource } from 'ol/source';
-  import OlPopup from './OlPopup';
+  // eslint-disable-next-line import/extensions,import/no-unresolved
+  import { FeatureCollection } from 'geojson';
+  // eslint-disable-next-line
+  import OlPopup from './OlPopup.vue';
   import featureCollection from './SS_Admin2_2011.4326';
-  import { newFeatureCollectionHandler } from './features';
+  import { newFeatureCollectionHandler, FeatureCollectionHandler } from './features';
+  import { OlPopupInterface } from '@/components/openlayers/OlPopup.types';
+  import { OlMapInterface } from '@/components/openlayers/OlMap.types';
 
   const srcProjection = 'EPSG:4326';
   const destProjection = 'EPSG:3857';
 
-  export default {
-    name: 'OlMap',
+  @Component({
     components: {
       OlPopup,
     },
-    props: {
-      mapRegionNameToValue: {
-        type: Object,
-      },
-      heightOffset: {
-        type: Number,
-        default: 74,
-      },
-    },
-    data() {
-      return {
-        map: null,
-        featureCollection: null,
-        featureHandler: null,
-      };
-    },
-    methods: {
-      updateMapSize() {
-        if (this.map) {
-          this.map.updateSize();
-        }
-      },
-    },
-    computed: {
-      mapStyle() {
-        return { width: '100%', height: `calc(100vh - ${this.heightOffset}px)` };
-      },
-    },
-    watch: {
-      mapRegionNameToValue() {
-        this.featureHandler
-            = newFeatureCollectionHandler(this.featureCollection, this.mapRegionNameToValue);
-        // Force the view to redraw the features; replace if there's a better way to do it
-        const view: View = this.map.getView();
-        const oldZoom = view.getZoom();
-        // Small enough so that it probably won't be noticed
-        view.setZoom(oldZoom + 0.0000001);
-        // Reset it
-        setTimeout(() => {
-          view.setZoom(oldZoom);
-        }, 50);
-      },
-    },
+  })
+
+  export default class OlMap extends Vue implements OlMapInterface {
+    @Prop(Object) readonly mapRegionNameToValue?: { [key: string]: number };
+
+    @Prop({ default: 74 }) readonly heightOffset!: number;
+
+    $refs!: {
+      mapRef: HTMLElement,
+      olPopupRef: OlPopupInterface,
+    };
+
+    map: Map | null = null;
+
+    featureCollection: FeatureCollection | null = null;
+
+    featureHandler: FeatureCollectionHandler | null = null;
+
+
+    get mapStyle() {
+      return { width: '100%', height: `calc(100vh - ${this.heightOffset}px)` };
+    }
+
+    @Watch('mapRegionNameToValue')
+    onMapRegionNameToValue() {
+      if (!this.featureCollection) {
+        return;
+      }
+      this.featureHandler = newFeatureCollectionHandler(
+        this.featureCollection,
+        this.mapRegionNameToValue,
+      );
+      // Force the view to redraw the features; replace if there's a better way to do it
+      const view: View = this.map.getView();
+      const oldZoom = view.getZoom();
+      // Small enough so that it probably won't be noticed
+      view.setZoom(oldZoom + 0.0000001);
+      // Reset it
+      setTimeout(() => {
+        view.setZoom(oldZoom);
+      }, 50);
+    }
+
     mounted() {
       window.addEventListener('resize', this.updateMapSize);
-      this.featureCollection = featureCollection;
-      this.featureHandler =
-          newFeatureCollectionHandler(this.featureCollection, this.mapRegionNameToValue);
+      this.featureCollection = featureCollection as FeatureCollection;
+      this.featureHandler = newFeatureCollectionHandler(
+        this.featureCollection,
+        this.mapRegionNameToValue,
+      );
       const geoJson: GeoJSON = new GeoJSON();
       const geoJsonFeatures = geoJson.readFeatures(
         featureCollection,
@@ -89,14 +123,19 @@
         features: geoJsonFeatures,
       });
 
-      const getStyle = (feature: Feature) => this.featureHandler.getStyleForFeature(feature);
+      const getStyle = (feature: OlFeature) => {
+        if (!this.featureHandler) {
+          return null;
+        }
+        return this.featureHandler.getStyleForFeature(feature);
+      };
 
       const vectorLayer = new VectorLayer({
         source: vectorSource,
         style: getStyle,
       });
 
-      const controls = new Collection();
+      const controls: Collection = new Collection();
       this.map = new Map({
         layers: [
           new TileLayer({
@@ -104,7 +143,7 @@
           }),
           vectorLayer,
         ],
-        target: this.$refs.map_ref,
+        target: this.$refs.mapRef,
         view: new View({
           center,
           zoom: 6,
@@ -113,20 +152,28 @@
       });
 
       const onMapEvent = (event: MapBrowserEvent) => {
-        const getValueForFeature = feature => this.featureHandler.getValueForFeature(feature);
-        this.$refs.ol_popup_ref.onMapEvent(event, getValueForFeature);
+        const getValueForFeature = (feature: OlFeature) => {
+          if (!this.featureHandler) {
+            return null;
+          }
+          return this.featureHandler.getValueForFeature(feature);
+        };
+        this.$refs.olPopupRef.onMapEvent(event, getValueForFeature);
       };
       this.map.on('pointermove', onMapEvent);
-      this.$refs.ol_popup_ref.addOverlay(this.map);
-    },
+      this.$refs.olPopupRef.addOverlay(this.map);
+    }
+
     beforeDestroy() {
       window.removeEventListener('resize', this.updateMapSize);
       this.map.un('pointermove');
       this.map.setTarget(undefined);
-    },
-  };
-</script>
+    }
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-</style>
+    updateMapSize() {
+      if (this.map) {
+        this.map.updateSize();
+      }
+    }
+  }
+</script>

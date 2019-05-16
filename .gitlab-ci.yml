@@ -1,14 +1,13 @@
 # GitLab Pipeline for praise-wm
 
 variables:
-  PRAISE_WM_REV: '2.4'
   MYSQL_ROOT_PASSWORD: praisewm
   MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
   MYSQL_USER: 'praisewm'
   MYSQL_PASSWORD: 'praisewm'
   MYSQL_DATABASE: 'praisewm'
+#  See application.properties for information on PRAISEWM_DATABASE_HOST
   PRAISEWM_DATABASE_HOST: 'praisewm'
-  FLOW_BIN: 'node_modules/flow-bin/flow-linux64-v0.70.0/flow'
   REGISTRY_URI: 'worldmodelers.cse.sri.com/praise-wm'
   BUILD_TAG: '$CI_COMMIT_REF_NAME'
   JAVA_OPTIONS: "-Djava.awt.headless=true"
@@ -32,6 +31,7 @@ buildClient:
     - cd src/main/webapp
     - yarn
     - yarn lint
+    - yarn test:unit
     - yarn build
   retry: 2
   artifacts:
@@ -53,6 +53,7 @@ buildServer:
     - echo -e "\norg.gradle.daemon=false" >> ./gradle.properties
     - ./gradlew
     - ./gradlew compileJava
+    - ./gradlew test
     - ./gradlew copyClientResourcesNoBuild
     - ./gradlew shadowJar
   retry: 2

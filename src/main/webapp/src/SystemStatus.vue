@@ -2,65 +2,83 @@
   <div v-on-click-outside="onClickOutside">
     <b-container class="container effect8">
       <div class="d-flex justify-content-start pt-2">
-      <h4>System Status</h4>
+        <h4>System Status</h4>
       </div>
-      <hr />
-      <div v-for="item in items" :key="item.name">
+      <hr>
+      <div
+        v-for="item in items"
+        :key="item.name"
+      >
         <div class="d-flex justify-content-start">
-          <div>{{item.name}}</div>
-          <div class="ml-auto" v-if="item.iconName">
-            <font-awesome-icon :icon="item.iconName" :class="item.classes"/>
+          <div>{{ item.name }}</div>
+          <div
+            v-if="item.iconName"
+            class="ml-auto"
+          >
+            <font-awesome-icon
+              :icon="item.iconName"
+              :class="item.classes"
+            />
           </div>
         </div>
-        <hr />
+        <hr>
       </div>
     </b-container>
   </div>
 </template>
 
-<script>
-  // @flow
-
-  import { mapGetters } from 'vuex';
+<script lang="ts">
+  import {
+    Vue, Component,
+  } from 'vue-property-decorator';
+  import {
+    namespace,
+  } from 'vuex-class';
 
   import {
-    SYSTEM_STATUS_VXC as SS,
-    vxcFp,
+    SYSTEM_STATUS_VXC,
   } from '@/store';
+  import { SystemStatusIconInfo } from '@/store/system_status/types';
 
-  type Item = {
+  type Item = SystemStatusIconInfo & {
     name: string,
-    classes: ?string,
   };
 
+  const systemStatusModule = namespace(SYSTEM_STATUS_VXC.MODULE);
 
-  export default {
-    name: 'systemStatuses',
-    methods: {
-      onClickOutside() {
-        this.$emit('close');
-      },
-    },
-    computed: {
-      ...mapGetters(SS.MODULE, [
-        SS.GET.DATABASE_ICON_INFO,
-      ]),
-      items() : Item[] {
-        return [
-          { name: 'Database', ...this[SS.GET.DATABASE_ICON_INFO] },
-        ];
-      },
-    },
+  @Component
+  export default class SystemStatus extends Vue {
+    @systemStatusModule.Getter
+    systemStatusDatabaseIconInfo?: SystemStatusIconInfo;
+
+    @systemStatusModule.Mutation
+    setSystemStatusUiIsOpen!: (show:boolean) => void;
+
+    get items() : Item[] {
+      const items: Item[] = [];
+
+      if (this.systemStatusDatabaseIconInfo) {
+        items.push({ name: 'Database', ...this.systemStatusDatabaseIconInfo });
+      }
+
+      return items;
+    }
+
     created() {
-      this.$store.commit(vxcFp(SS, SS.SET.UI_IS_OPEN), true);
-    },
+      this.setSystemStatusUiIsOpen(true);
+    }
+
     beforeDestroy() {
-      this.$store.commit(vxcFp(SS, SS.SET.UI_IS_OPEN), false);
-    },
-  };
+      this.setSystemStatusUiIsOpen(false);
+    }
+
+    onClickOutside() {
+      this.$emit('close');
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .container {
     background-color: white;
   }

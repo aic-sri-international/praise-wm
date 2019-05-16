@@ -1,44 +1,46 @@
 <template>
-  <b-btn size="sm"
-         :title="title"
-         variant="outline-secondary"
-         :disabled="disabled"
-         :style="{ color: btnColor }"
-         @click.stop="$emit('clicked')">
-      <i :class="btnClass" :data-fa-transform="transform"></i>
+  <b-btn
+    size="sm"
+    :title="title"
+    variant="outline-secondary"
+    :disabled="disabled"
+    :style="{ color: btnColor }"
+    @click.stop="$emit('clicked')"
+  >
+    <i
+      :class="btnClass"
+      :data-fa-transform="transform"
+    />
   </b-btn>
 </template>
 
-<script>
-  // @flow
+<script lang="ts">
+  import {
+    Vue, Component, Prop,
+  } from 'vue-property-decorator';
 
-  export default {
-    name: 'ActionButton',
-    props: {
-      type: {
-        type: String,
-        validator: (value: string) =>
-          ['clone', 'download', 'add', 'edit', 'delete', 'play',
-            'undo', 'redo', 'open', 'save', 'broom',
-            'angle-left', 'angle-right', 'eye', 'eye-slash',
-            'sync', 'help'].includes(value),
-      },
-      title: {
-        type: String,
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
-      transform: {
-        type: String,
-      },
-    },
-    computed: {
-      btnColor() {
-        return this.disabled ? 'gray' : 'blue';
-      },
-      btnClass() {
+  @Component
+  export default class ActionButton extends Vue {
+    @Prop({
+      type: String,
+      required: true,
+      validator: (value: string) => ['clone', 'download', 'add', 'edit', 'delete', 'play',
+          'undo', 'redo', 'open', 'save', 'broom',
+          'angle-left', 'angle-right', 'eye', 'eye-slash',
+          'help', 'sync'].includes(value),
+    }) readonly type!: string;
+
+    @Prop(String) readonly title?: string;
+
+    @Prop({ default: false }) readonly disabled!: boolean;
+
+    @Prop(String) readonly transform?: string;
+
+    get btnColor() {
+      return this.disabled ? 'gray' : 'blue';
+    }
+
+    get btnClass() {
         let name;
         switch (this.type) {
           case 'clone':
@@ -96,7 +98,6 @@
             throw Error(`unsupported type: ${this.type}`);
         }
         return `fas ${name}`;
-      },
-    },
-  };
+      }
+  }
 </script>

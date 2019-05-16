@@ -1,0 +1,54 @@
+.no-data-bg-text {
+    color: #a8a8a8;
+    font-size: 48px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  display: inline;
+}
+
+.dataTable thead {
+    background-color: lightsteelblue;
+}
+
+.systemStatusInfoColor {
+  color: green;
+}
+.systemStatusWarnColor {
+  color: #f9eb1e;
+}
+.systemStatusErrorColor{
+  color: red;
+}
+
+.requiredField::after {
+  content: "*";
+  color: red;
+  padding-left: 3px;
+}
+
+.help-title {
+  font-weight: 500;
+  border-bottom: 1px solid lightgrey;
+}
+
+.disabledBackground {
+  background-color: #e9ecef !important;
+  opacity: 0.75 !important;
+}
+
+// The following are used by split.js
+.gutter {
+  background-color: #eee;
+
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==')
+}

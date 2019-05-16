@@ -109,11 +109,21 @@ yarn.description "Runs 'yarn install' to update dependencies.\n" +
         "./gradlew yarn -Pcmd=\"info\"\n" +
         "./gradlew yarn -Pcmd=\"run build --report"
 
-task yarn_readme(type: Exec) {
-    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['readme'])
-    setWorkingDir arr[0]
+task yarn_install_readme_project(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['install', '--frozen-lockfile'])
+    def workingDir = project.file("${project.projectDir}/src/main/webapp/md-docgen")
+    setWorkingDir workingDir
     commandLine arr[1]
 }
+
+task yarn_create_readme(type: Exec) {
+    def arr = (Object[]) project.ext.yarnCommandLine(environment, ['readme'])
+    def workingDir = project.file("${project.projectDir}/src/main/webapp/md-docgen")
+    setWorkingDir workingDir
+    commandLine arr[1]
+}
+task yarn_readme (dependsOn: ['yarn_install_readme_project', 'yarn_create_readme'])
+yarn_readme.mustRunAfter(yarn_install_readme_project)
 yarn_readme.group groupName
 yarn_readme.description "Generate HTML from markdown docs and launch in browser"
 

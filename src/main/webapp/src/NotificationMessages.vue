@@ -1,119 +1,163 @@
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div v-on-click-outside="onClickOutside">
     <b-container class="container effect8">
       <div class="d-flex justify-content-start pt-2">
-      <h4>Notifications</h4>
+        <h4>Notifications</h4>
         <div class="ml-auto">
-          <div v-if="notificationsForUi.length" @click.stop="onRemoveAllMessages">
-            <i class="fas fa-times removeIcon" data-fa-transform="grow-6"></i>
+          <div
+            v-if="notificationsForUi.length"
+            @click.stop="onRemoveAllMessages"
+          >
+            <i
+              class="fas fa-times removeIcon"
+              data-fa-transform="grow-6"
+            />
           </div>
         </div>
       </div>
-      <hr />
+      <hr>
       <div v-if="notificationsForUi.length">
-        <div v-for="msg in notificationsInDisplayOrder">
+        <div
+          v-for="msg in notificationsInDisplayOrder"
+          :key="msg.id"
+        >
           <div class="d-flex justify-content-start">
-            <i class="fas fa-circle mt-1" :style="getCircleStyle(msg.level)"></i>
-            <div class="font-weight-bold pl-2">{{msg.level | lowercase | capitalize }}</div>
+            <i
+              class="fas fa-circle mt-1"
+              :style="getCircleStyle(msg.level)"
+            />
+            <div class="font-weight-bold pl-2">
+              {{ msg.level | lowercase | capitalize }}
+            </div>
             <div class="flex-column">
-              <div class="pl-2 text-left" v-html="$$.insertWordBreaks(msg.text)"></div>
+              <div
+                class="pl-2 text-left"
+                v-html="$$.insertWordBreaks(msg.text)"
+              />
               <div class="text-left">
-                <i class="pl-1 fas fa-clock" style="color: #9bcd5f"></i> {{getTimeAgo(msg.date)}} ago
+                <i
+                  class="pl-1 fas fa-clock"
+                  style="color: #9bcd5f"
+                /> {{ getTimeAgo(msg.date) }} ago
               </div>
             </div>
             <div class="ml-auto">
               <div @click.stop="onRemoveMessage(msg)">
-                <i class="fas fa-times removeIcon"></i>
+                <i class="fas fa-times removeIcon" />
               </div>
             </div>
           </div>
-          <hr />
+          <hr>
         </div>
       </div>
       <div v-else>
-        <h6>No New Notifications</h6><br/><br>
+        <h6>No New Notifications</h6><br><br>
       </div>
     </b-container>
-    <b-modal ref="confirmDeleteModal" title="Remove Messages ?" @ok="removeAllMessages"
-             :no-close-on-backdrop="true"
-             :no-close-on-esc="true">
+    <b-modal
+      ref="confirmDeleteModal"
+      title="Remove Messages ?"
+      :no-close-on-backdrop="true"
+      :no-close-on-esc="true"
+      @ok="removeAllMessages"
+    >
       Are you sure you want to dismiss all messages ?
     </b-modal>
-
   </div>
 </template>
 
-<script>
-  // @flow
-  import { mapGetters } from 'vuex';
+<script lang="ts">
+  import {
+    Vue, Component, Emit,
+  } from 'vue-property-decorator';
+  import {
+    namespace,
+  } from 'vuex-class';
   import moment from 'moment';
-  import { messageLevels } from '@/services/ws_notifications/types';
-
-  import type { MessageLevel } from '@/services/ws_notifications/types';
-
-  import type { NotificationMessage } from '@/store/notifications/types';
+  import { MessageLevel } from '@/services/ws_notifications/types';
+  import { NotificationMessage } from '@/store/notifications/types';
 
   import {
-    NOTIFICATIONS_VXC as NC,
-    vxcFp,
+    NOTIFICATIONS_VXC,
   } from '@/store';
+  import { BModal } from 'bootstrap-vue';
 
-  export default {
-    name: 'notificationMessages',
-    methods: {
-      closeNotifications() {
-        this.$emit('close');
-      },
-      onClickOutside() {
-        this.closeNotifications();
-      },
-      getTimeAgo(date: string) {
-        return moment.utc(date).fromNow(true);
-      },
-      onRemoveAllMessages() {
-        if (this.notificationsForUi.length) {
-          this.$refs.confirmDeleteModal.show();
-        }
-      },
-      removeAllMessages() {
-        this.$store.commit(vxcFp(NC, NC.SET.REMOVE_ALL_NOTIFICATIONS_FOR_UI));
-        this.closeNotifications();
-      },
-      onRemoveMessage(item: NotificationMessage) {
-        const ids: number[] = [item.id];
-        this.$store.commit(vxcFp(NC, NC.SET.REMOVE_NOTIFICATIONS_FOR_UI), ids);
-      },
-      getCircleStyle(level: MessageLevel) {
-        switch (level) {
-          case messageLevels.INFO:
-            return { color: 'green' };
-          case messageLevels.WARN:
-            return { color: 'yellow' };
-          case messageLevels.ERROR:
-            return { color: 'red' };
-          default:
-            return '';
-        }
-      },
-    },
-    computed: {
-      ...mapGetters(NC.MODULE, [
-        NC.GET.NOTIFICATIONS_FOR_UI,
-      ]),
-      notificationsInDisplayOrder() {
-        return [...this.notificationsForUi].reverse();
-      },
-    },
+  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
+
+  @Component
+  export default class NotificationMessages extends Vue {
+    @notificationsModule.Getter
+    notificationsForUi!: NotificationMessage[];
+
+    @notificationsModule.Mutation
+    setNotificationUiIsOpen!: (isOpen: boolean) => void;
+
+    @notificationsModule.Mutation
+    removeAllNotificationsForUi!: () => void;
+
+    @notificationsModule.Mutation
+    removeNotificationsForUi!: (ids:number[]) => void;
+
+    @Emit('close')
+    closeNotifications(): void {}
+
+    $refs!: {
+      confirmDeleteModal: BModal
+    };
+
+    get notificationsInDisplayOrder() {
+      return [...this.notificationsForUi].reverse();
+    }
+
     created() {
-      this.$store.commit(vxcFp(NC, NC.SET.UI_IS_OPEN), true);
-    },
+      this.setNotificationUiIsOpen(true);
+    }
+
     beforeDestroy() {
-      this.$store.commit(vxcFp(NC, NC.SET.UI_IS_OPEN), false);
-    },
-  };
+      this.setNotificationUiIsOpen(false);
+    }
+
+    getTimeAgo(date: string) {
+      return moment.utc(date).fromNow(true);
+    }
+
+    onClickOutside() {
+      this.closeNotifications();
+    }
+
+    onRemoveAllMessages() {
+      if (this.notificationsForUi.length) {
+        this.$refs.confirmDeleteModal.show();
+      }
+    }
+
+    removeAllMessages() {
+      this.removeAllNotificationsForUi();
+      this.closeNotifications();
+    }
+
+    onRemoveMessage(item: NotificationMessage) {
+      const ids: number[] = [item.id];
+      this.removeNotificationsForUi(ids);
+    }
+
+    getCircleStyle(level: MessageLevel) {
+      switch (level) {
+        case MessageLevel.INFO:
+          return { color: 'green' };
+        case MessageLevel.WARN:
+          return { color: 'yellow' };
+        case MessageLevel.ERROR:
+          return { color: 'red' };
+        default:
+          return '';
+      }
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .container {
     background-color: white;
   }

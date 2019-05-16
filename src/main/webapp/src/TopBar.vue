@@ -1,121 +1,159 @@
 <template>
   <div class="header">
-    <span class="headerTitle" @click.stop="$emit('notificationsTesterClicked')">PRAiSE-WM</span>
+    <span
+      class="headerTitle"
+      @click.stop="$emit('notificationsTesterClicked')"
+    >PRAiSE-WM</span>
 
-    <span class="headerIcon headerHelp"
-          v-tippy
-          title="Toggle Help"
-          @click="toggleHelp()">
+    <span
+      v-tippy
+      class="headerIcon headerHelp"
+      title="Toggle Help"
+      @click="toggleHelp()"
+    >
       <span class="fa-layers fa-fw">
-         <i class="fas fa-circle" data-fa-transform="grow-12 down-3" style="color: white"></i>
-        <i class="fas fa-question fa-inverse" style="color: green" data-fa-transform="shrink-1 down-3"></i>
+        <i
+          class="fas fa-circle"
+          data-fa-transform="grow-12 down-3"
+          style="color: white"
+        />
+        <i
+          class="fas fa-question fa-inverse"
+          style="color: green"
+          data-fa-transform="shrink-1 down-3"
+        />
       </span>
     </span>
 
-    <span class="headerIcon headerNotification"
-          v-tippy
-          title="Notifications"
-          @click.stop="$emit('notificationsClicked')">
+    <span
+      v-tippy
+      class="headerIcon headerNotification"
+      title="Notifications"
+      @click.stop="$emit('notificationsClicked')"
+    >
       <span class="fa-layers fa-fw">
-        <i class="fas fa-bell" data-fa-transform="grow-12 down-2"></i>
+        <i
+          class="fas fa-bell"
+          data-fa-transform="grow-12 down-2"
+        />
         <span v-if="notificationUiHasNewMsg">
-          <i class="fas fa-circle" data-fa-transform="shrink-10 up-3 right-3" style="color: blue"></i>
+          <i
+            class="fas fa-circle"
+            data-fa-transform="shrink-10 up-3 right-3"
+            style="color: blue"
+          />
         </span>
       </span>
     </span>
 
-    <span class="headerIcon headerSystemStatus"
-          v-tippy
-          title="System Status"
-          @click.stop="$emit('systemsStatusClicked')">
+    <span
+      v-tippy
+      class="headerIcon headerSystemStatus"
+      title="System Status"
+      @click.stop="$emit('systemsStatusClicked')"
+    >
       <span class="fa-layers fa-fw">
-        <i class="fas fa-desktop" data-fa-transform="grow-14 down-4"></i>
+        <i
+          class="fas fa-desktop"
+          data-fa-transform="grow-14 down-4"
+        />
         <font-awesome-icon
-            v-if="iconInfo"
-            :icon="iconInfo.iconName"
-            transform="down-2 right-1"
-            :class="iconInfo.classes"/>
+          v-if="iconInfo"
+          :icon="iconInfo.iconName"
+          transform="down-2 right-1"
+          :class="iconInfo.classes"
+        />
       </span>
     </span>
 
     <span class="time">
-        {{time | formatDateTime}}
-      </span>
+      {{ time | formatDateTime }}
+    </span>
 
-    <span class="headerIcon headerLogout" @click="doLogout" v-tippy title="Click to logout">
-        <i class="fas fa-sign-out-alt" data-fa-transform="grow-14"></i>
-      </span>
-
+    <span
+      v-tippy
+      class="headerIcon headerLogout"
+      title="Click to logout"
+      @click="doLogout"
+    >
+      <i
+        class="fas fa-sign-out-alt"
+        data-fa-transform="grow-14"
+      />
+    </span>
   </div>
 </template>
 
-<script>
-  // @flow
-  import { paths } from '@/router';
-  import { logout } from '@/components/login/dataSourceProxy';
-  import { mapGetters } from 'vuex';
+<script lang="ts">
   import {
-    USER_VXC as UC,
-    NOTIFICATIONS_VXC as NC,
-    SYSTEM_STATUS_VXC as SS,
-    HELP_VXC as HELP,
-    store,
-    vxcFp,
+    Vue, Component,
+  } from 'vue-property-decorator';
+  import {
+    namespace,
+  } from 'vuex-class';
+  import Paths from '@/router';
+  import { logout } from '@/components/login/dataSourceProxy';
+  import {
+    HELP_VXC,
+    NOTIFICATIONS_VXC,
+    SYSTEM_STATUS_VXC,
   } from '@/store';
-  import type { SystemStatusIconInfo } from '@/store/system_status/types';
+  import { SystemStatusIconInfo } from '@/store/system_status/types';
 
-  let intervalId;
+  let intervalId: number = 0;
 
-  export default {
-    name: 'TopBar',
-    data() {
-      return {
-        time: null,
-        paths,
-        showHelp: false,
-      };
-    },
-    methods: {
-      doLogout() {
-        logout();
-      },
-      toggleHelp() {
-        this.showHelp = !this.showHelp;
-        store.commit(vxcFp(HELP, HELP.SET.SHOW_HELP), this.showHelp);
-      },
-    },
-    computed: {
-      ...mapGetters(UC.MODULE, [
-        UC.GET.USER,
-      ]),
-      ...mapGetters(NC.MODULE, [
-        NC.GET.UI_HAS_NEW_MSG,
-      ]),
-      ...mapGetters(SS.MODULE, [
-        SS.GET.STATUS_OVERALL_ICON_INFO,
-      ]),
-      iconInfo() : ?SystemStatusIconInfo {
-        const iconInfo: ?SystemStatusIconInfo = this[SS.GET.STATUS_OVERALL_ICON_INFO];
-        if (iconInfo) {
-          return { ...iconInfo };
-        }
-        return null;
-      },
-    },
+  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
+  const helpModule = namespace(HELP_VXC.MODULE);
+  const systemStatusModule = namespace(SYSTEM_STATUS_VXC.MODULE);
+
+  @Component
+  export default class TopBar extends Vue {
+    time: Date | null = null;
+
+    paths = Paths;
+
+    showHelp = false;
+
+    @notificationsModule.Getter
+    notificationUiHasNewMsg!: boolean;
+
+    @systemStatusModule.Getter
+    systemStatusOverallIconInfo?: SystemStatusIconInfo;
+
+    @helpModule.Mutation('showHelp')
+    mutateShowHelp!: (payload: boolean) => void;
+
+    get iconInfo() : SystemStatusIconInfo | null {
+      const iconInfo: SystemStatusIconInfo | undefined = this.systemStatusOverallIconInfo;
+      if (iconInfo) {
+        return { ...iconInfo };
+      }
+      return null;
+    }
+
     created() {
       intervalId = window.setInterval(() => {
         this.time = this.$$.getDate();
       }, 1000);
-    },
+    }
+
     beforeDestroy() {
       window.clearInterval(intervalId);
-    },
-  };
+    }
+
+    doLogout() {
+      logout();
+    }
+
+    toggleHelp() {
+      this.showHelp = !this.showHelp;
+      this.mutateShowHelp(this.showHelp);
+    }
+  }
 
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
   .header {
     color: white;
     background: #F5F5F5;

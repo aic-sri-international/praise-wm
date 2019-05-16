@@ -1,61 +1,78 @@
 <template>
-  <div id="queryResultsId" class="query-results-panel">
-    <div class="query-results-border" v-for="(item, index) in queryResults">
-      <b-btn size="sm" @click.stop="setQueryResultsIx(index)"
-             :variant="index === queryResultsIx ? 'success' : 'outline-secondary'"
-             class="msg-text">{{formatResult(item, index)}}</b-btn>
+  <!-- eslint-disable vue/require-v-for-key -->
+  <div
+    id="queryResultsId"
+    class="query-results-panel"
+  >
+    <div
+      v-for="(item, index) in queryResults"
+      class="query-results-border"
+    >
+      <b-btn
+        :variant="index === queryResultsIx ? 'success' : 'outline-secondary'"
+        class="msg-text"
+        size="sm"
+        @click.stop="setQueryResultsIx(index)"
+      >
+        {{ formatResult(item, index) }}
+      </b-btn>
     </div>
-    <b-popover :show="showHelp" target="queryResultsId" placement="right" triggers="">
-      <div class="help-title">Query results messages</div>
+    <b-popover
+      :show="showHelp"
+      placement="right"
+      target="queryResultsId"
+      triggers=""
+    >
+      <div class="help-title">
+        Query results messages
+      </div>
       After running a second query you can click on a prior result message to
       see its result in the visualization panel.
     </b-popover>
   </div>
 </template>
 
-<script>
-  // @flow
+<script lang="ts">
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
+  import { HELP_VXC, MODEL_VXC } from '@/store';
   import moment from 'moment';
-  import { mapState, mapGetters, mapMutations } from 'vuex';
-  import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import type { QueryResultWrapper } from '@/store/model/types';
+  import { QueryResultWrapper } from '@/store/model/types';
 
-  export default {
-    name: 'QueryResults',
-    computed: {
-      ...mapState(MODEL.MODULE, [
-        'queryResults',
-        'queryResultsIx',
-      ]),
-      ...mapGetters(HELP.MODULE, [
-        HELP.GET.SHOW_HELP,
-      ]),
-    },
-    methods: {
-      ...mapMutations(MODEL.MODULE, [
-        MODEL.SET.QUERY_RESULTS_IX,
-      ]),
-      formatResult(r: QueryResultWrapper, index: number) {
-        const expr = r.expressionResult;
-        let answer;
-        if (Array.isArray(expr.answers)) {
-          answer = expr.answers.join('\n');
-        }
+  const helpModule = namespace(HELP_VXC.MODULE);
+  const modelModule = namespace(MODEL_VXC.MODULE);
 
-        if (answer) {
-          if (answer.startsWith('Error:')) {
-            return answer;
-          }
-          const time = moment(expr.completionDate).format('h:mm:ss a');
-          return `[${this.queryResults.length - index}] ${answer} (${expr.queryDuration} ms, ${time})`;
+  @Component
+  export default class QueryResults extends Vue {
+    @helpModule.State showHelp!: boolean;
+
+    @modelModule.State queryResults!: QueryResultWrapper[];
+
+    @modelModule.State queryResultsIx!: number;
+
+    @modelModule.Mutation setQueryResultsIx!: (index: number) => void;
+
+    formatResult(r: QueryResultWrapper, index: number): string {
+      const expr = r.expressionResult;
+      let answer;
+      if (Array.isArray(expr.answers)) {
+        answer = expr.answers.join('\n');
+      }
+
+      if (answer) {
+        if (answer.startsWith('Error:')) {
+          return answer;
         }
-        return r;
-      },
-    },
-  };
+        const time = moment(expr.completionDate)
+        .format('h:mm:ss a');
+        return `[${this.queryResults.length - index}] ${answer} (${expr.queryDuration} ms, ${time})`;
+      }
+      return '';
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .msg-text {
     width: 100%;
     white-space: normal;

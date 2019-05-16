@@ -1,46 +1,47 @@
 <template>
-  <input v-show="false" ref="input_ref"
-         type="file"
-         class="input-file"
-         :multiple="multiple"
-         @change="inputFileChanged($event.target.files)"
-         :accept="accept">
+  <input
+    v-show="false"
+    ref="inputRef"
+    :accept="accept"
+    :multiple="multiple"
+    class="input-file"
+    type="file"
+    @change="inputFileChanged($event.target.files)"
+  >
 </template>
 
-<script>
-  import type { FileInfo } from '@/utils';
-  import { readTextFile } from '@/utils';
+<script lang="ts">
+  import { Component, Prop, Vue } from 'vue-property-decorator';
 
-  export default {
-    name: 'InputTextFile',
-    props: {
-      accept: {
-        type: String,
-        required: true,
-      },
-      multiple: {
-        type: Boolean,
-        default: false,
-      },
-    },
-    methods: {
-      async inputFileChanged(files: FileList) : FileInfo[] {
-        const promises : Promise<FileInfo>[] = [];
-        Array.from(files).forEach(async (file) => {
-          promises.push(readTextFile(file));
-        });
-        const fileInfos : FileInfo[] = await Promise.all(promises);
+  import { FileInfo, readTextFile } from '@/utils';
 
-        this.$refs.input_ref.value = '';
-        this.$emit('change', fileInfos);
-      },
-      click() {
-        this.$refs.input_ref.click();
-      },
-    },
-  };
+  @Component
+  export default class InputTextFile extends Vue {
+    @Prop({
+      type: String,
+      required: true,
+    }) readonly accept!: string;
+
+    @Prop({ default: false }) readonly multiple!: boolean;
+
+    $refs!: {
+      inputRef: HTMLInputElement
+    };
+
+    async inputFileChanged(files: FileList) {
+      const promises: Promise<FileInfo>[] = [];
+      Array.from(files)
+      .forEach(async (file) => {
+        promises.push(readTextFile(file));
+      });
+      const fileInfos: FileInfo[] = await Promise.all(promises);
+
+      this.$refs.inputRef.value = '';
+      this.$emit('change', fileInfos);
+    }
+
+    click() {
+      this.$refs.inputRef.click();
+    }
+  }
 </script>
-
-<style scoped>
-
-</style>

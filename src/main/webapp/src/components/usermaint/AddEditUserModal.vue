@@ -1,50 +1,75 @@
 <template>
   <div>
-    <b-modal ref="addEditModal" :title="isNewUser() ? 'New  User' : 'Edit User'"
-             @shown="() => $refs.user_name_ref.focus()"
-             :visible="true"
-             ok-title="Submit"
-             :no-close-on-backdrop="true"
-             :no-close-on-esc="true"
-              @hide="onHide">
+    <b-modal
+      ref="addEditModal"
+      :no-close-on-backdrop="true"
+      :no-close-on-esc="true"
+      :title="isNewUser() ? 'New  User' : 'Edit User'"
+      :visible="true"
+      ok-title="Submit"
+      @hide="onHide"
+      @shown="() => $refs.userNameRef.focus()"
+    >
       <div class="container-fluid">
         <b-row no-gutters>
           <b-col>
-            <b-form-group label-class="requireField" :label="formLables.user.name" label-text-align="left">
-              <b-form-input v-model.trim="user.name"
-                            ref="user_name_ref"
-                            placeholder="Enter user name">
-              </b-form-input>
+            <b-form-group
+              label="Name"
+              label-align="left"
+              label-class="requiredField"
+            >
+              <b-form-input
+                ref="userNameRef"
+                v-model.trim="user.name"
+                placeholder="Enter user name"
+              />
             </b-form-group>
           </b-col>
         </b-row>
         <b-row no-gutters>
           <b-col>
-            <b-form-group label-class="requireField" :label="formLables.user.password" label-text-align="left">
-              <b-form-input v-model.trim="user.password"
-                            ref="user_password_ref"
-                            placeholder="Enter password">
-              </b-form-input>
+            <b-form-group
+              label="Password"
+              label-align="left"
+              label-class="requiredField"
+            >
+              <b-form-input
+                ref="userPasswordRef"
+                v-model.trim="user.password"
+                placeholder="Enter password"
+                type="password"
+              />
             </b-form-group>
           </b-col>
         </b-row>
         <b-row no-gutters>
           <b-col>
-            <b-form-group label-class="requireField" :label="formLables.user.pwd2" label-text-align="left">
-              <b-form-input v-model.trim="user.pwd2"
-                            ref="user_pwd2_ref"
-                            placeholder="Confirm password">
-              </b-form-input>
+            <b-form-group
+              label="Confirm Password"
+              label-align="left"
+              label-class="requiredField"
+            >
+              <b-form-input
+                ref="userPwd2Ref"
+                v-model.trim="user.pwd2"
+                placeholder="Confirm password"
+                type="password"
+              />
             </b-form-group>
           </b-col>
         </b-row>
         <b-row no-gutters>
           <b-col>
-            <b-form-group label-class="requireField" :label="formLables.user.fullname" label-text-align="left">
-              <b-form-input v-model.trim="user.fullname"
-                            ref="user_fullname_ref"
-                            placeholder="Enter full name">
-              </b-form-input>
+            <b-form-group
+              label="Full Name"
+              label-align="left"
+              label-class="requiredField"
+            >
+              <b-form-input
+                ref="userFullnameRef"
+                v-model.trim="user.fullname"
+                placeholder="Enter full name"
+              />
             </b-form-group>
           </b-col>
         </b-row>
@@ -53,110 +78,35 @@
   </div>
 </template>
 
-<script>
-  // @flow
-  import isEqual from 'lodash/isEqual';
+<script lang="ts">
+  import { mixins } from 'vue-class-component';
+  import { Component, Prop } from 'vue-property-decorator';
+  import { UserDto } from '@/components/usermaint/types';
   import { USER_VXC as UC } from '@/store';
-  import valmixin from '@/validations/valmixin';
-  import { required, requiredIf, sameAs } from 'vuelidate/lib/validators';
   import { addUser, updateUser } from './dataSourceProxy';
+  import ValidationMixin from '@/services/validations/valmixin';
 
-  let origUser;
+  let origUser: UserDto;
 
-  function noAdmin(value : string) {
-    return value !== UC.ADMIN_NAME;
-  }
+  @Component
+  export default class AddEditUser extends mixins(ValidationMixin) {
+    @Prop(Object) readonly item?: UserDto;
 
-  export default {
-    name: 'addEditUser',
-    props: {
-      item: Object,
-    },
-    mixins: [valmixin],
-    validations: {
-      user: {
-        name: {
-          required,
-          noAdmin,
-        },
-        password: {
-          required: requiredIf(user => user.userId === ''),
-        },
-        pwd2: {
-          'Passwords must match': sameAs('password'),
-        },
-        fullname: {
-          required,
-        },
-      },
-    },
-    data() {
-      return {
-        adminName: UC.ADMIN_NAME,
-        user: {
-          userId: '',
-          name: '',
-          password: '',
-          pwd2: '',
-          fullname: '',
-        },
-        formLables: {
-          user: {
-            name: 'Name',
-            password: 'Password',
-            pwd2: 'Confirm password',
-            fullname: 'Full name',
-          },
-        },
-      };
-    },
-    // The following is a work-around to a bug seen on Firefox when
-    // running Webpack Dev Server.
-    //
-    // If the user.password input element has 'password' type, the value of
-    // the user.name field gets set into the user.password field.
-    watch: {
-      '$v.user.password.$dirty': function passwordBugFix() {
-        this.$refs.userPasswordRef.setAttribute('type', 'password');
-        this.$refs.userPasswordRef.focus();
-      },
-    },
-    methods: {
-      isNewUser() : boolean { return this.user.userId === ''; },
-      isUserModified() : boolean { return !isEqual(this.user, origUser); },
-      async addOrUpdate() {
-        const u = { ...this.user };
+    $refs!: {
+      userNameRef: HTMLInputElement,
+      userPasswordRef: HTMLInputElement,
+      userPwd2Ref: HTMLInputElement,
+      userFullnameRef: HTMLInputElement,
+    };
 
-        u.pwd2 = undefined;
+    user: UserDto & { pwd2: string } = {
+      userId: null,
+      name: '',
+      password: '',
+      pwd2: '',
+      fullname: '',
+    };
 
-        try {
-          if (this.isNewUser()) {
-            u.userId = undefined;
-            await addUser(u);
-            this.$emit('hide', 'ok');
-          } else if (this.isUserModified()) {
-            await updateUser(u);
-            this.$emit('hide', 'ok');
-          } else {
-            this.$emit('hide');
-          }
-        } catch (err) {
-          // Already logged by http component
-          this.$emit('hide');
-        }
-      },
-      async onHide(event : Object) {
-        if (event.trigger === 'ok') {
-          if (this.validateForm()) {
-            this.addOrUpdate();
-          } else {
-            event.preventDefault();
-          }
-        } else {
-          this.$emit('hide');
-        }
-      },
-    },
     created() {
       if (this.item) {
         this.user.userId = this.item.userId;
@@ -165,13 +115,83 @@
       }
 
       origUser = { ...this.user };
-    },
-  };
+    }
+
+    getValidations() {
+      const noadmin = () => (
+        this.user.name === UC.ADMIN_NAME ? `Name cannot be ${UC.ADMIN_NAME}` : null
+      );
+
+      const pwdsMustMatch = () => (
+        this.user.password !== this.user.pwd2 ? 'Passwords must match' : null
+      );
+
+      return {
+        user: {
+          name: {
+            required: true,
+            validator: noadmin,
+            ref: this.$refs.userNameRef,
+          },
+          password: {
+            required: () => this.user.userId === null,
+            ref: this.$refs.userPasswordRef,
+          },
+          pwd2: {
+            validator: pwdsMustMatch,
+            ref: this.$refs.userPwd2Ref,
+          },
+          fullname: {
+            required: true,
+            ref: this.$refs.userFullnameRef,
+          },
+        },
+      };
+    }
+
+    isNewUser(): boolean {
+      return this.user.userId === null;
+    }
+
+    isModifiedUser(): boolean {
+      return this.user.name !== origUser.name
+        || this.user.fullname !== origUser.fullname
+        || this.user.password !== '';
+    }
+
+    async addOrUpdate() {
+      const u = { ...this.user };
+
+      delete u.pwd2;
+
+      try {
+        if (this.isNewUser()) {
+          delete u.userId;
+          await addUser(u);
+          this.$emit('hide', 'ok');
+        } else if (this.isModifiedUser()) {
+          await updateUser(u);
+          this.$emit('hide', 'ok');
+        } else {
+          this.$emit('hide');
+        }
+      } catch (err) {
+        // Already logged by http component
+        this.$emit('hide');
+      }
+    }
+
+    async onHide(event: any) {
+      if (event.trigger === 'ok') {
+        if (this.validateForm(this.getValidations())) {
+          await this.addOrUpdate();
+        } else {
+          event.preventDefault();
+        }
+      } else {
+        this.$emit('hide');
+      }
+    }
+  }
 
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-
-<style scoped>
-</style>
-

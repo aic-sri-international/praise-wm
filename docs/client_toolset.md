@@ -1,58 +1,57 @@
 # Client Toolset
 
+* [Vue CLI][] Standard Tooling for Vue.js Development
+
 * [Vue.js][] JavaScript Framework
 
 * [Vuex][] Centralized State Management for Vue.js
+
+* [TypeScript][] All client code is written in [TypeScript][], with [Vue class constuction][], [Vue property decorators][], and [Vuex binding helpers][].
 
 * [BootstrapVue][] Bootstrap 4 Components For Vue.js
 
 * [Vue Awesome][] [Font Awesome] component for Vue.js, using inline SVG.
 
-* [OpenLayers][] Mapping library.
+* [Vue Slider][] Slider component for Vue
+
+* [Vue Tippy][] For tooltips
+
+* [Vue Toasted][] For error messages
+
+* [Ace][] A high performance, embeddable, JavaScript code editor
+
+* [Lodash][] JavaScript utility library
 
 * [moment][] Parse, validate, manipulate, and display dates in javascript.
 
-* [Webpack][] Asset bundler with development server with hot reload
+* [OpenLayers][] Mapping library.
 
-* [Babel][] Transpiler for next generation JavaScript support
+* [Split.js][] A utility for creating resizable split views
 
-* [ESLint][] extended with [Airbnb][] to catch errors, and support best practices
+* [ESLint][] extended with [Airbnb][], [ESLint Plugin Vue][], and [ESLint Plugin TypeScript][] to catch errors, and support best practices
 
-* [Flow][] A static type checker for JavaScript
-
-* [UglifyJS2][] JavaScript minifier
-
-* [html-minifier][] HTML minifier
-
-* [cssnano][] CSS minifier
-
-* [Karma][] Unit testing
-
-* [Mocha][] Unit testing
-
-* [PhantomJS][] Unit testing
-
-* [Nightwatch.js][] End-to-End testing
-
-* [Selenium][] End-to-End testing
+* [Jest][] Unit testing
 
 [Vue.js]: https://vuejs.org/
 [Vuex]: https://github.com/vuejs/vuex
+[Vue CLI]: https://cli.vuejs.org/
+[TypeScript]: https://www.typescriptlang.org/
+[Vue class constuction]: https://github.com/vuejs/vue-class-component
+[Vue property decorators]: https://github.com/kaorun343/vue-property-decorator
+[Vuex binding helpers]: https://github.com/ktsn/vuex-class
 [BootstrapVue]: https://bootstrap-vue.github.io/
+[Vue Slider]: https://github.com/NightCatSama/vue-slider-component
+[Vue Tippy]: https://github.com/KABBOUCHI/vue-tippy
+[Vue Toasted]: https://github.com/shakee93/vue-toasted
 [Vue Awesome]: https://github.com/Justineo/vue-awesome
-[OpenLayers]: https://openlayers.org/
+[Ace]: https://ace.c9.io/
+[Lodash]: https://lodash.com/
 [moment]: https://github.com/moment/moment
+[OpenLayers]: https://openlayers.org/
+[Split.js]: https://split.js.org/
 [Font Awesome]: http://fontawesome.io/
-[Webpack]: https://webpack.js.org/
-[Babel]: https://babeljs.io/
 [ESLint]: http://eslint.org/
-[Flow]: https://flow.org/
+[ESLint Plugin Vue]: https://eslint.vuejs.org/
+[ESLint Plugin TypeScript]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
 [Airbnb]: https://github.com/airbnb/javascript
-[UglifyJS2]: https://github.com/mishoo/UglifyJS2
-[html-minifier]: https://github.com/kangax/html-minifier
-[cssnano]: https://github.com/ben-eb/cssnano
-[Karma]: http://karma-runner.github.io/0.13/index.html
-[Mocha]: http://mochajs.org/
-[PhantomJS]: http://phantomjs.org/
-[Nightwatch.js]: http://nightwatchjs.org/
-[Selenium]: http://www.seleniumhq.org/
+[Jest]: https://jestjs.io/

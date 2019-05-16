@@ -1,48 +1,87 @@
 <template>
   <div>
     <div style="margin-top: 5px">
-      <a class="btn-block" style="color: black"
-         @click="toggleSideBarCollapse">
+      <a
+        class="btn-block"
+        style="color: black"
+        @click="toggleSideBarCollapse"
+      >
         <div v-show="isSideBarCollapsed">
-          <i class="fas fa-caret-right"></i>
+          <i class="fas fa-caret-right" />
         </div>
         <div v-show="!isSideBarCollapsed">
-          <i class="fas fa-caret-left"></i>
+          <i class="fas fa-caret-left" />
         </div>
       </a>
     </div>
 
     <!-- Sidebar Holder -->
-    <nav id="sidebar" :class="{ 'active': isSideBarCollapsed }">
+    <nav
+      id="sidebar"
+      :class="{ 'active': isSideBarCollapsed }"
+    >
       <ul class="list-unstyled components">
         <li :class="{ currentRoute : $route.path === paths.HOME }">
           <a @click="routeTo(paths.HOME)">
-            <span v-tippy="tipOptions" :title="titles.home">
-                <i class="fas fa-home" data-fa-transform="grow-8"></i>
+            <span
+              v-tippy="tipOptions"
+              :title="titles.home"
+            >
+              <i
+                class="fas fa-home"
+                data-fa-transform="grow-8"
+              />
             </span>
-            <span v-if="!isSideBarCollapsed" class="ml-2">
-               {{titles.home}}
+            <span
+              v-if="!isSideBarCollapsed"
+              class="ml-2"
+            >
+              {{ titles.home }}
             </span>
           </a>
         </li>
         <li>
-          <a v-b-toggle.maintSubmenu data-toggle="collapse">
-            <span v-tippy="tipOptions" :title="titles.maint">
-              <i class="fas fa-wrench" data-fa-transform="grow-8"></i>
+          <a
+            v-b-toggle.maintSubmenu
+            data-toggle="collapse"
+          >
+            <span
+              v-tippy="tipOptions"
+              :title="titles.maint"
+            >
+              <i
+                class="fas fa-wrench"
+                data-fa-transform="grow-8"
+              />
             </span>
-            <span v-show="!isSideBarCollapsed" class="ml-2">
-               {{titles.maint}}
+            <span
+              v-show="!isSideBarCollapsed"
+              class="ml-2"
+            >
+              {{ titles.maint }}
             </span>
           </a>
-          <b-collapse class="collapse" id="maintSubmenu">
+          <b-collapse
+            id="maintSubmenu"
+            class="collapse"
+          >
             <ul class="list-unstyled">
               <li :class="{ currentRoute : $route.path === paths.USER_MAINT }">
                 <a @click="routeTo(paths.USER_MAINT)">
-                  <span v-tippy="tipOptions" :title="titles.maint_u">
-                    <i class="fas fa-user" data-fa-transform="grow-6"></i>
+                  <span
+                    v-tippy="tipOptions"
+                    :title="titles.maint_u"
+                  >
+                    <i
+                      class="fas fa-user"
+                      data-fa-transform="grow-6"
+                    />
                   </span>
-                  <span v-if="!isSideBarCollapsed" class="ml-2">
-                      {{titles.maint_u}}
+                  <span
+                    v-if="!isSideBarCollapsed"
+                    class="ml-2"
+                  >
+                    {{ titles.maint_u }}
                   </span>
                 </a>
               </li>
@@ -54,54 +93,55 @@
   </div>
 </template>
 
-<script>
-  // @flow
-  import { SIDEBAR_VXC as SC } from '@/store';
-  import { paths } from '@/router';
-  import { mapGetters, mapMutations } from 'vuex';
+<script lang="ts">
+  import {
+    Vue, Component,
+  } from 'vue-property-decorator';
+  import {
+    namespace,
+  } from 'vuex-class';
+  import Paths from '@/router/paths';
+  import { SIDEBAR_VXC } from '@/store';
 
-  export default {
-    name: 'sideBar',
-    data() {
-      return {
-        paths,
-        titles: {
-          home: 'Home',
-          maint: 'Maintenance',
-          // maint_e: 'Model Editor',
-          maint_u: 'User',
-        },
-        tipOptions: {
-          placement: 'right',
-          popperOptions: {
-            modifiers: {
-              preventOverflow: {
-                enabled: false,
-              },
-              hide: {
-                enabled: false,
-              },
-            },
+  const sideBarModule = namespace(SIDEBAR_VXC.MODULE);
+
+  @Component
+  export default class SideBar extends Vue {
+    paths = Paths;
+
+    titles = {
+      home: 'Home',
+      maint: 'Maintenance',
+      maint_u: 'User',
+    };
+
+    tipOptions = {
+      placement: 'right',
+      popperOptions: {
+        modifiers: {
+          preventOverflow: {
+            enabled: false,
+          },
+          hide: {
+            enabled: false,
           },
         },
-      };
-    },
-    methods: {
-      ...mapMutations(SC.MODULE, [
-        SC.SET.TOGGLE_SIDEBAR_COLLAPSE,
-      ]),
-      routeTo(path: string) {
-        this.$router.push(path);
       },
-    },
-    computed: {
-      ...mapGetters(SC.MODULE, [
-        SC.GET.IS_SIDEBAR_COLLAPSED,
-      ]),
-    },
-  };
+    };
+
+    @sideBarModule.Getter
+    isSideBarCollapsed!: boolean;
+
+    @sideBarModule.Mutation
+    toggleSideBarCollapse!: () => void;
+
+    routeTo(path: string) {
+      this.$router.push(path);
+    }
+  }
 </script>
-<style scoped>
+
+<style lang="scss" scoped>
   a, a:hover, a:focus {
     color: inherit;
     text-decoration: none;
@@ -164,7 +204,8 @@
     padding: 10px !important;
   }
 
-  #sidebar.active a[aria-expanded="false"]::before, #sidebar.active a[aria-expanded="true"]::before {
+  #sidebar.active a[aria-expanded="false"]::before,
+  #sidebar.active a[aria-expanded="true"]::before {
     top: auto;
     bottom: 5px;
     right: 50%;

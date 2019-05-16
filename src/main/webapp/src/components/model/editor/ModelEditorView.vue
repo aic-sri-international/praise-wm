@@ -1,127 +1,161 @@
 <template>
   <div class="top-level-container">
     <div>
-      <b-form-textarea class="mb-2"
-                         id="modelDescriptionId" max-rows="20"
-                         placeholder="Enter a description for the model"
-                         rows="1"
-                         size="sm"
-                         v-model="description"
-                         :disabled="isQueryActive"
-                         :class="{ disabledBackground: isQueryActive }"
-                         wrap="off">
-        </b-form-textarea>
+      <b-form-textarea
+        id="modelDescriptionId"
+        v-model="description"
+        :class="{ disabledBackground: isQueryActive }"
+        :disabled="isQueryActive"
+        class="mb-2"
+        max-rows="20"
+        placeholder="Enter a description for the model"
+        rows="1"
+        size="sm"
+        wrap="off"
+      />
       <!--For some reason we need to set placement to 'left' to display on the right-->
-        <b-popover :show="showHelp" target="modelDescriptionId" placement="left" triggers="">
-          Describes the model
-        </b-popover>
+      <b-popover
+        :show="showHelp"
+        placement="left"
+        target="modelDescriptionId"
+        triggers=""
+      >
+        Describes the model
+      </b-popover>
     </div>
     <div class="modelEditor">
-      <div class="dcl-editor" id="dclEditorId">
-        <editor :editorInitFlag="dclEditInitFlag"
-                :value="declarations"
-                ref="dcl_editor_ref"
-                :readOnly="isQueryActive"
-                type="hogm">
-        </editor>
+      <div
+        id="dclEditorId"
+        class="dcl-editor"
+      >
+        <editor
+          ref="dclEditorRef"
+          :editor-init-flag="dclEditInitFlag"
+          :read-only="isQueryActive"
+          :value="declarations"
+          type="hogm"
+        />
       </div>
-      <b-popover :show="showHelp" target="dclEditorId" triggers="">
-        <div class="help-title">Global model declarations section</div>
+      <b-popover
+        :show="showHelp"
+        target="dclEditorId"
+        triggers=""
+      >
+        <div class="help-title">
+          Global model declarations section
+        </div>
         You can optionally include rules in this section.
       </b-popover>
       <model-editor
-          id="modelEditorId"
-          :rules="rules"
-          :readOnly="isQueryActive"
-          ref="seg_model_editor_ref"></model-editor>
+        id="modelEditorId"
+        ref="segModelEditorRef"
+        :read-only="isQueryActive"
+        :rules="rules"
+      />
     </div>
   </div>
 </template>
 
-<script>
-  // @flow
-  import { mapState, mapGetters, mapMutations } from 'vuex';
-  import { HELP_VXC as HELP, MODEL_VXC as MODEL } from '@/store';
-  import { editorTransitions } from '@/store/model/types';
-  import type {
+<script lang="ts">
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
+  import { HELP_VXC, MODEL_VXC } from '@/store';
+  import {
     EditorTransition,
-    SegmentedModelDto,
-    ModelRuleDto,
     ModelEditorData,
+    ModelRuleDto,
+    SegmentedModelDto,
+    UpdateModelDtoPayload,
   } from '@/store/model/types';
-  import Editor from './Editor';
-  import ModelEditor from './ModelEditor';
+  import Editor from './Editor.vue';
+  import ModelEditor from './ModelEditor.vue';
+  import { EditorInterface, ModelEditorInterface } from '@/components/model/editor/types';
 
-  export default {
-    name: 'ModelEditorView',
+  const helpModule = namespace(HELP_VXC.MODULE);
+  const modelModule = namespace(MODEL_VXC.MODULE);
+
+  @Component({
     components: {
       Editor,
       ModelEditor,
     },
-    data() {
-      return {
-        description: '',
-        declarations: '',
-        rules: [{
-          metadata: '',
-          rule: '',
-        }],
-        dclEditInitFlag: false,
-      };
-    },
-    computed: {
-      ...mapGetters(HELP.MODULE, [
-        HELP.GET.SHOW_HELP,
-      ]),
-      ...mapGetters(MODEL.MODULE, [
-        MODEL.GET.CUR_MODEL_DTO,
-        MODEL.GET.IS_QUERY_ACTIVE,
-      ]),
-      ...mapState(MODEL.MODULE, [
-        'editorTransition',
-      ]),
-    },
-    methods: {
-      ...mapMutations(MODEL.MODULE, [
-        MODEL.SET.EDITOR_TRANSITION,
-        MODEL.SET.UPDATE_MODEL_DTO,
-      ]),
-      getUpdatedModel(): ModelEditorData {
-        const rules: ModelRuleDto[] = this.$refs.seg_model_editor_ref.getModelRules();
-        return {
-          description: this.description.trim(),
-          declarations: this.$refs.dcl_editor_ref.getValue().trim(),
-          rules,
-        };
-      },
-      loadModel() {
-        const model: SegmentedModelDto = this[MODEL.GET.CUR_MODEL_DTO];
-        this.description = model.description;
-        this.declarations = model.declarations;
-        this.rules = model.rules;
-        this.dclEditInitFlag = !this.dclEditInitFlag;
-        this[MODEL.SET.EDITOR_TRANSITION](editorTransitions.NONE);
-      },
-    },
-    watch: {
-      editorTransition(newTransition: EditorTransition) {
-        if (newTransition === editorTransitions.LOAD) {
-          this.loadModel();
-        } else if (newTransition === editorTransitions.STORE) {
-          const modelEditorData: ModelEditorData = this.getUpdatedModel();
-          const modelName = this[MODEL.GET.CUR_MODEL_DTO].name;
-          this[MODEL.SET.UPDATE_MODEL_DTO]({ modelName, modelEditorData });
-          this[MODEL.SET.EDITOR_TRANSITION](editorTransitions.NONE);
-        }
-      },
-    },
+  })
+  export default class ModelEditorView extends Vue {
+    description = '';
+
+    declarations = '';
+
+    rules: ModelRuleDto[] = [{
+      metadata: '',
+      rule: '',
+    }];
+
+    dclEditInitFlag = false;
+
+    $refs!: {
+      dclEditorRef: EditorInterface;
+      segModelEditorRef: ModelEditorInterface;
+    };
+
+    @helpModule.State
+    showHelp!: boolean;
+
+    @modelModule.State
+    editorTransition!: boolean;
+
+    @modelModule.Getter
+    isQueryActive!: boolean;
+
+    @modelModule.Getter
+    curModelDto!: SegmentedModelDto;
+
+    @modelModule.Mutation
+    setEditorTransition!: (payload: EditorTransition) => void;
+
+    @modelModule.Mutation
+    updateModelDto!: (payload: UpdateModelDtoPayload) => void;
+
+    @Watch('editorTransition')
+    onEditorTransition(newTransition: EditorTransition) {
+      if (newTransition === EditorTransition.LOAD) {
+        this.loadModel();
+      } else if (newTransition === EditorTransition.STORE) {
+        const modelEditorData: ModelEditorData = this.getUpdatedModel();
+        const modelName = this.curModelDto.name;
+        this.updateModelDto({
+          modelName,
+          modelEditorData,
+        });
+        this.setEditorTransition(EditorTransition.NONE);
+      }
+    }
+
     mounted() {
       this.loadModel();
-    },
-  };
+    }
+
+    getUpdatedModel(): ModelEditorData {
+      const rules: ModelRuleDto[] = this.$refs.segModelEditorRef.getModelRules();
+      return {
+        description: this.description.trim(),
+        declarations: this.$refs.dclEditorRef.getValue()
+        .trim(),
+        rules,
+      };
+    }
+
+    loadModel() {
+      const model: SegmentedModelDto = this.curModelDto;
+      this.description = model.description || '';
+      this.declarations = model.declarations || '';
+      this.rules = model.rules;
+      this.dclEditInitFlag = !this.dclEditInitFlag;
+      this.setEditorTransition(EditorTransition.NONE);
+    }
+  }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .top-level-container {
     height: 100%;
     width: 100%;
