@@ -97,7 +97,7 @@
       passwordRef: HTMLElement
     };
 
-    autoLogin = false;
+    autoLogin = true;
 
     showModal = true;
 
