@@ -128,13 +128,10 @@
 
   import { http, toApiUrl } from '@/services/http';
   import { NotificationInputDto } from '@/services/data_refresh/types';
-
   import { triggerRefresh } from '@/services/data_refresh/refreshManager';
-  import {
-    NOTIFICATIONS_VXC,
-    SYSTEM_STATUS_VXC,
-  } from '@/store';
   import { NotificationForUiPayload } from '@/store/notifications/types';
+  import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
+  import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
 
   const isSystemStatus = (type: any) => type === SystemStatusType.DATABASE;
   const isDataRefresh = (type: any) => type === RefreshType.USER;
@@ -151,8 +148,8 @@
     server: boolean,
   }
 
-  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
-  const systemStatusModule = namespace(SYSTEM_STATUS_VXC.MODULE);
+  const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
+  const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
 
   @Component
   export default class NotificationMessages extends Vue {

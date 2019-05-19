@@ -18,7 +18,8 @@ The project associated paths in the screen shots should be adjusted to the paths
 1.  [JavaScript](#javascript)
 1.  [Vue.js](#vuejs)
 1.  [ESLint](#eslint)
-1.  [TypeScript](#TypeScript)
+1.  [TypeScript](#typescript)
+1.  [Punctuation](#punctuation)
 1.  [Webpack](#webpack)
 
 ### Gradle
@@ -109,6 +110,14 @@ The above option is only visible when editing a TypeScript or JavaScript file, h
   Or from within the IDE:
 
   ![Yarn](./images/idea/yarn_lint.png)
+  
+### Punctuation
+
+Set code punctuation to match the ESLint rules so that IntelliJ uses the correct punctuation when it inserts missing imports.
+
+  ![TypeScriptPunctuation](./images/idea/tsPunctuation.png)
+  
+Do the same for JavaScript.
 
 ### Webpack
 

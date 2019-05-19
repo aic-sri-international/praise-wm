@@ -84,7 +84,6 @@
   } from 'vue-property-decorator';
 
   import { namespace } from 'vuex-class';
-  import { HELP_VXC } from '@/store';
   import ContextMenu from 'vue-context-menu';
   import { ModelRuleDto } from '@/store/model/types';
   import ModelRuleEditor from './ModelRuleEditor.vue';
@@ -93,8 +92,9 @@
     ModelRuleEditorInterface,
     ModelRuleWrapper,
   } from '@/components/model/editor/types';
+  import { HELP_MODULE_NAME } from '@/store/help/constants';
 
-  const helpModule = namespace(HELP_VXC.MODULE);
+  const helpModule = namespace(HELP_MODULE_NAME);
 
   let nextMrwId = 0;
   const nextModelRuleWrapperId = () => {
@@ -203,7 +203,6 @@
 
     onOpenAllMetadata(open: boolean) {
       this.mrws.forEach(((mrw) => {
-        // eslint-disable-next-line no-param-reassign
         mrw.openMetadata = open;
       }));
       this.setFocus(this.mrws[this.lastRightClickData.index]);

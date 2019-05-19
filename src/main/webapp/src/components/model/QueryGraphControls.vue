@@ -63,7 +63,6 @@
   import debounce from 'lodash/debounce';
   import cloneDeep from 'lodash/cloneDeep';
   import ContextMenu from 'vue-context-menu';
-  import { MODEL_VXC } from '@/store';
   import {
     GraphQueryVariableResults,
     GraphRequestDto,
@@ -77,6 +76,7 @@
 
   import { getSliderRangeLabel } from './util';
   import { GraphVariableSetSliderInterface } from '@/components/model/types';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
 
   type Control = {
@@ -91,9 +91,7 @@
 
   const maxEnumsPerSlider = 4;
 
-
-  const modelModule = namespace(MODEL_VXC.MODULE);
-
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   type ContextMenuType = Vue & {
     open: (event: MouseEvent, data: { index: number }) => any,
@@ -261,7 +259,6 @@
       const mr = Math.ceil(maxTextWidthLast / 2) + tooltipBorderPad;
 
       this.controls.forEach((ctrl) => {
-        // eslint-disable-next-line
         ctrl.style += `margin-left: ${ml}px; margin-right: ${mr}px;`;
       });
     }

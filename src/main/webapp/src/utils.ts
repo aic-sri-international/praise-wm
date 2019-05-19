@@ -1,10 +1,9 @@
 import Vue from 'vue';
 import encode from 'lean-he/encode';
-// eslint-disable-next-line import/no-cycle
-import { serverTimeDeltaInMillis } from './services/http';
+import { getServerTimeDeltaInMillis } from '@/services/clientState';
 
 export function getDate() : Date {
-  return new Date(Date.now() + serverTimeDeltaInMillis());
+  return new Date(Date.now() + getServerTimeDeltaInMillis());
 }
 
 export type FileInfo = {

@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign,no-console */
+/* eslint-disable no-console */
 import Vue from 'vue';
 import { oneLine } from 'common-tags';
 import isEqual from 'lodash/isEqual';
@@ -8,15 +8,15 @@ import {
   SegmentedModelDto,
   QueryResultWrapper,
   EditorTransition,
-  VuexModelState, UpdateModelDtoPayload,
+  VuexModelState,
+  UpdateModelDtoPayload,
 } from './types';
-import MODEL from './constants';
 
 export default {
-  [MODEL.SET.EDITOR_TRANSITION](state: VuexModelState, editorTransition: EditorTransition) {
+  setEditorTransition(state: VuexModelState, editorTransition: EditorTransition) {
     state.editorTransition = editorTransition;
   },
-  [MODEL.SET.MODEL_DTOS](state: VuexModelState, modelDtos: SegmentedModelDto[]) {
+  setModelDtos(state: VuexModelState, modelDtos: SegmentedModelDto[]) {
     state.modelDtos = modelDtos.reduce(
       (accum: { [key:string] : SegmentedModelDto }, cur: SegmentedModelDto) => {
         accum[cur.name] = cur;
@@ -24,23 +24,23 @@ export default {
       }, {},
       );
   },
-  [MODEL.SET.MODEL_DTO](state: VuexModelState, modelDto: SegmentedModelDto) {
+  setModelDto(state: VuexModelState, modelDto: SegmentedModelDto) {
     Vue.set(state.modelDtos, modelDto.name, modelDto);
   },
-  [MODEL.SET.UPDATE_MODEL_DTO](state: VuexModelState, payload: UpdateModelDtoPayload) {
+  updateModelDto(state: VuexModelState, payload: UpdateModelDtoPayload) {
     const model: SegmentedModelDto = state.modelDtos[payload.modelName];
     const med: ModelEditorData = payload.modelEditorData;
     model.description = med.description;
     model.declarations = med.declarations;
     model.rules = med.rules;
   },
-  [MODEL.SET.CUR_MODEL_NAME](state: VuexModelState, name: string) {
+  setCurModelName(state: VuexModelState, name: string) {
     state.curModelName = name;
   },
-  [MODEL.SET.CUR_QUERY](state: VuexModelState, query: string) {
+  setCurQuery(state: VuexModelState, query: string) {
     state.curQuery = query;
   },
-  [MODEL.SET.CUR_MODEL_QUERIES](state: VuexModelState, queries: string[]) {
+  setCurModelQueries(state: VuexModelState, queries: string[]) {
     if (state.curModelName) {
       const model: SegmentedModelDto = state.modelDtos[state.curModelName];
       if (model) {
@@ -48,37 +48,37 @@ export default {
           model.queries = [...queries];
         }
       } else {
-        console.warn(`MODEL.SET.CUR_MODEL_QUERIES model not found for  ${state.curModelName}`);
+        console.warn(`setCurModelQueries model not found for  ${state.curModelName}`);
       }
     }
   },
-  [MODEL.SET.QUERY_RESULT](state: VuexModelState, queryResult: QueryResultWrapper) {
+  setQueryResult(state: VuexModelState, queryResult: QueryResultWrapper) {
     state.queryResults = [queryResult].concat(state.queryResults);
     state.queryResultsIx = state.queryResults.length ? 0 : -1;
   },
-  [MODEL.SET.QUERY_RESULTS_IX](state: VuexModelState, queryResultsIx: number) {
+  setQueryResultsIx(state: VuexModelState, queryResultsIx: number) {
     const maxIx = state.queryResults.length - 1;
     if (queryResultsIx < -1 || queryResultsIx > maxIx) {
-      throw Error(oneLine`MODEL.SET.QUERY_RESULT_IX: 
+      throw Error(oneLine`setQueryResultsIx: 
             queryResults.length=${state.queryResults.length},
             queryResultIx=${queryResultsIx}`);
     }
     state.queryResultsIx = queryResultsIx;
   },
-  [MODEL.SET.CLEAR_QUERY_RESULTS](state: VuexModelState) {
+  clearQueryResults(state: VuexModelState) {
     state.queryResults = [];
     state.queryResultsIx = -1;
   },
-  [MODEL.SET.ABORT_QUERY](state: VuexModelState, abort: boolean) {
+  setAbortQuery(state: VuexModelState, abort: boolean) {
     state.abortQueryFlag = abort;
   },
-  [MODEL.SET.IS_QUERY_ACTIVE](state: VuexModelState, isActive: boolean) {
+  setQueryActive(state: VuexModelState, isActive: boolean) {
     state.queryStartTime = isActive ? Date.now() : 0;
   },
-  [MODEL.SET.NUMBER_OF_INITIAL_SAMPLES](state: VuexModelState, initialSamples: number) {
+  setNumberOfInitialSamples(state: VuexModelState, initialSamples: number) {
     state.numberOfInitialSamples = initialSamples;
   },
-  [MODEL.SET.NUMBER_OF_DISCRETE_VALUES](state: VuexModelState, discreteValues: number) {
+  setNumberOfDiscreteValues(state: VuexModelState, discreteValues: number) {
     state.numberOfDiscreteValues = discreteValues;
   },
 };

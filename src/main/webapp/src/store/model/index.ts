@@ -9,16 +9,14 @@ import {
   EditorTransition,
 } from './types';
 import mutations from './mutations';
-// eslint-disable-next-line import/no-cycle
 import actions from './actions';
-import MODEL from './constants';
 import { emptyModelDto, EMPTY_MODEL_NAME } from './util';
 import { RootState } from '@/store/types';
 
 const getters = {
-  [MODEL.GET.MODEL_NAMES]: (state: VuexModelState):
+  modelNames: (state: VuexModelState):
       string[] => Object.keys(state.modelDtos).sort(),
-  [MODEL.GET.CUR_QUERIES]: (state: VuexModelState): string[] => {
+  curQueries: (state: VuexModelState): string[] => {
     if (!state.curModelName) {
       return [];
     }
@@ -31,21 +29,21 @@ const getters = {
     }
     return [...queries];
   },
-  [MODEL.GET.CUR_MODEL_DTO]: (state: VuexModelState): SegmentedModelDto => {
+  curModelDto: (state: VuexModelState): SegmentedModelDto => {
     if (!state.curModelName) {
       throw Error('state.curModelName is not set');
     }
     return cloneDeep(state.modelDtos[state.curModelName]);
   },
-  [MODEL.GET.CUR_RESULT]: (state: VuexModelState): ExpressionResultDto | null => (
+  curResult: (state: VuexModelState): ExpressionResultDto | null => (
     state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx].expressionResult
   ),
-  [MODEL.GET.CUR_RESULT_WRAPPER]: (state: VuexModelState): QueryResultWrapper | null => (
+  curResultWrapper: (state: VuexModelState): QueryResultWrapper | null => (
     state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx]
   ),
-  [MODEL.GET.IS_QUERY_ACTIVE]: (state: VuexModelState):
+  isQueryActive: (state: VuexModelState):
       boolean => state.queryStartTime !== 0,
-  [MODEL.GET.DISPLAY_CHART]: (state: VuexModelState): boolean => {
+  displayChart: (state: VuexModelState): boolean => {
     if (state.queryResultsIx >= 0) {
       const queryResult :
         ExpressionResultDto = state.queryResults[state.queryResultsIx].expressionResult;

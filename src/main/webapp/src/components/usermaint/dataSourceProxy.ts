@@ -2,18 +2,15 @@ import isMock from '@/dataConfig';
 import { http, toApiUrl, toAdminUrl } from '@/services/http';
 import { UserDto } from './types';
 import {
-  getUsers,
-  addUser as addMockUser,
-  updateUser as updateMockUser,
-  deleteUser as deleteMockUser,
-} from './mock_data';
+  userMockData,
+} from '@/components/usermaint/mock_data';
 
 async function fetchUserDtos(): Promise<UserDto[]> {
   let result: any;
 
   if (isMock.usermaint) {
     try {
-      result = getUsers();
+      result = userMockData.getUsers();
       return Promise.resolve(result);
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -31,7 +28,7 @@ async function addUser(user: UserDto): Promise<any> {
 
   if (isMock.usermaint) {
     try {
-      result = addMockUser(user);
+      result = userMockData.addUser(user);
       return Promise.resolve(result);
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -49,7 +46,7 @@ async function updateUser(user: UserDto): Promise<any> {
 
   if (isMock.usermaint) {
     try {
-      result = updateMockUser(user);
+      result = userMockData.updateUser(user);
       return Promise.resolve(result);
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -67,7 +64,7 @@ async function deleteUser(userId: number): Promise<any> {
 
   if (isMock.usermaint) {
     try {
-      result = deleteMockUser(userId);
+      result = userMockData.deleteUser(userId);
       return Promise.resolve(result);
     } catch (err) {
       // eslint-disable-next-line no-console

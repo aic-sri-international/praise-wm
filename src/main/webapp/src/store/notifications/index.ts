@@ -1,5 +1,4 @@
 import mutations from './mutations';
-import NC from './constants';
 import {
   HttpError,
   NotificationMessage,
@@ -9,15 +8,15 @@ import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 
 const getters = {
-  [NC.GET.HTTP_ERRORS]:
+  httpErrors:
       (state: VuexNotificationsState): HttpError[] => state.httpErrors,
-  [NC.GET.NOTIFICATIONS_FOR_UI]:
+  notificationsForUi:
       (state: VuexNotificationsState): NotificationMessage[] => state.forUi,
-  [NC.GET.NOTIFICATION_FOR_SERVER]:
+  notificationForServer:
       (state: VuexNotificationsState) => state.forServer,
-  [NC.GET.UI_IS_OPEN]:
+  notificationUiIsOpen:
       (state: VuexNotificationsState): boolean => state.ui.isOpen,
-  [NC.GET.UI_HAS_NEW_MSG]:
+  notificationUiHasNewMsg:
       (state: VuexNotificationsState): boolean => state.ui.hasNewMsg,
 };
 

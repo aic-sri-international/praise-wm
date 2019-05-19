@@ -34,17 +34,14 @@
   import {
     namespace,
   } from 'vuex-class';
-
-  import {
-    SYSTEM_STATUS_VXC,
-  } from '@/store';
   import { SystemStatusIconInfo } from '@/store/system_status/types';
+  import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
 
   type Item = SystemStatusIconInfo & {
     name: string,
   };
 
-  const systemStatusModule = namespace(SYSTEM_STATUS_VXC.MODULE);
+  const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
 
   @Component
   export default class SystemStatus extends Vue {

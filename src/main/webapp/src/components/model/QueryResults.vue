@@ -35,12 +35,13 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator';
   import { namespace } from 'vuex-class';
-  import { HELP_VXC, MODEL_VXC } from '@/store';
   import moment from 'moment';
   import { QueryResultWrapper } from '@/store/model/types';
+  import { HELP_MODULE_NAME } from '@/store/help/constants';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
-  const helpModule = namespace(HELP_VXC.MODULE);
-  const modelModule = namespace(MODEL_VXC.MODULE);
+  const helpModule = namespace(HELP_MODULE_NAME);
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   @Component
   export default class QueryResults extends Vue {

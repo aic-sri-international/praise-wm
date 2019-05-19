@@ -1,7 +1,7 @@
 // @ts-ignore
 import ace from 'ace-builds/src-noconflict/ace';
 
-/* eslint-disable prefer-destructuring,import/no-unresolved,no-undef,func-names,no-param-reassign */
+/* eslint-disable prefer-destructuring,import/no-unresolved,no-undef,func-names */
 ace.define('ace/mode/hogm',
   [
     'require', 'exports', 'module', 'ace/lib/oop', 'ace/mode/text', 'ace/mode/text_highlight_rules', 'ace/worker/worker_client',

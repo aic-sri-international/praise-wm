@@ -46,15 +46,16 @@
   import { namespace } from 'vuex-class';
   import Split from 'split.js';
   import Spinner from '@/components/Spinner.vue';
-  import { HELP_VXC, MODEL_VXC } from '@/store';
   import ModelEditorView from './editor/ModelEditorView.vue';
   import ModelControlsPanel from './ModelControlsPanel.vue';
   import QueryResults from './QueryResults.vue';
   import QueryChartResult from './QueryChartResult.vue';
   import QueryMapResult from './QueryMapResult.vue';
+  import { HELP_MODULE_NAME } from '@/store/help/constants';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
-  const helpModule = namespace(HELP_VXC.MODULE);
-  const modelModule = namespace(MODEL_VXC.MODULE);
+  const helpModule = namespace(HELP_MODULE_NAME);
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   @Component({
     components: {

@@ -1,14 +1,13 @@
 import isMock from '@/dataConfig';
 import { http } from '@/services/http';
 import {
-  login as mockLogin,
-  logout as mockLogout,
+  userMockData,
 } from '@/components/usermaint/mock_data';
 
 async function login(userPwd: { name: string, password: string }): Promise<any> {
   if (isMock.login) {
     try {
-      mockLogin(userPwd);
+      userMockData.login(userPwd);
       return Promise.resolve();
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -24,7 +23,7 @@ async function login(userPwd: { name: string, password: string }): Promise<any> 
 function logout(): void {
   if (isMock.login) {
     try {
-      mockLogout();
+      userMockData.logout();
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);

@@ -102,7 +102,6 @@
   import isNil from 'lodash/isNil';
   import RefreshMixin from '@/services/data_refresh/refreshMixin';
   import { RefreshType } from '@/services/ws_notifications/types';
-  import { USER_VXC } from '@/store';
   import CardTable from '@/components/CardTable.vue';
   import NewObjectButton from '@/components/NewObjectButton.vue';
   import ActionButton from '@/components/ActionButton.vue';
@@ -110,8 +109,9 @@
   import AddEditUserModal from '@/components/usermaint/AddEditUserModal.vue';
   import { deleteUser, fetchUserDtos } from './dataSourceProxy';
   import { UserDto } from '@/components/usermaint/types';
+  import { USER_ADMIN_NAME, USER_MODULE_NAME } from '@/store/user/constants';
 
-  const userModule = namespace(USER_VXC.MODULE);
+  const userModule = namespace(USER_MODULE_NAME);
 
   @Component({
     components: {
@@ -166,7 +166,7 @@
       const loggedInUser: VuexUserState = this.user;
 
       return !loggedInUser.isAdminRole
-        || USER_VXC.ADMIN_NAME === user.name
+        || USER_ADMIN_NAME === user.name
         || loggedInUser.name === user.name;
     }
 

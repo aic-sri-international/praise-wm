@@ -105,7 +105,6 @@ export class FeatureCollectionHandler {
       return;
     }
 
-    // eslint-disable-next-line no-param-reassign
     styleEntry.value = map[styleEntry.county] !== undefined
       ? map[styleEntry.county]
       : map[styleEntry.state];
@@ -120,7 +119,6 @@ export class FeatureCollectionHandler {
       }
     }
 
-    // eslint-disable-next-line no-param-reassign
     styleEntry.style = new Style({
       stroke: inQueryStroke,
       fill: newFill(rgba[0], rgba[1], rgba[2], rgba[3]),

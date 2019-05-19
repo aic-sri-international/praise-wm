@@ -40,15 +40,15 @@
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator';
   import { namespace } from 'vuex-class';
-  import { MODEL_VXC } from '@/store';
   import { ExpressionResultDto } from '@/store/model/types';
   import OlMap from '@/components/openlayers/OlMap.vue';
   import QueryGraphControls from './QueryGraphControls.vue';
   import { OlMapInterface } from '@/components/openlayers/OlMap.types';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
   const pageBannerHeight = 74;
 
-  const modelModule = namespace(MODEL_VXC.MODULE);
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   @Component({
     components: {

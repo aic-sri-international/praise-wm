@@ -1,4 +1,3 @@
-import UP from './constants';
 import uploadFile from './dataSourceProxy';
 import { UploadEntry, UploadEntryStatus, VuexUploaderState } from './types';
 import { ActionTree, Commit } from 'vuex';
@@ -6,7 +5,7 @@ import { RootState } from '@/store/types';
 
 let entryId : number = 0;
 
-const uploadNext = async (commit: Commit, state: VuexUploaderState) => {
+const uploadNext = async (commit: Commit, state: VuexUploaderState) : Promise<any> => {
   let entry: UploadEntry | undefined;
   entry = state.queue.find(e => e.status === UploadEntryStatus.UPLOADING);
   if (entry) {
@@ -26,7 +25,7 @@ const uploadNext = async (commit: Commit, state: VuexUploaderState) => {
       status: UploadEntryStatus.UPLOADING,
       startUploadDate: new Date(),
     };
-    commit(UP.SET.UPDATE_ENTRY, update);
+    commit('updateUploaderEntry', update);
 
     await uploadFile(entry.file);
 
@@ -42,13 +41,13 @@ const uploadNext = async (commit: Commit, state: VuexUploaderState) => {
       endUploadDate: new Date(),
     };
   }
-  commit(UP.SET.UPDATE_ENTRY, update);
+  commit('updateUploaderEntry', update);
 
-  uploadNext(commit, state);
+  await uploadNext(commit, state);
 };
 
 const actions: ActionTree<VuexUploaderState, RootState> = {
-  async [UP.ACTION.UPLOAD_FILE]({ commit, state }, file: File) {
+  async uploadFile({ commit, state }, file: File) : Promise<any> {
     entryId += 1;
     const newEntry: UploadEntry = {
       id: entryId,
@@ -59,8 +58,8 @@ const actions: ActionTree<VuexUploaderState, RootState> = {
       file,
     };
 
-    commit(UP.SET.ADD_ENTRY, newEntry);
-    uploadNext(commit, state);
+    commit('addUploaderEntry', newEntry);
+    return uploadNext(commit, state);
   },
 };
 

@@ -114,7 +114,6 @@ export class RgbaFactory {
         };
 
         const [region, value] = entry;
-        /* eslint-disable no-param-reassign */
         accum[region] = getRgba(value);
         return accum;
       }, {},

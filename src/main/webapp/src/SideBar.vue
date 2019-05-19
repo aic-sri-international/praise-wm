@@ -101,9 +101,9 @@
     namespace,
   } from 'vuex-class';
   import Paths from '@/router/paths';
-  import { SIDEBAR_VXC } from '@/store';
+  import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
 
-  const sideBarModule = namespace(SIDEBAR_VXC.MODULE);
+  const sideBarModule = namespace(SIDEBAR_MODULE_NAME);
 
   @Component
   export default class SideBar extends Vue {

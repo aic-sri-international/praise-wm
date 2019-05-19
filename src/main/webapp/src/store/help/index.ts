@@ -1,20 +1,17 @@
 import {
   VuexHelpState,
 } from './types';
-import HELP from './constants';
 import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 
-
-/* eslint-disable no-param-reassign */
 const mutations = {
-  [HELP.SET.SHOW_HELP](state: VuexHelpState, showHelp: boolean) {
+  showHelp(state: VuexHelpState, showHelp: boolean) {
     state.showHelp = showHelp;
   },
 };
 
 const getters = {
-  [HELP.SET.SHOW_HELP]: (state: VuexHelpState): boolean => state.showHelp,
+  showHelp: (state: VuexHelpState): boolean => state.showHelp,
 };
 
 const state: VuexHelpState = {

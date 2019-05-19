@@ -93,18 +93,16 @@
   } from 'vuex-class';
   import Paths from '@/router';
   import { logout } from '@/components/login/dataSourceProxy';
-  import {
-    HELP_VXC,
-    NOTIFICATIONS_VXC,
-    SYSTEM_STATUS_VXC,
-  } from '@/store';
   import { SystemStatusIconInfo } from '@/store/system_status/types';
+  import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
+  import { HELP_MODULE_NAME } from '@/store/help/constants';
+  import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
 
   let intervalId: number = 0;
 
-  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
-  const helpModule = namespace(HELP_VXC.MODULE);
-  const systemStatusModule = namespace(SYSTEM_STATUS_VXC.MODULE);
+  const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
+  const helpModule = namespace(HELP_MODULE_NAME);
+  const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
 
   @Component
   export default class TopBar extends Vue {

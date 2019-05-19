@@ -5,12 +5,10 @@ import {
 } from './types';
 
 import mutations from './mutations';
-import UC from './constants';
 import { RootState } from '@/store/types';
 
 const getters = {
-  [UC.GET.USER]: (state: VuexUserState): VuexUserState => ({ ...state }),
-  [UC.GET.IS_LOGGED_IN]: (state: VuexUserState): boolean => state.isLoggedIn,
+  user: (state: VuexUserState): VuexUserState => ({ ...state }),
 };
 
 const state: VuexUserState = {

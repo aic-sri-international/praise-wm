@@ -11,7 +11,7 @@
     />
 
     <div class="parent">
-      <scroll-to-top-button ref="scrollToTop_ref" />
+      <scroll-to-top-button ref="scrollToTopRef" />
 
       <div
         v-show="isLoggedIn"
@@ -22,7 +22,7 @@
 
       <div
         class="contentStyle"
-        @scroll="ev => $refs.scrollToTop_ref.onScrollEvent(ev)"
+        @scroll="ev => $refs.scrollToTopRef.onScrollEvent(ev)"
       >
         <notification-messages
           v-if="showNotifications"
@@ -73,15 +73,13 @@
   import SystemStatus from '@/SystemStatus.vue';
   import Vue2Filters from 'vue2-filters';
   import VueTippy from 'vue-tippy';
-
-  import {
-    USER_VXC,
-    SIDEBAR_VXC,
-    NOTIFICATIONS_VXC,
-    vxcFp,
-  } from '@/store';
   import { HttpError } from '@/store/notifications/types';
   import { SideBarStyle } from '@/store/sidebar/types';
+  import { USER_MODULE_NAME } from '@/store/user/constants';
+  import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
+  import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
+  import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
+  import { UPLOADER_MODULE_NAME } from '@/store/uploader/constants';
 
   Vue.use(BootstrapVue);
   Vue.use(Toasted);
@@ -105,9 +103,11 @@
   const dtFormat = 'MM/DD/YYYY HH:mm:ss';
   Vue.filter('formatDateTime', (value: MomentInput) => (value ? `${moment.utc(value).format(dtFormat)}Z` : null));
 
-  const userModule = namespace(USER_VXC.MODULE);
-  const sideBarModule = namespace(SIDEBAR_VXC.MODULE);
-  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
+  const userModule = namespace(USER_MODULE_NAME);
+  const sideBarModule = namespace(SIDEBAR_MODULE_NAME);
+  const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
+  const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
+  const uploaderModule = namespace(UPLOADER_MODULE_NAME);
 
   @Component({
     components: {
@@ -135,16 +135,32 @@
     @sideBarModule.Getter
     sideBarStyle!: SideBarStyle;
 
+    @notificationsModule.Mutation
+    removeHttpError!: (id: number) => void;
+
+    @systemStatusModule.Mutation
+    setAllStatusesToUnknown!: () => void;
+
+    @notificationsModule.Mutation
+    removeAllNotificationsForUi!: () => void;
+
+    @uploaderModule.Mutation
+    removeAllUploaderEntries!: () => void;
 
     @Watch('isLoggedIn')
     onIsLoggedIn(loggedIn: boolean) {
-      this.showSystemsStatus = false;
-      this.showNotifications = false;
+      if (!loggedIn) {
+        this.showSystemsStatus = false;
+        this.showNotifications = false;
+        this.setAllStatusesToUnknown();
+        this.removeAllNotificationsForUi();
+        this.removeAllUploaderEntries();
+      }
     }
 
     displayError(msg: HttpError) {
       this.$$.showToastError(msg.error);
-      this.$store.commit(vxcFp(NOTIFICATIONS_VXC, NOTIFICATIONS_VXC.SET.REMOVE_HTTP_ERROR), msg.id);
+      this.removeHttpError(msg.id);
     }
 
     onNotificationsClicked() {

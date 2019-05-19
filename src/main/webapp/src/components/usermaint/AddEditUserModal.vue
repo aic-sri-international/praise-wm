@@ -82,9 +82,9 @@
   import { mixins } from 'vue-class-component';
   import { Component, Prop } from 'vue-property-decorator';
   import { UserDto } from '@/components/usermaint/types';
-  import { USER_VXC as UC } from '@/store';
   import { addUser, updateUser } from './dataSourceProxy';
   import ValidationMixin from '@/services/validations/valmixin';
+  import { USER_ADMIN_NAME } from '@/store/user/constants';
 
   let origUser: UserDto;
 
@@ -119,7 +119,7 @@
 
     getValidations() {
       const noadmin = () => (
-        this.user.name === UC.ADMIN_NAME ? `Name cannot be ${UC.ADMIN_NAME}` : null
+        this.user.name === USER_ADMIN_NAME ? `Name cannot be ${USER_ADMIN_NAME}` : null
       );
 
       const pwdsMustMatch = () => (

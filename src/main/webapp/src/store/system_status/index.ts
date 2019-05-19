@@ -1,7 +1,6 @@
 import { MessageLevel } from '@/services/ws_notifications/types';
 
 import mutations from './mutations';
-import SS from './constants';
 import {
   VuexSystemStatusState,
   SystemStatusIconInfo,
@@ -25,7 +24,7 @@ const getIconInfoForLevel = (level: MessageLevel | null) :
     SystemStatusIconInfo | null => (level ? iconInfoByLevel[rankedLevels.indexOf(level)] : null);
 
 const getters = {
-  [SS.GET.UI_IS_OPEN]:
+  systemStatusUiIsOpen:
       (state: VuexSystemStatusState): boolean => state.ui.isOpen,
   systemStatusDatabaseIconInfo: (state: VuexSystemStatusState):
       SystemStatusIconInfo | null => getIconInfoForLevel(state.database),

@@ -1,34 +1,29 @@
-/* eslint-disable no-console */
 import Vue from 'vue';
 import isMock from '@/dataConfig';
-import {
-  store,
-  newWatchLogin,
-  NOTIFICATIONS_VXC as NC,
-  SYSTEM_STATUS_VXC as SS,
-  USER_VXC as UC,
-  vxcFp,
-} from '@/store/index';
 
 import {
   getUrlForWebsocketEndpoint,
   getWsClientInactivityTimeoutInMillis,
-  getWsReconnectInterval,
   getWsMaxReconnectAttempts,
+  getWsReconnectInterval,
 } from '@/services/http';
 
 import { triggerRefresh } from '@/services/data_refresh/refreshManager';
 import { getReasonForClose } from './websocket';
 
 import {
-  MessageLevel,
-  EventType,
-  SystemStatusType,
-  SystemStatusEvent,
-  NotificationTextMessage,
   DataRefreshEvent,
+  EventType,
+  MessageLevel,
   NotificationEvent,
+  NotificationTextMessage,
+  SystemStatusEvent,
+  SystemStatusType,
 } from './types';
+import { isLoggedIn, setLoggedOut } from '@/store/user/userHelper';
+import { addNotificationForUi } from '@/store/notifications/notificationsHelper';
+import { setSystemStatusDatabase } from '@/store/system_status/systemStatusHelper';
+import { getStore } from '@/store/store';
 
 const serviceName = 'notification';
 let url : string = serviceName;
@@ -42,10 +37,6 @@ let clientInactivityInterval: number | null;
 // Toast used for socket closure events other than a logout: timeout,
 // system shutdown, etc.
 let socketCloseToast: any;
-
-function setLoggedOut(): void {
-  store.commit(vxcFp(UC, UC.SET.LOGGED_OUT));
-}
 
 function showToast(text: string, duration?: number) {
   const toastOpts = {
@@ -73,10 +64,6 @@ function dismissToast() {
 function replaceToast(text: string) {
   dismissToast();
   socketCloseToast = showToast(text);
-}
-
-function isLoggedIn() {
-  return store.getters[vxcFp(UC, UC.GET.USER)].isLoggedIn;
 }
 
 function log(msg : string, isErr?: boolean) : void {
@@ -120,34 +107,29 @@ function displayReconnectAttemptToast() {
 }
 
 function handleNotificationTextMessage(nEvent: NotificationTextMessage) {
-  store.commit(
-    vxcFp(NC, NC.SET.ADD_NOTIFICATION_FOR_UI),
-    {
+  addNotificationForUi({
       date: new Date(nEvent.time),
-      level: nEvent.level,
-      text: nEvent.text,
-    },
-  );
+      level: nEvent.level ? nEvent.level : MessageLevel.INFO,
+      text: nEvent.text ? nEvent.text : '',
+    });
 }
 
 function handleDataRefreshEvent(nEvent: DataRefreshEvent) {
+  // noinspection JSIgnoredPromiseFromCall
   triggerRefresh(nEvent.refreshType);
   // We do not send refresh notifications to the notification window
 }
 
 function handleSystemStatusEvent(event: SystemStatusEvent) {
   const setSystemStatus = (system: string, level: MessageLevel) => {
-    let which: string = '';
-
+    // noinspection JSRedundantSwitchStatement
     switch (system) {
       case SystemStatusType.DATABASE:
-        which = 'setSystemStatusDatabase';
+        setSystemStatusDatabase(level);
         break;
       default:
         throw Error(`Undefined SystemStatusEvent, SystemStatusType ${system}`);
     }
-
-    store.commit(vxcFp(SS, which), level);
   };
 
   Object.entries(event.systemStatuses).forEach(([system, value]) => {
@@ -246,13 +228,15 @@ function open() : void {
   };
 }
 
-// eslint-disable-next-line no-shadow
-newWatchLogin((isLoggedIn) => {
-  if (!isMock.login) {
-    if (isLoggedIn) {
-      open();
-    } else if (ws) {
-      ws.close();
+getStore().watch(
+    isLoggedIn,
+  (loggedIn) => {
+    if (!isMock.login) {
+      if (loggedIn) {
+        open();
+      } else if (ws) {
+        ws.close();
+      }
     }
-  }
-});
+  },
+);

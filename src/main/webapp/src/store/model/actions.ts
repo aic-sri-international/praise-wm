@@ -3,11 +3,7 @@
 import Vue from 'vue';
 import cloneDeep from 'lodash/cloneDeep';
 import { oneLine } from 'common-tags';
-// eslint-disable-next-line import/no-cycle
-import { abortWatcher } from '@/store/store';
-// eslint-disable-next-line import/no-cycle
 import { FileInfo, downloadFile, getDate } from '@/utils';
-// eslint-disable-next-line import/no-cycle
 import {
   fetchSegmentedModels,
   solve,
@@ -20,7 +16,6 @@ import {
   ModelQueryDto,
   ExpressionResultDto,
   QueryResultWrapper,
-  QueryGraphControlsCurValues,
   GraphRequestDto,
   GraphRequestResultDto,
   GraphQueryResultDto,
@@ -28,15 +23,16 @@ import {
   VuexModelState,
   RunQueryFunctionPayload,
 } from './types';
-import MODEL from './constants';
+import { MODEL_MODULE_NAME } from './constants';
 import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
 import { ActionTree, Commit } from 'vuex';
 import { RootState } from '@/store/types';
+import { abortWatcher } from '@/store/abortWatcher';
 
 const queryAbortWatcher = (): { unwatch: Function, signal: AbortSignal } => abortWatcher(
-  MODEL.MODULE,
+  MODEL_MODULE_NAME,
   'abortQueryFlag',
-  MODEL.SET.ABORT_QUERY,
+  'setAbortQuery',
   'Query',
   interruptSolver,
 );
@@ -53,7 +49,7 @@ const loadModels = async (): Promise<SegmentedModelDto[]> => {
 
 const wait = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const waitForTransitionToComplete = async (state: VuexModelState) => {
+const waitForTransitionToComplete = async (state: VuexModelState) : Promise<any> => {
   const max = 20;
   const ms = 5;
   let count = 0;
@@ -80,33 +76,32 @@ const updateCurModelFromEditor = async (state: VuexModelState, commit: Commit, g
   if (!state.curModelName) {
     throw Error('curModelName not set');
   }
-  const curModel : SegmentedModelDto = getters[MODEL.GET.CUR_MODEL_DTO];
+  const curModel : SegmentedModelDto = getters.curModelDto;
   if (!curModel) {
     throw Error(`model not found for ${state.curModelName}`);
   }
-  commit(MODEL.SET.EDITOR_TRANSITION, EditorTransition.STORE);
+  commit('setEditorTransition', EditorTransition.STORE);
 
   await waitForTransitionToComplete(state);
 
-  return getters[MODEL.GET.CUR_MODEL_DTO];
+  return getters.curModelDto;
 };
 
-const setCurrentModel = async (commit: Commit, model: SegmentedModelDto) => {
-  commit(MODEL.SET.MODEL_DTO, model);
-  // Make sure the watcher for MODEL.GET.MODEL_NAMES completes before
-  // the watcher for MODEL.GET.CUR_MODEL_NAME is called.
+const setCurrentModel = async (commit: Commit, model: SegmentedModelDto) : Promise<any> => {
+  commit('setModelDto', model);
+  // Make sure the watcher for modelNames completes before the watcher for curModelName is called.
   await Vue.nextTick();
-  commit(MODEL.SET.CUR_MODEL_NAME, model.name);
+  commit('setCurModelName', model.name);
 
   const curQuery = (model.queries && model.queries.length) ? model.queries[0] : '';
-  commit(MODEL.SET.CUR_QUERY, curQuery);
+  commit('setCurQuery', curQuery);
 
-  commit(MODEL.SET.CLEAR_QUERY_RESULTS);
-  commit(MODEL.SET.EDITOR_TRANSITION, EditorTransition.LOAD);
+  commit('clearQueryResults');
+  commit('setEditorTransition', EditorTransition.LOAD);
 };
 
 const actions: ActionTree<VuexModelState, RootState> = {
-  async [MODEL.ACTION.INITIALIZE]({ commit }) {
+  async initialize({ commit }) : Promise<any> {
     let models: SegmentedModelDto[] = await loadModels();
     if (models.length === 0) {
       // Probably encountered an error that has been logged, so just return
@@ -125,18 +120,13 @@ const actions: ActionTree<VuexModelState, RootState> = {
       return;
     }
 
-    commit(MODEL.SET.MODEL_DTOS, models);
+    commit('setModelDtos', models);
 
     const curModel : SegmentedModelDto = models[0];
 
-    setCurrentModel(commit, curModel);
+    await setCurrentModel(commit, curModel);
   },
-  async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
-    const curModel : SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
-
-    downloadFile(curModel, `${curModel.name}.json`);
-  },
-  async [MODEL.ACTION.RUN_QUERY]({ state, commit, getters }) {
+  async runQuery({ state, commit, getters }) : Promise<any> {
     const curModel : SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
 
     const query: ModelQueryDto = {
@@ -146,7 +136,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
       numberOfDiscreteValues: state.numberOfDiscreteValues,
     };
 
-    commit(MODEL.SET.IS_QUERY_ACTIVE, true);
+    commit('setQueryActive', true);
 
     let result: ExpressionResultDto | undefined;
     const { unwatch, signal } = queryAbortWatcher();
@@ -156,7 +146,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
       // errors already logged/displayed
     } finally {
       unwatch();
-      commit(MODEL.SET.IS_QUERY_ACTIVE, false);
+      commit('setQueryActive', false);
     }
 
     if (!result) {
@@ -167,10 +157,10 @@ const actions: ActionTree<VuexModelState, RootState> = {
       isFunctionQuery: false,
       expressionResult: result,
     };
-    commit(MODEL.SET.QUERY_RESULT, queryResultWrapper);
+    commit('setQueryResult', queryResultWrapper);
   },
-  async [MODEL.ACTION.RUN_QUERY_FUNCTION]({ state, commit }, payload: RunQueryFunctionPayload) {
-    commit(MODEL.SET.IS_QUERY_ACTIVE, true);
+  async runQueryFunction({ state, commit }, payload: RunQueryFunctionPayload) : Promise<any> {
+    commit('setQueryActive', true);
 
     const lastQueryResult: QueryResultWrapper = cloneDeep(state.queryResults[0]);
     lastQueryResult.isFunctionQuery = true;
@@ -186,15 +176,14 @@ const actions: ActionTree<VuexModelState, RootState> = {
       // errors already logged/displayed
     } finally {
       unwatch();
-      commit(MODEL.SET.IS_QUERY_ACTIVE, false);
+      commit('setQueryActive', false);
     }
 
     if (!result) {
       return;
     }
 
-    // eslint-disable-next-line prefer-destructuring
-    const expressionResult: ExpressionResultDto = lastQueryResult.expressionResult;
+    const { expressionResult } = lastQueryResult;
     const xmVariables = [payload.request.xmVariable]; // in case there was an x-axis swap
 
     if (!expressionResult.graphQueryResultDto) {
@@ -209,7 +198,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
       };
     }
 
-    // Explict assignment to set target to undefined if not contained in the result
+    // Explicit assignment to set target to undefined if not contained in the result
     expressionResult.graphQueryResultDto.imageData = result.imageData;
     expressionResult.graphQueryResultDto.mapRegionNameToValue = result.mapRegionNameToValue;
 
@@ -219,16 +208,16 @@ const actions: ActionTree<VuexModelState, RootState> = {
 
     lastQueryResult.expressionResult = expressionResult;
     lastQueryResult.queryGraphControlsCurValues = payload.curControlValues;
-    commit(MODEL.SET.QUERY_RESULT, lastQueryResult);
+    commit('setQueryResult', lastQueryResult);
   },
-  async [MODEL.ACTION.X_AXIS_SWAP]({ state, dispatch }, xAxisVariableName: string) {
+  async xAxisSwap({ state, dispatch }, xAxisVariableName: string) : Promise<any> {
     // Get the variables from the original query
     const queryResultWrapper: QueryResultWrapper | undefined = state.queryResults.find(
         (qw: QueryResultWrapper) => !qw.isFunctionQuery,
     );
     if (!queryResultWrapper) {
       // Should never happen
-      console.error('MODEL.ACTION.X_AXIS_SWAP query entry not found');
+      console.error('xAxisSwap query entry not found');
       return;
     }
 
@@ -236,7 +225,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
       GraphQueryResultDto | undefined = queryResultWrapper.expressionResult.graphQueryResultDto;
     if (!origQueryResult) {
       // Should never happen
-      console.error('MODEL.ACTION.X_AXIS_SWAP graphQueryResultDto entry not found');
+      console.error('xAxisSwap graphQueryResultDto entry not found');
       return;
     }
 
@@ -248,14 +237,14 @@ const actions: ActionTree<VuexModelState, RootState> = {
     const payload: RunQueryFunctionPayload = {
       request,
     };
-    await dispatch(MODEL.ACTION.RUN_QUERY_FUNCTION, payload);
+    await dispatch('runQueryFunction', payload);
   },
-  async [MODEL.ACTION.SAVE_CURRENT_MODEL_TO_DISK]({ state, commit, getters }) {
+  async saveCurrentModelToDisk({ state, commit, getters }) : Promise<any> {
     const curModel : SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
 
     downloadFile(curModel, `${curModel.name}.json`);
   },
-  async [MODEL.ACTION.CHANGE_CURRENT_MODEL]({ state, commit }, modelName: string) {
+  async changeCurrentModel({ state, commit }, modelName: string) : Promise<any> {
     const model : SegmentedModelDto = state.modelDtos[modelName];
     if (model) {
       await setCurrentModel(commit, model);
@@ -263,7 +252,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
       console.warn(`current model cannot be set because it does not exist: ${modelName}`);
     }
   },
-  async [MODEL.ACTION.LOAD_MODELS_FROM_DISK]({ state, commit }, payload: FileInfo[]) {
+  async loadModelsFromDisk({ state, commit }, payload: FileInfo[]) : Promise<any> {
     const models: SegmentedModelDto[] = payload.reduce((accum: SegmentedModelDto[], fileInfo) => {
           const model: SegmentedModelDto | null = validateAndCleanModel(JSON.parse(fileInfo.text));
           if (model) {
@@ -273,16 +262,13 @@ const actions: ActionTree<VuexModelState, RootState> = {
         }, []);
 
     if (models.length) {
-      commit(
-        MODEL.SET.MODEL_DTOS,
-        Object.values(state.modelDtos).concat(models),
-      );
+      commit('setModelDtos', Object.values(state.modelDtos).concat(models));
       await setCurrentModel(commit, models[0]);
       await Vue.nextTick();
       // We need to reset the cur model name since the UI model selection
       // component would have triggered a change after getting a new
       // list of model names.
-      commit(MODEL.SET.CUR_MODEL_NAME, models[0].name);
+      commit('setCurModelName', models[0].name);
     }
   },
 };

@@ -1,5 +1,4 @@
 import isMock from '@/dataConfig';
-// eslint-disable-next-line import/no-cycle
 import { http, toApiUrl } from '@/services/http';
 
 async function uploadFile(file: File): Promise<any> {
@@ -8,7 +7,6 @@ async function uploadFile(file: File): Promise<any> {
   const fd = new FormData();
   fd.append(file.name, file, file.name);
 
-  // eslint-disable-next-line no-unused-vars
   if (isMock.upload) {
     try {
       result = '';

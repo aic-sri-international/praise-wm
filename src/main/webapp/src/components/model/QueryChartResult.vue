@@ -37,11 +37,11 @@ when we are ready to display explanations component
 <script lang="ts">
   import { Component, Vue, Watch } from 'vue-property-decorator';
   import { namespace } from 'vuex-class';
-  import { MODEL_VXC } from '@/store';
   import { ExpressionResultDto } from '@/store/model/types';
   import QueryGraphControls from './QueryGraphControls.vue';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
-  const modelModule = namespace(MODEL_VXC.MODULE);
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   @Component({
     components: {

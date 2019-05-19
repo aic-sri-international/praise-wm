@@ -23,6 +23,12 @@ module.exports = {
       2,
       { baseIndent: 1 },
     ],
+    'no-param-reassign': [
+      'error',
+      {
+        props: false,
+      },
+    ],
   },
   parserOptions: {
     parser: '@typescript-eslint/parser',

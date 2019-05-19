@@ -77,13 +77,11 @@
   import moment from 'moment';
   import { MessageLevel } from '@/services/ws_notifications/types';
   import { NotificationMessage } from '@/store/notifications/types';
-
-  import {
-    NOTIFICATIONS_VXC,
-  } from '@/store';
   import { BModal } from 'bootstrap-vue';
+  import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
 
-  const notificationsModule = namespace(NOTIFICATIONS_VXC.MODULE);
+
+  const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
 
   @Component
   export default class NotificationMessages extends Vue {

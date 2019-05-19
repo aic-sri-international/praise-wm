@@ -1,16 +1,14 @@
-/* eslint-disable no-param-reassign */
 import { MutationTree } from 'vuex';
-import UP from './constants';
 import {
   UploadEntry,
   VuexUploaderState,
 } from './types';
 
 const mutations: MutationTree<VuexUploaderState> = {
-  [UP.SET.ADD_ENTRY](state: VuexUploaderState, entry: UploadEntry) {
+  addUploaderEntry(state: VuexUploaderState, entry: UploadEntry) {
     state.queue.push(entry);
   },
-  [UP.SET.UPDATE_ENTRY](state: VuexUploaderState, entry: UploadEntry) {
+  updateUploaderEntry(state: VuexUploaderState, entry: UploadEntry) {
     const arr: UploadEntry[] = state.queue;
     const found: UploadEntry | undefined = arr.find(e => e.id === entry.id);
     if (!found) {
@@ -20,14 +18,14 @@ const mutations: MutationTree<VuexUploaderState> = {
     found.endUploadDate = entry.endUploadDate;
     found.status = entry.status;
   },
-  [UP.SET.REMOVE_ENTRY](state: VuexUploaderState, id: number) {
+  removeUploaderEntry(state: VuexUploaderState, id: number) {
     const arr = state.queue;
     const ix = arr.findIndex(e => e.id === id);
     if (ix !== -1) {
       arr.splice(ix, 1);
     }
   },
-  [UP.SET.REMOVE_ALL_ENTRIES](state: VuexUploaderState) {
+  removeAllUploaderEntries(state: VuexUploaderState) {
     state.queue = [];
   },
 };

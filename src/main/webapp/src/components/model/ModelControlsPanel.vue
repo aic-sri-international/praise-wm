@@ -142,18 +142,19 @@
   import ActionButton from '@/components/ActionButton.vue';
   import EditableDatalist from '@/components/EditableDatalist.vue';
   import InputTextFile from '@/components/InputTextFile.vue';
-  import { HELP_VXC, MODEL_VXC } from '@/store';
   import { SegmentedModelDto } from '@/store/model/types';
   import { FileInfo } from '@/utils';
   import { EditableDatalistInterface } from '@/components/EditableDatalistInterface.types';
+  import { HELP_MODULE_NAME } from '@/store/help/constants';
+  import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
   type ModelOption = {
     text: string,
     value: number,
   }
 
-  const helpModule = namespace(HELP_VXC.MODULE);
-  const modelModule = namespace(MODEL_VXC.MODULE);
+  const helpModule = namespace(HELP_MODULE_NAME);
+  const modelModule = namespace(MODEL_MODULE_NAME);
 
   @Component({
     components: {

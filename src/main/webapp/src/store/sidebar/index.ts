@@ -3,7 +3,6 @@ import {
   SideBarStyle,
   VuexSideBarState,
 } from './types';
-import SC from './constants';
 import { RootState } from '@/store/types';
 
 export const sideBarStyles = {
@@ -15,9 +14,8 @@ export const sideBarStyles = {
   },
 };
 
-/* eslint-disable no-param-reassign */
 const mutations = {
-  [SC.SET.TOGGLE_SIDEBAR_COLLAPSE](state: VuexSideBarState) {
+  toggleSideBarCollapse(state: VuexSideBarState) {
     state.isCollapsed = !state.isCollapsed;
     if (state.isCollapsed) {
       state.style = { ...sideBarStyles.collapsed };
@@ -28,9 +26,9 @@ const mutations = {
 };
 
 const getters = {
-  [SC.GET.IS_SIDEBAR_COLLAPSED]:
+  isSideBarCollapsed:
       (state: VuexSideBarState): boolean => state.isCollapsed,
-  [SC.GET.SIDEBAR_STYLE]:
+  sideBarStyle:
       (state: VuexSideBarState): SideBarStyle => state.style,
 };
 

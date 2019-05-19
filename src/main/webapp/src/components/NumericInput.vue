@@ -146,9 +146,7 @@
     }
 
     ensureMinMax(numInput: number): number {
-      let num = numInput;
-
-      num = this.ensureMax(numInput);
+      let num = this.ensureMax(numInput);
 
       if (num === numInput) {
         if (num < this.min) {
@@ -213,15 +211,13 @@
 
       if (formattedValue.length && formattedValue.charAt(0) === '-') {
         isSigned = true;
-        formattedValue = formattedValue.slice(1);
       }
+
       formattedValue = value.replace(/\D/g, '');
 
       if (!formattedValue.length) {
         formattedValue = '0';
-      }
-
-      if (isSigned) {
+      } else if (isSigned) {
         formattedValue = `-${formattedValue}`;
       }
 

@@ -22,7 +22,7 @@ export const minimizeModel = (model: SegmentedModelDto) : SegmentedModelDto => {
   const coalesceRules = (rules: ModelRuleDto[]) :
     string => rules.reduce((accum: string, modeRuleDto: ModelRuleDto) => {
       const lf = accum ? '\n\n' : '';
-      // eslint-disable-next-line no-param-reassign
+    // eslint-disable-next-line no-param-reassign
       accum += `${lf}${modeRuleDto.rule}`;
       return accum;
     }, '');

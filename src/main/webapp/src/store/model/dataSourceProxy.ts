@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-cycle
 import { http, toApiUrl } from '@/services/http';
 import {
   ModelQueryDto,

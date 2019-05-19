@@ -13,7 +13,7 @@
         autocomplete="off"
         class="form-control"
         type="text"
-        @contextmenu.prevent="$refs.ctxmenu_ref.open($event, { currentItem })"
+        @contextmenu.prevent="$refs.ctxmenuRef.open($event, { currentItem })"
       >
       <b-input-group-append>
         <b-btn
@@ -35,7 +35,7 @@
     />
     <context-menu
       id="context-menu"
-      ref="ctxmenu_ref"
+      ref="ctxmenuRef"
       @ctx-open="setCurrentRightClickData"
     >
       <div>

@@ -1,18 +1,13 @@
-// eslint-disable-next-line import/no-cycle
-import {
-  store,
-  USER_VXC as U_VXC,
-  NOTIFICATIONS_VXC as N_VXC,
-  vxcFp,
-} from '@/store';
-
 import { VuexUserState } from '@/store/user/types';
-// eslint-disable-next-line import/no-cycle
 import {
-  getDate,
   downloadFile,
 } from '@/utils';
-import { MessageLevel } from '@/services/ws_notifications/types';
+import { isLoggedIn, setLoggedIn, setLoggedOut } from '@/store/user/userHelper';
+import {
+  addErrorNotificationForUi,
+  addHttpError,
+} from '@/store/notifications/notificationsHelper';
+import { setServerTimeDeltaInMillis } from '@/services/clientState';
 
 type FetchDataParams = {
   request: Request,
@@ -93,14 +88,9 @@ const HTTP_STATUS_NO_CONTENT = 204;
 const HTTP_STATUS_CREATED = 201;
 
 let secSessionId: string = '';
-let timeDeltaInMillis : number = 0;
 let reconnectInternalInMillis = 0;
 let maxReconnectAttempts = 0;
 let clientInactivityTimeoutInMillis = 0;
-
-export function serverTimeDeltaInMillis() {
-  return timeDeltaInMillis;
-}
 
 export function getWsClientInactivityTimeoutInMillis() : number {
   return clientInactivityTimeoutInMillis;
@@ -259,15 +249,9 @@ async function fetchData(params: FetchDataParams) : Promise<Object> {
   // eslint-disable-next-line no-console
   console.error(errAll);
 
-  store.commit(vxcFp(N_VXC, N_VXC.SET.ADD_HTTP_ERROR), errAbbr);
-  store.commit(
-    vxcFp(N_VXC, N_VXC.SET.ADD_NOTIFICATION_FOR_UI),
-    {
-      date: getDate(),
-      level: MessageLevel.ERROR,
-      text: errAbbr,
-    },
-  );
+  addHttpError(errAbbr);
+  addErrorNotificationForUi(errAbbr);
+
   return Promise.reject(errAll);
 }
 
@@ -280,9 +264,8 @@ export function toAdminUrl(path:string) : string {
 }
 
 function logOutIfNeeded() {
-  const isLoggedIn = store.getters[vxcFp(U_VXC, U_VXC.GET.IS_LOGGED_IN)];
-  if (isLoggedIn) {
-    store.commit(vxcFp(U_VXC, U_VXC.SET.LOGGED_OUT));
+  if (isLoggedIn()) {
+    setLoggedOut();
   }
 }
 
@@ -298,7 +281,8 @@ export const http = {
     return fetchData({ request: req, isLogin: true }).then((data: Object) => {
       const loginResponse: LoginResponse = data as LoginResponse;
       const serverTime : Date = new Date(loginResponse.serverTime);
-      timeDeltaInMillis = serverTime.getTime() - Date.now();
+      const timeDeltaInMillis = serverTime.getTime() - Date.now();
+      setServerTimeDeltaInMillis(timeDeltaInMillis);
 
       reconnectInternalInMillis = loginResponse.wsReconnectInterval;
       maxReconnectAttempts = loginResponse.wsMaxReconnectAttempts;
@@ -311,12 +295,13 @@ export const http = {
         isAdminRole: loginResponse.isAdminRole,
       };
 
-      store.commit(vxcFp(U_VXC, U_VXC.SET.LOGGED_IN), loggedInData);
+      setLoggedIn(loggedInData);
       return data;
     });
   },
   logout() : void {
-    store.commit(vxcFp(U_VXC, U_VXC.SET.LOGGED_OUT));
+    setLoggedOut();
+
     const req : Request = new Request(toApiUrl('logout'), {
       method: 'POST', mode: 'cors', ...getHeadersAndBody(),
     });

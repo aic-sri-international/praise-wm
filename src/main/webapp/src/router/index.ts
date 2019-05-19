@@ -4,8 +4,8 @@ import Login from '@/components/login/Login.vue';
 import ModelView from '@/components/model/ModelView.vue';
 import paths from './paths';
 import { logout } from '@/components/login/dataSourceProxy';
-import { store } from '@/store';
-import { VuexUserState } from '@/store/user/types';
+import { isLoggedIn } from '@/store/user/userHelper';
+import { getStore } from '@/store/store';
 
 Vue.use(Router);
 
@@ -35,8 +35,6 @@ const router = new Router({
   ],
 });
 
-const isLoggedIn = () => ((store.state as any).user as VuexUserState).isLoggedIn;
-
 router.beforeEach(async (to, from, next) => {
   if (to.path !== paths.LOGIN && !isLoggedIn()) {
     next({ path: paths.LOGIN });
@@ -48,7 +46,7 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 
-store.watch(isLoggedIn, (loggedIn) => {
+getStore().watch(isLoggedIn, (loggedIn) => {
   if (!loggedIn) {
     router.push(paths.LOGIN);
   }

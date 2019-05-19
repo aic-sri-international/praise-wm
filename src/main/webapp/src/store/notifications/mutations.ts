@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-import NC from './constants';
 import {
   HttpError,
   NotificationMessage,
@@ -11,7 +9,7 @@ let httpErrId : number = 0;
 let notForUiId : number = 0;
 
 export default {
-  [NC.SET.ADD_HTTP_ERROR](state: VuexNotificationsState, error: string) {
+  addHttpError(state: VuexNotificationsState, error: string) {
     httpErrId += 1;
     const httpError: HttpError = {
       id: httpErrId,
@@ -19,14 +17,14 @@ export default {
     };
     state.httpErrors.push(httpError);
   },
-  [NC.SET.REMOVE_HTTP_ERROR](state: VuexNotificationsState, id: number) {
+  removeHttpError(state: VuexNotificationsState, id: number) {
     const arr = state.httpErrors;
     const ix = arr.findIndex(e => e.id === id);
     if (ix !== -1) {
       arr.splice(ix, 1);
     }
   },
-  [NC.SET.ADD_NOTIFICATION_FOR_UI](
+  addNotificationForUi(
     state: VuexNotificationsState,
     payload: NotificationForUiPayload,
   ) {
@@ -44,17 +42,17 @@ export default {
       state.ui.hasNewMsg = true;
     }
   },
-  [NC.SET.REMOVE_NOTIFICATIONS_FOR_UI](
+  removeNotificationsForUi(
     state: VuexNotificationsState,
     idsToRemove: number[],
   ) {
     state.forUi = state.forUi.filter(item => !idsToRemove.includes(item.id));
   },
-  [NC.SET.REMOVE_ALL_NOTIFICATIONS_FOR_UI](state: VuexNotificationsState) {
+  removeAllNotificationsForUi(state: VuexNotificationsState) {
     state.forUi = [];
     state.ui.hasNewMsg = false;
   },
-  [NC.SET.UI_IS_OPEN](state: VuexNotificationsState, isOpen: boolean) {
+  setNotificationUiIsOpen(state: VuexNotificationsState, isOpen: boolean) {
     state.ui.isOpen = isOpen;
     if (isOpen) {
       state.ui.hasNewMsg = false;
