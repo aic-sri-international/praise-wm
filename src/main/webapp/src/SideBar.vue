@@ -75,8 +75,7 @@
                     <i
                       class="fas fa-user"
                       data-fa-transform="grow-6"
-                    />
-                  </span>
+                    /></span>
                   <span
                     v-if="!isSideBarCollapsed"
                     class="ml-2"
@@ -94,12 +93,8 @@
 </template>
 
 <script lang="ts">
-  import {
-    Vue, Component,
-  } from 'vue-property-decorator';
-  import {
-    namespace,
-  } from 'vuex-class';
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
   import Paths from '@/router/paths';
   import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
   import { VuexSideBarState } from '@/store/sidebar/types';
@@ -195,7 +190,7 @@
   }
 
   #sidebar.active ul li a i {
-    margin-right:  0;
+    margin-right: 0;
     display: block;
     font-size: 1.8em;
     margin-bottom: 5px;
@@ -230,10 +225,12 @@
     font-size: 1.1em;
     display: block;
   }
+
   #sidebar ul li a:hover {
     color: white;
     background: inherit;
   }
+
   #sidebar ul li a i {
     margin-right: 10px;
   }

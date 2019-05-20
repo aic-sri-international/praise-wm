@@ -74,7 +74,7 @@
   import Vue2Filters from 'vue2-filters';
   import VueTippy from 'vue-tippy';
   import { HttpError, VuexNotificationsState } from '@/store/notifications/types';
-  import { SideBarStyle, VuexSideBarState } from '@/store/sidebar/types';
+  import { VuexSideBarState } from '@/store/sidebar/types';
   import { USER_MODULE_NAME } from '@/store/user/constants';
   import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
