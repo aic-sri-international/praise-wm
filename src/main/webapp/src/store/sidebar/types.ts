@@ -3,6 +3,6 @@ export type SideBarStyle = {
 }
 
 export interface VuexSideBarState {
-  isCollapsed: boolean;
-  style: SideBarStyle;
+  isSideBarCollapsed: boolean;
+  sideBarStyle: SideBarStyle;
 }

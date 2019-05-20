@@ -10,6 +10,6 @@ export default {
     state.database = null;
   },
   setSystemStatusUiIsOpen(state: VuexSystemStatusState, isOpen: boolean) {
-    state.ui.isOpen = isOpen;
+    state.uiIsOpen = isOpen;
   },
 };

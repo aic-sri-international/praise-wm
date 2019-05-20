@@ -37,25 +37,27 @@ export default {
       text: payload.text,
     };
 
-    state.forUi.push(notification);
-    if (!state.ui.isOpen) {
-      state.ui.hasNewMsg = true;
+    state.notificationsForUi.push(notification);
+    if (!state.uiIsOpen) {
+      state.notificationUiHasNewMsg = true;
     }
   },
   removeNotificationsForUi(
     state: VuexNotificationsState,
     idsToRemove: number[],
   ) {
-    state.forUi = state.forUi.filter(item => !idsToRemove.includes(item.id));
+    state.notificationsForUi = state.notificationsForUi.filter(
+      item => !idsToRemove.includes(item.id),
+    );
   },
   removeAllNotificationsForUi(state: VuexNotificationsState) {
-    state.forUi = [];
-    state.ui.hasNewMsg = false;
+    state.notificationsForUi = [];
+    state.notificationUiHasNewMsg = false;
   },
   setNotificationUiIsOpen(state: VuexNotificationsState, isOpen: boolean) {
-    state.ui.isOpen = isOpen;
+    state.uiIsOpen = isOpen;
     if (isOpen) {
-      state.ui.hasNewMsg = false;
+      state.notificationUiHasNewMsg = false;
     }
   },
 };

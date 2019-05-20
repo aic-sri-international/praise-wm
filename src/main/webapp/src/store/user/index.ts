@@ -25,5 +25,4 @@ export const module: Module<VuexUserState, RootState> = {
   mutations,
 };
 
-
 export default module;

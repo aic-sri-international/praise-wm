@@ -10,10 +10,6 @@ const mutations = {
   },
 };
 
-const getters = {
-  showHelp: (state: VuexHelpState): boolean => state.showHelp,
-};
-
 const state: VuexHelpState = {
   showHelp: false,
 };
@@ -21,7 +17,6 @@ const state: VuexHelpState = {
 const module: Module<VuexHelpState, RootState> = {
   namespaced: true,
   state,
-  getters,
   mutations,
 };
 

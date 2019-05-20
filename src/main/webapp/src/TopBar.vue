@@ -97,6 +97,7 @@
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
+  import { VuexNotificationsState } from '@/store/notifications/types';
 
   let intervalId: number = 0;
 
@@ -112,8 +113,8 @@
 
     showHelp = false;
 
-    @notificationsModule.Getter
-    notificationUiHasNewMsg!: boolean;
+    @notificationsModule.State
+    notificationUiHasNewMsg!: VuexNotificationsState['notificationUiHasNewMsg'];
 
     @systemStatusModule.Getter
     systemStatusOverallIconInfo?: SystemStatusIconInfo;

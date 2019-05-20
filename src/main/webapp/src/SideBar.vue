@@ -102,6 +102,7 @@
   } from 'vuex-class';
   import Paths from '@/router/paths';
   import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
+  import { VuexSideBarState } from '@/store/sidebar/types';
 
   const sideBarModule = namespace(SIDEBAR_MODULE_NAME);
 
@@ -129,8 +130,8 @@
       },
     };
 
-    @sideBarModule.Getter
-    isSideBarCollapsed!: boolean;
+    @sideBarModule.State
+    isSideBarCollapsed!: VuexSideBarState['isSideBarCollapsed'];
 
     @sideBarModule.Mutation
     toggleSideBarCollapse!: () => void;

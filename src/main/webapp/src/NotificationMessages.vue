@@ -76,7 +76,7 @@
   } from 'vuex-class';
   import moment from 'moment';
   import { MessageLevel } from '@/services/ws_notifications/types';
-  import { NotificationMessage } from '@/store/notifications/types';
+  import { NotificationMessage, VuexNotificationsState } from '@/store/notifications/types';
   import { BModal } from 'bootstrap-vue';
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
 
@@ -85,8 +85,8 @@
 
   @Component
   export default class NotificationMessages extends Vue {
-    @notificationsModule.Getter
-    notificationsForUi!: NotificationMessage[];
+    @notificationsModule.State
+    notificationsForUi!: VuexNotificationsState['notificationsForUi'];
 
     @notificationsModule.Mutation
     setNotificationUiIsOpen!: (isOpen: boolean) => void;

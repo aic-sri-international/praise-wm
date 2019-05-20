@@ -13,12 +13,9 @@ export type HttpError = {
 }
 
 export type VuexNotificationsState = {
-  ui: {
-    isOpen: boolean,
-    hasNewMsg: boolean,
-  },
-  forUi: Array<NotificationMessage>,
-  forServer: Array<NotificationMessage>,
+  uiIsOpen: boolean,
+  notificationUiHasNewMsg: boolean,
+  notificationsForUi: Array<NotificationMessage>,
   httpErrors: Array<HttpError>,
 }
 

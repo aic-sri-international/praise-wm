@@ -24,8 +24,6 @@ const getIconInfoForLevel = (level: MessageLevel | null) :
     SystemStatusIconInfo | null => (level ? iconInfoByLevel[rankedLevels.indexOf(level)] : null);
 
 const getters = {
-  systemStatusUiIsOpen:
-      (state: VuexSystemStatusState): boolean => state.ui.isOpen,
   systemStatusDatabaseIconInfo: (state: VuexSystemStatusState):
       SystemStatusIconInfo | null => getIconInfoForLevel(state.database),
   systemStatusOverallIconInfo:
@@ -42,9 +40,7 @@ const getters = {
 };
 
 const state: VuexSystemStatusState = {
-  ui: {
-    isOpen: false,
-  },
+  uiIsOpen: false,
   database: null,
 };
 

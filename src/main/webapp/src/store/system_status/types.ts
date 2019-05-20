@@ -1,9 +1,8 @@
 import { MessageLevel } from '@/services/ws_notifications/types';
 
 export type VuexSystemStatusState = {
-  ui: {
-    isOpen: boolean;
-  };
+  // true if the system status window is open
+  uiIsOpen: boolean;
   database: MessageLevel | null;
 };
 
