@@ -1,21 +1,21 @@
 import { Module } from 'vuex';
 import cloneDeep from 'lodash/cloneDeep';
 import {
-  VuexModelState,
+  EditorTransition,
   ExpressionResultDto,
+  modelQueryDtoDefaults,
   QueryResultWrapper,
   SegmentedModelDto,
-  modelQueryDtoDefaults,
-  EditorTransition,
+  VuexModelState,
 } from './types';
 import mutations from './mutations';
 import actions from './actions';
-import { emptyModelDto, EMPTY_MODEL_NAME } from './util';
+import { EMPTY_MODEL_NAME, emptyModelDto } from './util';
 import { RootState } from '@/store/types';
 
 const getters = {
   modelNames: (state: VuexModelState):
-      string[] => Object.keys(state.modelDtos).sort(),
+    string[] => Object.keys(state.modelDtos).sort(),
   curQueries: (state: VuexModelState): string[] => {
     if (!state.curModelName) {
       return [];
@@ -42,15 +42,15 @@ const getters = {
     state.queryResultsIx < 0 ? null : state.queryResults[state.queryResultsIx]
   ),
   isQueryActive: (state: VuexModelState):
-      boolean => state.queryStartTime !== 0,
+    boolean => state.queryStartTime !== 0,
   displayChart: (state: VuexModelState): boolean => {
     if (state.queryResultsIx >= 0) {
-      const queryResult :
+      const queryResult:
         ExpressionResultDto = state.queryResults[state.queryResultsIx].expressionResult;
       const { graphQueryResultDto } = queryResult;
       return graphQueryResultDto !== undefined
-          && graphQueryResultDto.imageData !== undefined
-          && graphQueryResultDto.mapRegionNameToValue === undefined;
+        && graphQueryResultDto.imageData !== undefined
+        && graphQueryResultDto.mapRegionNameToValue === undefined;
     }
     return false;
   },

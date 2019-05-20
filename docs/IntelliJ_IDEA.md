@@ -113,7 +113,7 @@ The above option is only visible when editing a TypeScript or JavaScript file, h
   
 ### Punctuation
 
-Set code punctuation to match the ESLint rules so that IntelliJ uses the correct punctuation when it inserts missing imports.
+Set code punctuation to match the ESLint rules so that IntelliJ uses the correct punctuation when it inserts missing imports and when reformatting code.
 
   ![TypeScriptPunctuation](./images/idea/tsPunctuation.png)
   
