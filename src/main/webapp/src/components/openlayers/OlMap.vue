@@ -13,9 +13,8 @@
 
 <script lang="ts">
   import {
-    Component, Vue, Prop, Watch,
+    Component, Prop, Vue, Watch,
   } from 'vue-property-decorator';
-
   // @ts-ignore
   import getCentroid from '@turf/centroid';
   // @ts-ignore
@@ -50,7 +49,7 @@
   // eslint-disable-next-line
   import OlPopup from './OlPopup.vue';
   import featureCollection from './SS_Admin2_2011.4326';
-  import { newFeatureCollectionHandler, FeatureCollectionHandler } from './features';
+  import { FeatureCollectionHandler, newFeatureCollectionHandler } from './features';
   import { OlPopupInterface } from '@/components/openlayers/OlPopup.types';
   import { OlMapInterface } from '@/components/openlayers/OlMap.types';
 

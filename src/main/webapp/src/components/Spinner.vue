@@ -7,9 +7,9 @@
   >
     <span class="fa-layers fa-fw">
       <i
-        class="fas fa-spinner fa-pulse"
         :data-fa-transform="transform"
         :style="`color: ${color}`"
+        class="fas fa-spinner fa-pulse"
       />
     </span>
     <b-popover

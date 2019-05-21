@@ -16,19 +16,24 @@
 </template>
 
 <script lang="ts">
+  // The sole reason for the following eslint-disable comment is to suppress lint errors
+  // for the 'vue-slider-component/typings/typings' import and, if the comment is placed
+  // as a 'disable-next-line' comment it gets removed when running IntelliJ's code reformatting.
+  /* eslint-disable import/no-unresolved,import/extensions */
   import {
     Component, Prop, Vue, Watch,
   } from 'vue-property-decorator';
   import VueSlider from 'vue-slider-component';
   import {
-    Direction, MarksFunction,
+    Direction,
+    MarksFunction,
     MarksProp,
     Position,
     Styles,
-    TooltipFormatter, TooltipFormatterFunc,
+    TooltipFormatter,
+    TooltipFormatterFunc,
     TooltipProp,
     Value,
-    // eslint-disable-next-line import/extensions,import/no-unresolved
   } from 'vue-slider-component/typings/typings';
   import 'vue-slider-component/theme/default.css';
   import { getSliderRangeLabel } from './util';
@@ -213,7 +218,7 @@
         const range: GraphVariableRangeDto | undefined = params.range;
         if (range) {
           this.setBottomTextStyle(-44, 60);
-          const formatterFunc = (text: string | undefined) : TooltipFormatterFunc => (
+          const formatterFunc = (text: string | undefined): TooltipFormatterFunc => (
             num: Value,
           ) => getSliderRangeLabel(num, text);
 

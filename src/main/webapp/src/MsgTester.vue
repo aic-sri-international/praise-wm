@@ -13,13 +13,13 @@
           />
           <b-form-input
             v-model="form.text"
-            required
             placeholder="Notification message"
+            required
           />
           <b-form-checkbox
             v-model="form.server"
-            :value="true"
             :unchecked-value="false"
+            :value="true"
           >
             Remote
           </b-form-checkbox>
@@ -51,8 +51,8 @@
           />
           <b-form-checkbox
             v-model="form.server"
-            :value="true"
             :unchecked-value="false"
+            :value="true"
           >
             Remote
           </b-form-checkbox>
@@ -89,8 +89,8 @@
           />
           <b-form-checkbox
             v-model="form.server"
-            :value="true"
             :unchecked-value="false"
+            :value="true"
           >
             Remote
           </b-form-checkbox>
@@ -113,16 +113,12 @@
 </template>
 
 <script lang="ts">
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
   import {
-    Vue, Component,
-  } from 'vue-property-decorator';
-  import {
-    namespace,
-  } from 'vuex-class';
-  import {
+    BroadcastType,
     MessageLevel,
     RefreshType,
-    BroadcastType,
     SystemStatusType,
   } from '@/services/ws_notifications/types';
 
@@ -136,7 +132,7 @@
   const isSystemStatus = (type: any) => type === SystemStatusType.DATABASE;
   const isDataRefresh = (type: any) => type === RefreshType.USER;
 
-  const sendNotification = async (msg: NotificationInputDto) : Promise<any> => {
+  const sendNotification = async (msg: NotificationInputDto): Promise<any> => {
     const result: any = await http.put(toApiUrl('notification'), msg);
     return Promise.resolve(result);
   };

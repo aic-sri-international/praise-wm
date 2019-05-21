@@ -67,6 +67,10 @@ export default class AceModelEditor {
     this.sessions.push(curSession);
   }
 
+  static configSession(session: any) {
+    session.setNewLineMode('unix');
+  }
+
   appendToRef(ref: any) {
     this.editorContainerParent = ref;
     ref.appendChild(this.editor.container);
@@ -122,19 +126,15 @@ export default class AceModelEditor {
     this.editor.getSession().getUndoManager().reset();
   }
 
-  static configSession(session: any) {
-    session.setNewLineMode('unix');
-  }
-
   addSession(text: string) {
     const session = ace.createEditSession(text, this.editorMode);
     AceModelEditor.configSession(session);
     this.sessions.push(session);
   }
 
-  getSessionData(index: number) : { value: string } | null{
+  getSessionData(index: number): { value: string } | null {
     if (index < this.sessions.length) {
-      const session : any = this.sessions[index];
+      const session: any = this.sessions[index];
       return {
         value: session.getValue(),
       };

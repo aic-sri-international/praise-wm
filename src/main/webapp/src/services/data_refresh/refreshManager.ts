@@ -1,9 +1,6 @@
 import { RefreshType } from '@/services/ws_notifications/types';
 
-import {
-  RegistryEntry,
-  RegistryComponent,
-} from './types';
+import { RegistryComponent, RegistryEntry } from './types';
 
 const enableDebugMessages = false;
 
@@ -15,8 +12,7 @@ type RegistryComponentsById = {
 
 const refreshRegistry: {
   [K in RefreshType]?: RegistryComponentsById;
-} = {
-};
+} = {};
 
 function debugLog(msg: string) {
   if (enableDebugMessages) {
@@ -24,7 +20,7 @@ function debugLog(msg: string) {
   }
 }
 
-function getOrCreateRegistryComponentsById(refreshType: RefreshType) : RegistryComponentsById {
+function getOrCreateRegistryComponentsById(refreshType: RefreshType): RegistryComponentsById {
   let componentsById: RegistryComponentsById | undefined = refreshRegistry[refreshType];
   if (!componentsById) {
     componentsById = {};
@@ -50,7 +46,7 @@ function register(e: RegistryEntry): () => void {
   };
 }
 
-async function triggerRefresh(type: RefreshType) : Promise<any> {
+async function triggerRefresh(type: RefreshType): Promise<any> {
   debugLog(`triggerRefresh called for type: ${type}`);
 
   const componentsById: RegistryComponentsById | undefined = refreshRegistry[type];

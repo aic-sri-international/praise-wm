@@ -8,7 +8,7 @@ import isNull from 'lodash/isNull';
 import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import get from 'lodash/get';
-import { ValParams, Validations } from './types';
+import { Validations, ValParams } from './types';
 
 type ValEntry = ValParams & {
   path: string[];
@@ -29,7 +29,7 @@ const verifyValEntry = (e: ValEntry) => {
   }
 
   if (!isFunction(e.ref.focus)) {
-      throw Error(oneLine`Referenced "ref" object does not have a focus() method:
+    throw Error(oneLine`Referenced "ref" object does not have a focus() method:
                           ${[...e.path, 'ref'].join('.')}`);
   }
 
@@ -40,7 +40,7 @@ const verifyValEntry = (e: ValEntry) => {
 };
 
 function buildEntries(validations: Validations): ValEntry[] {
-  const toValEntry = (path: string[], v: ValParams) : ValEntry => {
+  const toValEntry = (path: string[], v: ValParams): ValEntry => {
     const valEntry: ValEntry = {
       path: [...path],
       required: v.required,
@@ -79,7 +79,7 @@ function buildEntries(validations: Validations): ValEntry[] {
 
 @Component
 export default class ValMixin extends Vue {
-  validateForm(validations: Validations) : boolean {
+  validateForm(validations: Validations): boolean {
     const entries: ValEntry[] = buildEntries(validations);
 
     const errIndex = entries.findIndex((valEntry) => {

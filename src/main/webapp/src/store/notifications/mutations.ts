@@ -1,12 +1,12 @@
 import {
   HttpError,
+  NotificationForUiPayload,
   NotificationMessage,
   VuexNotificationsState,
-  NotificationForUiPayload,
 } from './types';
 
-let httpErrId : number = 0;
-let notForUiId : number = 0;
+let httpErrId: number = 0;
+let notForUiId: number = 0;
 
 export default {
   addHttpError(state: VuexNotificationsState, error: string) {

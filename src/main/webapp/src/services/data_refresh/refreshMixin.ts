@@ -8,7 +8,7 @@ import { RegistryCallback, RegistryEntry } from './types';
 
 @Component
 export default class RefreshMixin extends Vue {
-  dataRefreshDeregisterFunctions: (()=>void)[] = [];
+  dataRefreshDeregisterFunctions: (() => void)[] = [];
 
   registerForDataRefresh(type: RefreshType, callback: RegistryCallback) {
     if (!type) {

@@ -1,4 +1,3 @@
-
 export const modelQueryDtoDefaults = {
   numberOfInitialSamples: 1000,
   numberOfDiscreteValues: 25,
@@ -58,7 +57,7 @@ export type GraphRequestDto = {
 
 export type GraphRequestResultDto = {
   imageData?: string;
-  mapRegionNameToValue?: { [key:string]: number };
+  mapRegionNameToValue?: { [key: string]: number };
 }
 
 export type GraphQueryVariableResults = {
@@ -80,8 +79,8 @@ export type ExpressionResultDto = {
 }
 
 export type QueryGraphControlsCurValues = {
-  sliderRefNameToIndex?: { [key:string]: number | number[] };
-  inputFieldIndexToValue?: { [key:number]: string };
+  sliderRefNameToIndex?: { [key: string]: number | number[] };
+  inputFieldIndexToValue?: { [key: number]: string };
 }
 
 export type QueryResultWrapper = {
@@ -110,7 +109,7 @@ export interface VuexModelState {
   editorTransition: EditorTransition;
   curQuery: string;
   curModelName: string;
-  modelDtos: { [key:string]: SegmentedModelDto };
+  modelDtos: { [key: string]: SegmentedModelDto };
   queryResults: QueryResultWrapper[];
   queryResultsIx: number;
   queryStartTime: number;

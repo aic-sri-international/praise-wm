@@ -16,8 +16,8 @@
             class="ml-auto"
           >
             <font-awesome-icon
-              :icon="item.iconName"
               :class="item.classes"
+              :icon="item.iconName"
             />
           </div>
         </div>
@@ -28,12 +28,8 @@
 </template>
 
 <script lang="ts">
-  import {
-    Vue, Component,
-  } from 'vue-property-decorator';
-  import {
-    namespace,
-  } from 'vuex-class';
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
   import { SystemStatusIconInfo } from '@/store/system_status/types';
   import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
 
@@ -49,9 +45,9 @@
     systemStatusDatabaseIconInfo?: SystemStatusIconInfo;
 
     @systemStatusModule.Mutation
-    setSystemStatusUiIsOpen!: (show:boolean) => void;
+    setSystemStatusUiIsOpen!: (show: boolean) => void;
 
-    get items() : Item[] {
+    get items(): Item[] {
       const items: Item[] = [];
 
       if (this.systemStatusDatabaseIconInfo) {
@@ -79,27 +75,27 @@
   .container {
     background-color: white;
   }
-  .effect8
-  {
-    position:relative;
-    box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+
+  .effect8 {
+    position: relative;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
   }
-  .effect8:before, .effect8:after
-  {
-    content:"";
-    position:absolute;
-    z-index:-1;
-    box-shadow:0 0 20px rgba(0,0,0,0.8);
-    top:10px;
-    bottom:10px;
-    left:0;
-    right:0;
-    border-radius:100px / 10px;
+
+  .effect8:before, .effect8:after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    top: 10px;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    border-radius: 100px / 10px;
   }
-  .effect8:after
-  {
-    right:10px;
-    left:auto;
-    transform:skew(8deg) rotate(3deg);
+
+  .effect8:after {
+    right: 10px;
+    left: auto;
+    transform: skew(8deg) rotate(3deg);
   }
 </style>

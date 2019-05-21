@@ -4,7 +4,7 @@ import { oneLine } from 'common-tags';
 
 let store: Store<RootState> = (null as any);
 
-export const getStore = () : Store<RootState> => {
+export const getStore = (): Store<RootState> => {
   if (!store) {
     throw Error(oneLine`createStore has not been called. 
     Make sure that '@/store/storeConfig' is imported at the top of main.ts`);

@@ -20,11 +20,11 @@
         slot-scope="options"
       >
         <b-table
-          :items="users"
-          :fields="fields"
           :current-page="options.currentPage"
-          :per-page="options.perPage"
+          :fields="fields"
           :filter="options.filter"
+          :items="users"
+          :per-page="options.perPage"
           bordered
           class="dataTable"
           hover

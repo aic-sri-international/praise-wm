@@ -1,4 +1,4 @@
-export function getReasonForClose(oncloseEvent : CloseEvent) {
+export function getReasonForClose(oncloseEvent: CloseEvent) {
   let reason: string = '';
   // See http://tools.ietf.org/html/rfc6455#section-7.4.1
   switch (oncloseEvent.code) {
@@ -42,7 +42,7 @@ export function getReasonForClose(oncloseEvent : CloseEvent) {
       reason = 'The connection was closed due to a failure to perform a TLS handshake (e.g., the server certificate can\'t be verified).';
       break;
     default:
-      // ignore
+    // ignore
   }
   return `CleanClose=${String(oncloseEvent.wasClean)}, Code=${oncloseEvent.code}, CodeEval=${reason}, \n EventReason=${oncloseEvent.reason}`;
 }

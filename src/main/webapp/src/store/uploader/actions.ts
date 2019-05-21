@@ -3,9 +3,9 @@ import { UploadEntry, UploadEntryStatus, VuexUploaderState } from './types';
 import { ActionTree, Commit } from 'vuex';
 import { RootState } from '@/store/types';
 
-let entryId : number = 0;
+let entryId: number = 0;
 
-const uploadNext = async (commit: Commit, state: VuexUploaderState) : Promise<any> => {
+const uploadNext = async (commit: Commit, state: VuexUploaderState): Promise<any> => {
   let entry: UploadEntry | undefined;
   entry = state.queue.find(e => e.status === UploadEntryStatus.UPLOADING);
   if (entry) {
@@ -17,7 +17,7 @@ const uploadNext = async (commit: Commit, state: VuexUploaderState) : Promise<an
     return;
   }
 
-  let update : UploadEntry;
+  let update: UploadEntry;
 
   try {
     update = {
@@ -47,7 +47,7 @@ const uploadNext = async (commit: Commit, state: VuexUploaderState) : Promise<an
 };
 
 const actions: ActionTree<VuexUploaderState, RootState> = {
-  async uploadFile({ commit, state }, file: File) : Promise<any> {
+  async uploadFile({ commit, state }, file: File): Promise<any> {
     entryId += 1;
     const newEntry: UploadEntry = {
       id: entryId,

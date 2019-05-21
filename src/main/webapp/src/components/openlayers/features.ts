@@ -3,7 +3,7 @@ import OlFeature from 'ol/Feature';
 // @ts-ignore
 import { Fill, Stroke, Style } from 'ol/style';
 // eslint-disable-next-line import/extensions,import/no-unresolved
-import { FeatureCollection, Feature } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 import { RgbaFactory } from './rgbaFactory';
 
 export const props = {
@@ -33,18 +33,18 @@ const newFill = (r: number, g: number, b: number, opacity: number) => new Fill({
 });
 
 const defaultFeatureStyle = new Style({
-      stroke: defaultStroke,
-      fill: newFill(0, 0, 0, 0),
-    });
+  stroke: defaultStroke,
+  fill: newFill(0, 0, 0, 0),
+});
 
 export class FeatureCollectionHandler {
   featureCollection: FeatureCollection;
 
   mapRegionNameToValue: { [key: string]: number } | undefined;
 
-  countyToStyleMap: {[county: string]: StyleEntry } = {};
+  countyToStyleMap: { [county: string]: StyleEntry } = {};
 
-  stateToStyleMap: {[state: string]: StyleEntry } = {};
+  stateToStyleMap: { [state: string]: StyleEntry } = {};
 
   regionToRgba: { [key: string]: number[] } | undefined;
 
@@ -52,7 +52,7 @@ export class FeatureCollectionHandler {
 
   constructor(
     featureCollection: FeatureCollection, mapRegionNameToValue?: { [key: string]: number },
-    ) {
+  ) {
     this.featureCollection = featureCollection;
     this.mapRegionNameToValue = mapRegionNameToValue;
     this.initRgba();
@@ -99,7 +99,7 @@ export class FeatureCollectionHandler {
     }
   }
 
-  updateIfInQuery(styleEntry : StyleEntry) {
+  updateIfInQuery(styleEntry: StyleEntry) {
     const map = this.mapRegionNameToValue;
     if (!map) {
       return;
@@ -126,7 +126,7 @@ export class FeatureCollectionHandler {
   }
 
   initMaps() {
-    const featureQualifies = (geoJsonFeature: Feature) : undefined => {
+    const featureQualifies = (geoJsonFeature: Feature): undefined => {
       if (!geoJsonFeature.properties) {
         return undefined;
       }
@@ -136,7 +136,7 @@ export class FeatureCollectionHandler {
 
     this.featureCollection.features.forEach((geoJsonFeature) => {
       if (featureQualifies(geoJsonFeature)) {
-        const styleEntry : StyleEntry = {
+        const styleEntry: StyleEntry = {
           // @ts-ignore
           state: geoJsonFeature.properties[props.State],
           // @ts-ignore
@@ -157,21 +157,21 @@ export class FeatureCollectionHandler {
     this.setUseCountyFlag();
   }
 
-  getStyleEntryForCounty(feature: OlFeature) : StyleEntry | null {
+  getStyleEntryForCounty(feature: OlFeature): StyleEntry | null {
     const county: string | undefined = feature.get(props.County);
     return county && this.countyToStyleMap[county]
       ? this.countyToStyleMap[county]
       : null;
   }
 
-  getStyleEntryForState(feature: OlFeature) : StyleEntry | null {
+  getStyleEntryForState(feature: OlFeature): StyleEntry | null {
     const state: string | undefined = feature.get(props.State);
     return state && this.stateToStyleMap[state]
       ? this.stateToStyleMap[state]
       : null;
   }
 
-  getStyleEntryForFeature(feature: OlFeature) : StyleEntry | null {
+  getStyleEntryForFeature(feature: OlFeature): StyleEntry | null {
     if (this.countiesWereInput !== undefined) {
       return this.getStyleEntryForCounty(feature);
     }
@@ -179,12 +179,12 @@ export class FeatureCollectionHandler {
     return null;
   }
 
-  getStyleForFeature(feature: OlFeature) : Style {
+  getStyleForFeature(feature: OlFeature): Style {
     const styleEntry: StyleEntry | null = this.getStyleEntryForFeature(feature);
     return styleEntry ? styleEntry.style : defaultFeatureStyle;
   }
 
-  getValueForFeature(feature: OlFeature) : Style | null | undefined {
+  getValueForFeature(feature: OlFeature): Style | null | undefined {
     const styleEntry: StyleEntry | null = this.getStyleEntryForFeature(feature);
     return styleEntry ? styleEntry.value : null;
   }
@@ -192,6 +192,6 @@ export class FeatureCollectionHandler {
 
 export function newFeatureCollectionHandler(
   featureCollection: FeatureCollection, mapRegionNameToValue?: { [key: string]: number },
-  ) {
+) {
   return new FeatureCollectionHandler(featureCollection, mapRegionNameToValue);
 }

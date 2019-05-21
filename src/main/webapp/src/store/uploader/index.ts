@@ -1,8 +1,6 @@
 import mutations from './mutations';
 import actions from './actions';
-import {
-  VuexUploaderState,
-} from './types';
+import { VuexUploaderState } from './types';
 import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 

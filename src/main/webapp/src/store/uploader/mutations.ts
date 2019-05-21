@@ -1,8 +1,5 @@
 import { MutationTree } from 'vuex';
-import {
-  UploadEntry,
-  VuexUploaderState,
-} from './types';
+import { UploadEntry, VuexUploaderState } from './types';
 
 const mutations: MutationTree<VuexUploaderState> = {
   addUploaderEntry(state: VuexUploaderState, entry: UploadEntry) {

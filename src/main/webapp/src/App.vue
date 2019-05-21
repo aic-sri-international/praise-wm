@@ -51,12 +51,8 @@
 </template>
 
 <script lang="ts">
-  import {
-    Vue, Component, Watch,
-  } from 'vue-property-decorator';
-  import {
-    namespace,
-  } from 'vuex-class';
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
 
   import BootstrapVue from 'bootstrap-vue';
   import 'bootstrap/dist/css/bootstrap.css';

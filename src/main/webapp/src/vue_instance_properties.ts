@@ -1,12 +1,9 @@
 import Vue from 'vue';
 import {
-  getDate,
-  downloadFile,
-  insertWordBreaks,
-  IUtils,
+ downloadFile, getDate, insertWordBreaks, IUtils,
 } from './utils';
 
-const showToastError = (text: string) : void => {
+const showToastError = (text: string): void => {
   const toastOpts = {
     theme: 'toasted-primary',
     duration: 5000,
@@ -28,12 +25,12 @@ const showToastError = (text: string) : void => {
 };
 
 Vue.prototype.$$ = {
-  getDate,
-  showToastError,
   downloadFile,
+  getDate,
   insertWordBreaks,
+  showToastError,
 };
 
 export interface Vue$$ extends IUtils {
-  showToastError(text: string) : void;
+  showToastError(text: string): void;
 }

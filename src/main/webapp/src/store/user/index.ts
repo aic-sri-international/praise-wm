@@ -1,8 +1,6 @@
 import { Module } from 'vuex';
 
-import {
-  VuexUserState,
-} from './types';
+import { VuexUserState } from './types';
 
 import mutations from './mutations';
 import { RootState } from '@/store/types';

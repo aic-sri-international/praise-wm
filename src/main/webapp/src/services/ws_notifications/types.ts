@@ -30,15 +30,18 @@ export interface NotificationEvent {
   broadcast?: BroadcastType;
 }
 
-export interface SystemShutdownEvent extends NotificationEvent {}
+export interface SystemShutdownEvent extends NotificationEvent {
+}
 
-export interface PingEvent extends NotificationEvent {}
+export interface PingEvent extends NotificationEvent {
+}
 
 export interface NotificationTextMessage extends NotificationEvent {
   text?: string;
 }
 
-export interface SessionTimeoutEvent extends NotificationEvent {}
+export interface SessionTimeoutEvent extends NotificationEvent {
+}
 
 export interface DataRefreshEvent extends NotificationTextMessage {
   refreshType: RefreshType;

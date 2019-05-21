@@ -1,8 +1,6 @@
 import isMock from '@/dataConfig';
 import { http } from '@/services/http';
-import {
-  userMockData,
-} from '@/components/usermaint/mock_data';
+import { userMockData } from '@/components/usermaint/mock_data';
 
 async function login(userPwd: { name: string, password: string }): Promise<any> {
   if (isMock.login) {

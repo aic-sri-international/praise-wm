@@ -1,9 +1,7 @@
 import isMock from '@/dataConfig';
-import { http, toApiUrl, toAdminUrl } from '@/services/http';
+import { http, toAdminUrl, toApiUrl } from '@/services/http';
 import { UserDto } from './types';
-import {
-  userMockData,
-} from '@/components/usermaint/mock_data';
+import { userMockData } from '@/components/usermaint/mock_data';
 
 async function fetchUserDtos(): Promise<UserDto[]> {
   let result: any;
@@ -78,5 +76,5 @@ async function deleteUser(userId: number): Promise<any> {
 }
 
 export {
- fetchUserDtos, addUser, updateUser, deleteUser,
+  fetchUserDtos, addUser, updateUser, deleteUser,
 };

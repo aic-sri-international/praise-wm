@@ -24,42 +24,44 @@
       @ctx-open="setCurrentRightClickData"
     >
       <div>
-        <li
-          class="ctx-item"
-          @click="onToggleMetadata"
-        >
-          Toggle Metadata
-        </li>
-        <li
-          class="ctx-item"
-          @click="onOpenAllMetadata(true)"
-        >
-          Open All Metadata
-        </li>
-        <li
-          class="ctx-item"
-          @click="onOpenAllMetadata(false)"
-        >
-          Close All Metadata
-        </li>
-        <li
-          class="ctx-item"
-          @click="onInsertModelRule(true)"
-        >
-          Insert Rule Above
-        </li>
-        <li
-          class="ctx-item"
-          @click="onInsertModelRule(false)"
-        >
-          Insert Rule Below
-        </li>
-        <li
-          class="ctx-item"
-          @click="onDeleteModelRule"
-        >
-          Delete Rule
-        </li>
+        <ul style="margin: 0;padding: 0">
+          <li
+            class="ctx-item"
+            @click="onToggleMetadata"
+          >
+            Toggle Metadata
+          </li>
+          <li
+            class="ctx-item"
+            @click="onOpenAllMetadata(true)"
+          >
+            Open All Metadata
+          </li>
+          <li
+            class="ctx-item"
+            @click="onOpenAllMetadata(false)"
+          >
+            Close All Metadata
+          </li>
+          <li
+            class="ctx-item"
+            @click="onInsertModelRule(true)"
+          >
+            Insert Rule Above
+          </li>
+          <li
+            class="ctx-item"
+            @click="onInsertModelRule(false)"
+          >
+            Insert Rule Below
+          </li>
+          <li
+            class="ctx-item"
+            @click="onDeleteModelRule"
+          >
+            Delete Rule
+          </li>
+        </ul>
       </div>
     </context-menu>
     <!--For some reason we need to specify placement 'left' to have popup display on the right-->
@@ -155,7 +157,7 @@
       return `modelRuleEditors_${mrwId}_ref`;
     }
 
-    getModelRuleRef(mrw: ModelRuleWrapper) : ModelRuleEditorInterface {
+    getModelRuleRef(mrw: ModelRuleWrapper): ModelRuleEditorInterface {
       const refName = this.getModelRuleRefName(mrw.id);
       const mreRef = (this.$refs as any)[refName];
       if (Array.isArray(mreRef) && mreRef[0]) {

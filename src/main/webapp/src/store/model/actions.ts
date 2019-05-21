@@ -3,28 +3,25 @@
 import Vue from 'vue';
 import cloneDeep from 'lodash/cloneDeep';
 import { oneLine } from 'common-tags';
-import { FileInfo, downloadFile, getDate } from '@/utils';
+import { downloadFile, FileInfo, getDate } from '@/utils';
 import {
-  fetchSegmentedModels,
-  solve,
-  fetchGraph,
-  interruptSolver,
+ fetchGraph, fetchSegmentedModels, interruptSolver, solve,
 } from './dataSourceProxy';
 
 import {
-  SegmentedModelDto,
-  ModelQueryDto,
+  EditorTransition,
   ExpressionResultDto,
-  QueryResultWrapper,
+  GraphQueryResultDto,
   GraphRequestDto,
   GraphRequestResultDto,
-  GraphQueryResultDto,
-  EditorTransition,
-  VuexModelState,
+  ModelQueryDto,
+  QueryResultWrapper,
   RunQueryFunctionPayload,
+  SegmentedModelDto,
+  VuexModelState,
 } from './types';
 import { MODEL_MODULE_NAME } from './constants';
-import { validateAndCleanModel, extractModelText, minimizeModel } from './util';
+import { extractModelText, minimizeModel, validateAndCleanModel } from './util';
 import { ActionTree, Commit } from 'vuex';
 import { RootState } from '@/store/types';
 import { abortWatcher } from '@/store/abortWatcher';
@@ -42,14 +39,14 @@ const loadModels = async (): Promise<SegmentedModelDto[]> => {
   try {
     return await fetchSegmentedModels();
   } catch (err) {
-  // errors already logged/displayed
+    // errors already logged/displayed
     return [];
   }
 };
 
-const wait = (ms:number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const waitForTransitionToComplete = async (state: VuexModelState) : Promise<any> => {
+const waitForTransitionToComplete = async (state: VuexModelState): Promise<any> => {
   const max = 20;
   const ms = 5;
   let count = 0;
@@ -72,11 +69,11 @@ const waitForTransitionToComplete = async (state: VuexModelState) : Promise<any>
 };
 
 const updateCurModelFromEditor = async (state: VuexModelState, commit: Commit, getters: any):
-    Promise<SegmentedModelDto> => {
+  Promise<SegmentedModelDto> => {
   if (!state.curModelName) {
     throw Error('curModelName not set');
   }
-  const curModel : SegmentedModelDto = getters.curModelDto;
+  const curModel: SegmentedModelDto = getters.curModelDto;
   if (!curModel) {
     throw Error(`model not found for ${state.curModelName}`);
   }
@@ -87,7 +84,7 @@ const updateCurModelFromEditor = async (state: VuexModelState, commit: Commit, g
   return getters.curModelDto;
 };
 
-const setCurrentModel = async (commit: Commit, model: SegmentedModelDto) : Promise<any> => {
+const setCurrentModel = async (commit: Commit, model: SegmentedModelDto): Promise<any> => {
   commit('setModelDto', model);
   // Make sure the watcher for modelNames completes before the watcher for curModelName is called.
   await Vue.nextTick();
@@ -101,7 +98,7 @@ const setCurrentModel = async (commit: Commit, model: SegmentedModelDto) : Promi
 };
 
 const actions: ActionTree<VuexModelState, RootState> = {
-  async initialize({ commit }) : Promise<any> {
+  async initialize({ commit }): Promise<any> {
     let models: SegmentedModelDto[] = await loadModels();
     if (models.length === 0) {
       // Probably encountered an error that has been logged, so just return
@@ -122,12 +119,12 @@ const actions: ActionTree<VuexModelState, RootState> = {
 
     commit('setModelDtos', models);
 
-    const curModel : SegmentedModelDto = models[0];
+    const curModel: SegmentedModelDto = models[0];
 
     await setCurrentModel(commit, curModel);
   },
-  async runQuery({ state, commit, getters }) : Promise<any> {
-    const curModel : SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
+  async runQuery({ state, commit, getters }): Promise<any> {
+    const curModel: SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
 
     const query: ModelQueryDto = {
       model: extractModelText(curModel),
@@ -159,7 +156,7 @@ const actions: ActionTree<VuexModelState, RootState> = {
     };
     commit('setQueryResult', queryResultWrapper);
   },
-  async runQueryFunction({ state, commit }, payload: RunQueryFunctionPayload) : Promise<any> {
+  async runQueryFunction({ state, commit }, payload: RunQueryFunctionPayload): Promise<any> {
     commit('setQueryActive', true);
 
     const lastQueryResult: QueryResultWrapper = cloneDeep(state.queryResults[0]);
@@ -210,10 +207,10 @@ const actions: ActionTree<VuexModelState, RootState> = {
     lastQueryResult.queryGraphControlsCurValues = payload.curControlValues;
     commit('setQueryResult', lastQueryResult);
   },
-  async xAxisSwap({ state, dispatch }, xAxisVariableName: string) : Promise<any> {
+  async xAxisSwap({ state, dispatch }, xAxisVariableName: string): Promise<any> {
     // Get the variables from the original query
     const queryResultWrapper: QueryResultWrapper | undefined = state.queryResults.find(
-        (qw: QueryResultWrapper) => !qw.isFunctionQuery,
+      (qw: QueryResultWrapper) => !qw.isFunctionQuery,
     );
     if (!queryResultWrapper) {
       // Should never happen
@@ -239,27 +236,27 @@ const actions: ActionTree<VuexModelState, RootState> = {
     };
     await dispatch('runQueryFunction', payload);
   },
-  async saveCurrentModelToDisk({ state, commit, getters }) : Promise<any> {
-    const curModel : SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
+  async saveCurrentModelToDisk({ state, commit, getters }): Promise<any> {
+    const curModel: SegmentedModelDto = await updateCurModelFromEditor(state, commit, getters);
 
     downloadFile(curModel, `${curModel.name}.json`);
   },
-  async changeCurrentModel({ state, commit }, modelName: string) : Promise<any> {
-    const model : SegmentedModelDto = state.modelDtos[modelName];
+  async changeCurrentModel({ state, commit }, modelName: string): Promise<any> {
+    const model: SegmentedModelDto = state.modelDtos[modelName];
     if (model) {
       await setCurrentModel(commit, model);
     } else {
       console.warn(`current model cannot be set because it does not exist: ${modelName}`);
     }
   },
-  async loadModelsFromDisk({ state, commit }, payload: FileInfo[]) : Promise<any> {
+  async loadModelsFromDisk({ state, commit }, payload: FileInfo[]): Promise<any> {
     const models: SegmentedModelDto[] = payload.reduce((accum: SegmentedModelDto[], fileInfo) => {
-          const model: SegmentedModelDto | null = validateAndCleanModel(JSON.parse(fileInfo.text));
-          if (model) {
-            accum.push(minimizeModel(model));
-          }
-          return accum;
-        }, []);
+      const model: SegmentedModelDto | null = validateAndCleanModel(JSON.parse(fileInfo.text));
+      if (model) {
+        accum.push(minimizeModel(model));
+      }
+      return accum;
+    }, []);
 
     if (models.length) {
       commit('setModelDtos', Object.values(state.modelDtos).concat(models));

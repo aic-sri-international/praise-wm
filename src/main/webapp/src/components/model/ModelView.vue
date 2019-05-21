@@ -13,8 +13,8 @@
         />
       </div>
       <spinner
-        hover-text="Click here to abort the query"
         :show="isQueryActive"
+        hover-text="Click here to abort the query"
         @click="setAbortQuery(true)"
       />
     </div>

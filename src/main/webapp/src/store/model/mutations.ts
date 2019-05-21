@@ -4,12 +4,12 @@ import { oneLine } from 'common-tags';
 import isEqual from 'lodash/isEqual';
 
 import {
-  ModelEditorData,
-  SegmentedModelDto,
-  QueryResultWrapper,
   EditorTransition,
-  VuexModelState,
+  ModelEditorData,
+  QueryResultWrapper,
+  SegmentedModelDto,
   UpdateModelDtoPayload,
+  VuexModelState,
 } from './types';
 
 export default {
@@ -18,11 +18,11 @@ export default {
   },
   setModelDtos(state: VuexModelState, modelDtos: SegmentedModelDto[]) {
     state.modelDtos = modelDtos.reduce(
-      (accum: { [key:string] : SegmentedModelDto }, cur: SegmentedModelDto) => {
+      (accum: { [key: string]: SegmentedModelDto }, cur: SegmentedModelDto) => {
         accum[cur.name] = cur;
         return accum;
       }, {},
-      );
+    );
   },
   setModelDto(state: VuexModelState, modelDto: SegmentedModelDto) {
     Vue.set(state.modelDtos, modelDto.name, modelDto);

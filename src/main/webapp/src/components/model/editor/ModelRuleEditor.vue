@@ -4,20 +4,20 @@
       <span v-show="modelRuleWrapper.openMetadata">
         <editor
           ref="metadataRef"
-          type="text"
-          :read-only="readOnly"
-          style-class="metadata"
           :editor-init-flag="editorInitFlag"
+          :read-only="readOnly"
           :value="modelRuleWrapper.modelRule.metadata"
+          style-class="metadata"
+          type="text"
         />
         <hr>
       </span>
       <editor
         ref="ruleRef"
-        type="hogm"
-        :read-only="readOnly"
         :editor-init-flag="editorInitFlag"
+        :read-only="readOnly"
         :value="modelRuleWrapper.modelRule.rule"
+        type="hogm"
       />
     </div>
   </div>

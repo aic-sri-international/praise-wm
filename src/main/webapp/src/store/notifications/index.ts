@@ -1,7 +1,5 @@
 import mutations from './mutations';
-import {
-  VuexNotificationsState,
-} from './types';
+import { VuexNotificationsState } from './types';
 import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 

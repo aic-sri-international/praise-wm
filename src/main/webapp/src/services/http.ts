@@ -1,7 +1,5 @@
 import { VuexUserState } from '@/store/user/types';
-import {
-  downloadFile,
-} from '@/utils';
+import { downloadFile } from '@/utils';
 import { isLoggedIn, setLoggedIn, setLoggedOut } from '@/store/user/userHelper';
 import {
   addErrorNotificationForUi,
@@ -50,7 +48,7 @@ interface ErrorResponseMessage {
   displayHttpStatus: boolean;
 }
 
-const toErrorResponseMessage = (body: ErrorResponseBody) : ErrorResponseMessage => {
+const toErrorResponseMessage = (body: ErrorResponseBody): ErrorResponseMessage => {
   if (body.userMessage) {
     return {
       userMessage: body.userMessage,
@@ -92,15 +90,15 @@ let reconnectInternalInMillis = 0;
 let maxReconnectAttempts = 0;
 let clientInactivityTimeoutInMillis = 0;
 
-export function getWsClientInactivityTimeoutInMillis() : number {
+export function getWsClientInactivityTimeoutInMillis(): number {
   return clientInactivityTimeoutInMillis;
 }
 
-export function getWsReconnectInterval() : number {
+export function getWsReconnectInterval(): number {
   return reconnectInternalInMillis;
 }
 
-export function getWsMaxReconnectAttempts() : number {
+export function getWsMaxReconnectAttempts(): number {
   return maxReconnectAttempts;
 }
 
@@ -108,15 +106,15 @@ function appendSessionIdQuery(url: string) {
   return `${url}?SEC_SESSION_ID=${secSessionId}`;
 }
 
-export function getUrlForWebsocketEndpoint(endpoint : string) : string {
+export function getUrlForWebsocketEndpoint(endpoint: string): string {
   const loc = window.location;
-  const protocol : string = loc.protocol === 'http:' ? 'ws:' : 'wss:';
+  const protocol: string = loc.protocol === 'http:' ? 'ws:' : 'wss:';
   return appendSessionIdQuery(`${protocol}//${loc.hostname}:${loc.port}/ws/${endpoint}`);
 }
 
-function getHeaderValue(headers: Headers, key: string) : string {
+function getHeaderValue(headers: Headers, key: string): string {
   try {
-    const value : string | null = headers.get(key);
+    const value: string | null = headers.get(key);
     if (value !== null) {
       return value;
     }
@@ -128,7 +126,7 @@ function getHeaderValue(headers: Headers, key: string) : string {
   }
 }
 
-function getFilenameFromHeader(headers: Headers) : string {
+function getFilenameFromHeader(headers: Headers): string {
   const key = 'Content-Disposition';
   const fnmPrefix = 'filename=';
   const headerValue = getHeaderValue(headers, key);
@@ -137,10 +135,10 @@ function getFilenameFromHeader(headers: Headers) : string {
     return arr[1];
   }
   throw Error(`Response header for key ${key} `
-              + `did not include '${fnmPrefix}' with value: ${headerValue}'`);
+    + `did not include '${fnmPrefix}' with value: ${headerValue}'`);
 }
 
-function saveLoginHeaders(headers : Headers) : void {
+function saveLoginHeaders(headers: Headers): void {
   secSessionId = getHeaderValue(headers, 'SEC_SESSION_ID');
 }
 
@@ -149,8 +147,8 @@ type HeadersAndBody = {
   body?: any,
 };
 
-function getHeadersAndBody(body?: any) : HeadersAndBody {
-  const headers : Headers = new Headers();
+function getHeadersAndBody(body?: any): HeadersAndBody {
+  const headers: Headers = new Headers();
   let bodyData;
   if (typeof body === 'object' && !(body instanceof FormData)) {
     bodyData = JSON.stringify(body);
@@ -196,13 +194,13 @@ const buildMessage = (
   return msg;
 };
 
-async function fetchData(params: FetchDataParams) : Promise<Object> {
+async function fetchData(params: FetchDataParams): Promise<Object> {
   let response: Response | null = null;
   let errRespEx: ErrorResponseMessage;
 
   try {
     response = await fetch(params.request);
-    let body: any = { };
+    let body: any = {};
     let blob: Blob | undefined;
 
     if (response.status === HTTP_STATUS_CREATED) {
@@ -255,11 +253,11 @@ async function fetchData(params: FetchDataParams) : Promise<Object> {
   return Promise.reject(errAll);
 }
 
-export function toApiUrl(path:string) : string {
+export function toApiUrl(path: string): string {
   return `${window.location.origin}/api/${path}`;
 }
 
-export function toAdminUrl(path:string) : string {
+export function toAdminUrl(path: string): string {
   return `${window.location.origin}/admin/${path}`;
 }
 
@@ -270,17 +268,17 @@ function logOutIfNeeded() {
 }
 
 export const http = {
-  login(body : { }) : Promise<Object> {
+  login(body: {}): Promise<Object> {
     // If the user backed-out to the login form they may still be logged in
     logOutIfNeeded();
-    const req : Request = new Request(toApiUrl('login'), {
+    const req: Request = new Request(toApiUrl('login'), {
       method: 'POST',
       mode: 'cors',
       ...getHeadersAndBody(body),
     });
     return fetchData({ request: req, isLogin: true }).then((data: Object) => {
       const loginResponse: LoginResponse = data as LoginResponse;
-      const serverTime : Date = new Date(loginResponse.serverTime);
+      const serverTime: Date = new Date(loginResponse.serverTime);
       const timeDeltaInMillis = serverTime.getTime() - Date.now();
       setServerTimeDeltaInMillis(timeDeltaInMillis);
 
@@ -299,10 +297,10 @@ export const http = {
       return data;
     });
   },
-  logout() : void {
+  logout(): void {
     setLoggedOut();
 
-    const req : Request = new Request(toApiUrl('logout'), {
+    const req: Request = new Request(toApiUrl('logout'), {
       method: 'POST', mode: 'cors', ...getHeadersAndBody(),
     });
     fetchData({ request: req }).catch((e) => {
@@ -310,8 +308,8 @@ export const http = {
       console.error(`Error on logout request: ${e.message}`);
     });
   },
-  download(path: string, body?: { }, init?: Object) : Promise<Object> {
-    const req : Request = new Request(path, {
+  download(path: string, body?: {}, init?: Object): Promise<Object> {
+    const req: Request = new Request(path, {
       method: 'POST',
       mode: 'cors',
       ...getHeadersAndBody(body),
@@ -323,8 +321,8 @@ export const http = {
       return { filename: blobResponse.filename };
     });
   },
-  post(path: string, body: { }, init?: Object) {
-    const req : Request = new Request(path, {
+  post(path: string, body: {}, init?: Object) {
+    const req: Request = new Request(path, {
       method: 'POST',
       mode: 'cors',
       ...getHeadersAndBody(body),
@@ -333,7 +331,7 @@ export const http = {
     return fetchData({ request: req });
   },
   get(path: string, init?: Object) {
-    const req : Request = new Request(path, {
+    const req: Request = new Request(path, {
       method: 'GET',
       mode: 'cors',
       ...getHeadersAndBody(),
@@ -341,8 +339,8 @@ export const http = {
     });
     return fetchData({ request: req });
   },
-  put(path: string, body: { }, init?: Object) {
-    const req : Request = new Request(path, {
+  put(path: string, body: {}, init?: Object) {
+    const req: Request = new Request(path, {
       method: 'PUT',
       mode: 'cors',
       ...getHeadersAndBody(body),
@@ -350,8 +348,8 @@ export const http = {
     });
     return fetchData({ request: req });
   },
-  delete(path:string, init?: Object) {
-    const req : Request = new Request(path, {
+  delete(path: string, init?: Object) {
+    const req: Request = new Request(path, {
       method: 'DELETE',
       mode: 'cors',
       ...getHeadersAndBody(),

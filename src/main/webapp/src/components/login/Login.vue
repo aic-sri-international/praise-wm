@@ -97,7 +97,8 @@
       passwordRef: HTMLElement
     };
 
-    autoLogin = false;
+    // Set to false to display the login dialog or true to auto-login as the admin user
+    autoLogin = true;
 
     showModal = true;
 

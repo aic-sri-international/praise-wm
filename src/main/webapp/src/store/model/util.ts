@@ -3,29 +3,29 @@ import { ModelRuleDto, SegmentedModelDto } from './types';
 
 export const EMPTY_MODEL_NAME = 'EMPTY';
 
-export const emptyModelDto = () :
+export const emptyModelDto = ():
   SegmentedModelDto => ({
-    name: EMPTY_MODEL_NAME,
-    description: '',
-    declarations: '',
-    rules: [{
-      metadata: '',
-      rule: '',
-    }],
-    queries: [],
-  });
+  name: EMPTY_MODEL_NAME,
+  description: '',
+  declarations: '',
+  rules: [{
+    metadata: '',
+    rule: '',
+  }],
+  queries: [],
+});
 
-export const extractModelText = (model: SegmentedModelDto) :
+export const extractModelText = (model: SegmentedModelDto):
   string => `${model.declarations || ''}\n${model.rules.map(mr => mr.rule).join('\n')}\n`;
 
-export const minimizeModel = (model: SegmentedModelDto) : SegmentedModelDto => {
-  const coalesceRules = (rules: ModelRuleDto[]) :
+export const minimizeModel = (model: SegmentedModelDto): SegmentedModelDto => {
+  const coalesceRules = (rules: ModelRuleDto[]):
     string => rules.reduce((accum: string, modeRuleDto: ModelRuleDto) => {
-      const lf = accum ? '\n\n' : '';
+    const lf = accum ? '\n\n' : '';
     // eslint-disable-next-line no-param-reassign
-      accum += `${lf}${modeRuleDto.rule}`;
-      return accum;
-    }, '');
+    accum += `${lf}${modeRuleDto.rule}`;
+    return accum;
+  }, '');
 
   const rulesString: string = coalesceRules(model.rules);
   let declarations: string = model.declarations || '';
@@ -45,7 +45,7 @@ export const minimizeModel = (model: SegmentedModelDto) : SegmentedModelDto => {
   };
 };
 
-export const validateAndCleanModel = (model: SegmentedModelDto) : SegmentedModelDto | null => {
+export const validateAndCleanModel = (model: SegmentedModelDto): SegmentedModelDto | null => {
   if (!model.name) {
     console.error('model does not contain a name');
     return null;

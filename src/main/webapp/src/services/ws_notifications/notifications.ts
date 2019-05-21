@@ -26,10 +26,10 @@ import { setSystemStatusDatabase } from '@/store/system_status/systemStatusHelpe
 import { getStore } from '@/store/store';
 
 const serviceName = 'notification';
-let url : string = serviceName;
-let reconnectInterval : number;
-let reconnectAttemptsLeft : number;
-let ws : WebSocket;
+let url: string = serviceName;
+let reconnectInterval: number;
+let reconnectAttemptsLeft: number;
+let ws: WebSocket;
 
 let clientInactivityTimeout: number;
 let clientInactivityInterval: number | null;
@@ -66,7 +66,7 @@ function replaceToast(text: string) {
   socketCloseToast = showToast(text);
 }
 
-function log(msg : string, isErr?: boolean) : void {
+function log(msg: string, isErr?: boolean): void {
   if (isErr) {
     console.error(`${url}: ${msg}`);
   } else {
@@ -108,10 +108,10 @@ function displayReconnectAttemptToast() {
 
 function handleNotificationTextMessage(nEvent: NotificationTextMessage) {
   addNotificationForUi({
-      date: new Date(nEvent.time),
-      level: nEvent.level ? nEvent.level : MessageLevel.INFO,
-      text: nEvent.text ? nEvent.text : '',
-    });
+    date: new Date(nEvent.time),
+    level: nEvent.level ? nEvent.level : MessageLevel.INFO,
+    text: nEvent.text ? nEvent.text : '',
+  });
 }
 
 function handleDataRefreshEvent(nEvent: DataRefreshEvent) {
@@ -137,7 +137,7 @@ function handleSystemStatusEvent(event: SystemStatusEvent) {
   });
 }
 
-function open() : void {
+function open(): void {
   if (ws) {
     ws.close();
   }
@@ -212,7 +212,7 @@ function open() : void {
       if (reconnectAttemptsLeft > 0) {
         const reason = getReasonForClose(event);
         log(`socket closed unexpectedly. Will retry ${reconnectAttemptsLeft} times`
-            + ` with a ${reconnectInterval} millis delay: ${reason}`);
+          + ` with a ${reconnectInterval} millis delay: ${reason}`);
         reconnectAttemptsLeft -= 1;
         displayReconnectAttemptToast();
         window.setTimeout(open, reconnectInterval);
@@ -229,7 +229,7 @@ function open() : void {
 }
 
 getStore().watch(
-    isLoggedIn,
+  isLoggedIn,
   (loggedIn) => {
     if (!isMock.login) {
       if (loggedIn) {

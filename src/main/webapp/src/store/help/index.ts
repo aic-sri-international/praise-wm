@@ -1,6 +1,4 @@
-import {
-  VuexHelpState,
-} from './types';
+import { VuexHelpState } from './types';
 import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 

@@ -19,8 +19,8 @@
         />
         <i
           class="fas fa-question fa-inverse"
-          style="color: green"
           data-fa-transform="shrink-1 down-3"
+          style="color: green"
         />
       </span>
     </span>
@@ -59,9 +59,9 @@
         />
         <font-awesome-icon
           v-if="iconInfo"
+          :class="iconInfo.classes"
           :icon="iconInfo.iconName"
           transform="down-2 right-1"
-          :class="iconInfo.classes"
         />
       </span>
     </span>
@@ -85,12 +85,8 @@
 </template>
 
 <script lang="ts">
-  import {
-    Vue, Component,
-  } from 'vue-property-decorator';
-  import {
-    namespace,
-  } from 'vuex-class';
+  import { Component, Vue } from 'vue-property-decorator';
+  import { namespace } from 'vuex-class';
   import Paths from '@/router';
   import { logout } from '@/components/login/dataSourceProxy';
   import { SystemStatusIconInfo } from '@/store/system_status/types';
@@ -122,7 +118,7 @@
     @helpModule.Mutation('showHelp')
     mutateShowHelp!: (payload: boolean) => void;
 
-    get iconInfo() : SystemStatusIconInfo | null {
+    get iconInfo(): SystemStatusIconInfo | null {
       const iconInfo: SystemStatusIconInfo | undefined = this.systemStatusOverallIconInfo;
       if (iconInfo) {
         return { ...iconInfo };

@@ -20,7 +20,7 @@ export const addNotificationForUi = (payload: NotificationForUiPayload)
 };
 
 export const addErrorNotificationForUi = (msg: string)
-    : void => {
+  : void => {
   addNotificationForUi({
     date: getDate(),
     level: MessageLevel.ERROR,

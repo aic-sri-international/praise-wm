@@ -115,25 +115,25 @@
       }
     }
 
-      updateMapHeightOffset(alwaysResize: boolean) {
-        this.$nextTick(() => {
-          if (!this.$refs.queryGraphControlsRef) {
-            this.mapHeightOffset = pageBannerHeight;
-            if (alwaysResize) {
-              this.$nextTick(() => {
-                this.$refs.mapRef.updateMapSize();
-              });
-            }
-            return;
+    updateMapHeightOffset(alwaysResize: boolean) {
+      this.$nextTick(() => {
+        if (!this.$refs.queryGraphControlsRef) {
+          this.mapHeightOffset = pageBannerHeight;
+          if (alwaysResize) {
+            this.$nextTick(() => {
+              this.$refs.mapRef.updateMapSize();
+            });
           }
-          // Set the mapHeightOffset to the height of the queryGraphControls
-          const qgc = this.$refs.queryGraphControlsRef.$el;
-          this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
-          this.$nextTick(() => {
-            this.$refs.mapRef.updateMapSize();
-          });
+          return;
+        }
+        // Set the mapHeightOffset to the height of the queryGraphControls
+        const qgc = this.$refs.queryGraphControlsRef.$el;
+        this.mapHeightOffset = qgc.clientHeight + pageBannerHeight;
+        this.$nextTick(() => {
+          this.$refs.mapRef.updateMapSize();
         });
-      }
+      });
+    }
   }
 </script>
 

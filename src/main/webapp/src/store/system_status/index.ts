@@ -1,10 +1,7 @@
 import { MessageLevel } from '@/services/ws_notifications/types';
 
 import mutations from './mutations';
-import {
-  VuexSystemStatusState,
-  SystemStatusIconInfo,
-} from './types';
+import { SystemStatusIconInfo, VuexSystemStatusState } from './types';
 import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 
@@ -20,23 +17,23 @@ const iconInfoByLevel: SystemStatusIconInfo[] = [
   { iconName: 'times-circle', classes: 'systemStatusErrorColor' },
 ];
 
-const getIconInfoForLevel = (level: MessageLevel | null) :
-    SystemStatusIconInfo | null => (level ? iconInfoByLevel[rankedLevels.indexOf(level)] : null);
+const getIconInfoForLevel = (level: MessageLevel | null):
+  SystemStatusIconInfo | null => (level ? iconInfoByLevel[rankedLevels.indexOf(level)] : null);
 
 const getters = {
   systemStatusDatabaseIconInfo: (state: VuexSystemStatusState):
-      SystemStatusIconInfo | null => getIconInfoForLevel(state.database),
+    SystemStatusIconInfo | null => getIconInfoForLevel(state.database),
   systemStatusOverallIconInfo:
-      (state: VuexSystemStatusState): SystemStatusIconInfo | null => {
-        const getIndex = (level: MessageLevel | null):
-          number => (level ? rankedLevels.indexOf(level) : -1);
+    (state: VuexSystemStatusState): SystemStatusIconInfo | null => {
+      const getIndex = (level: MessageLevel | null):
+        number => (level ? rankedLevels.indexOf(level) : -1);
 
-        const max = Math.max(
+      const max = Math.max(
         // placeholder for additional system state
-          getIndex(state.database),
-        );
-        return max === -1 ? null : iconInfoByLevel[max];
-      },
+        getIndex(state.database),
+      );
+      return max === -1 ? null : iconInfoByLevel[max];
+    },
 };
 
 const state: VuexSystemStatusState = {

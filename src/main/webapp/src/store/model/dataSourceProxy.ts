@@ -1,10 +1,10 @@
 import { http, toApiUrl } from '@/services/http';
 import {
-  ModelQueryDto,
-  SegmentedModelDto,
   ExpressionResultDto,
   GraphRequestDto,
   GraphRequestResultDto,
+  ModelQueryDto,
+  SegmentedModelDto,
 } from './types';
 
 async function fetchSegmentedModels(): Promise<SegmentedModelDto[]> {
@@ -22,7 +22,7 @@ async function fetchGraph(request: GraphRequestDto, init?: Object): Promise<Grap
   return Promise.resolve(result);
 }
 
-async function interruptSolver() : Promise<any> {
+async function interruptSolver(): Promise<any> {
   const result = await http.post(toApiUrl('interruptSolver'), {});
   return Promise.resolve(result);
 }

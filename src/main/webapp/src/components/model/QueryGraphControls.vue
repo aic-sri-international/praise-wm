@@ -190,7 +190,7 @@
         return undefined;
       }
       const values: QueryGraphControlsCurValues = {};
-      const sliderMap: { [key: string]: number | number[]} = {};
+      const sliderMap: { [key: string]: number | number[] } = {};
       const inputMap: { [key: number]: string } = {};
 
       let ix = 0;
@@ -367,7 +367,7 @@
       }
     }
 
-    onSliderChanged(controlIx: number, { value, index }: { value: any, index: number | number[]}) {
+    onSliderChanged(controlIx: number, { value, index }: { value: any, index: number | number[] }) {
       const control: Control = this.controls[controlIx];
       control.sliderChanged = value;
       control.sliderCurIndexes = index;

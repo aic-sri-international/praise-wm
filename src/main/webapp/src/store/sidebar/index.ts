@@ -1,7 +1,5 @@
 import { Module } from 'vuex';
-import {
-  VuexSideBarState,
-} from './types';
+import { VuexSideBarState } from './types';
 import { RootState } from '@/store/types';
 
 export const sideBarStyles = {

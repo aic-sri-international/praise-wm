@@ -1,4 +1,3 @@
-
 const mock = {
   activate: false,
   type: {
@@ -9,8 +8,9 @@ const mock = {
   },
 };
 
-const isAllMock : () => boolean = () => {
+const isAllMock: () => boolean = () => {
   let anyFalse = false;
+
   function ckIfFalse(o: any) {
     Object.values(o).forEach((v) => {
       if (typeof v === 'object') {
@@ -20,6 +20,7 @@ const isAllMock : () => boolean = () => {
       }
     });
   }
+
   ckIfFalse(mock);
   return !anyFalse;
 };
