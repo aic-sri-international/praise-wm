@@ -19,7 +19,7 @@ The project associated paths in the screen shots should be adjusted to the paths
 1.  [Vue.js](#vuejs)
 1.  [ESLint](#eslint)
 1.  [TypeScript](#typescript)
-1.  [Punctuation](#punctuation)
+1.  [TypeScript Formatting](#typescript-formatting)
 1.  [Webpack](#webpack)
 
 ### Gradle
@@ -49,6 +49,7 @@ The project associated paths in the screen shots should be adjusted to the paths
 
     ![googleJavaFormatSettings](./images/idea/googleJavaFormatSettings.png)
 
+##### IntelliJ Reformat Option
 * To use the formatter, select the *Reformat Code* option from the right-mouse-click menu.
 
     ![rightClickReformat](./images/idea/rightClickReformat.png)
@@ -101,9 +102,9 @@ The TypeScript tool window can display any TypeScript errors that are created as
 
 Your project's [.eslintrc.js][] file should already be configured to use the [Airbnb][] style guide along with Vue and TypeScript rules.
 
-After your IDE is properly configured, the editor should flag code that does not adhear to the rules. The IDE is able to fix many of these problems for you automatically by selecting the following option from the editor's right-mouse-click menu when editing a TypeScript or JavaScript file.
+After your IDE is properly configured, the editor should flag code that does not adhere to the rules. The IDE is able to fix many of these problems for you automatically by selecting the following option from the editor's right-mouse-click menu when editing a TypeScript or JavaScript file.
 ![FixESlint](./images/idea/eslintFix.png)
-The above option is only visible when editing a TypeScript or JavaScript file, however, the same auto-fix process is run whenever you run a *yarn* task that runs *lint* from either the command line:
+The above option is only visible when editing a TypeScript or JavaScript file, however, the same lint 'fix' process is run automatically whenever you run a *yarn* task that runs *lint* from either the command line:
 
     ./gradlew yarn_lint
 
@@ -111,13 +112,18 @@ The above option is only visible when editing a TypeScript or JavaScript file, h
 
   ![Yarn](./images/idea/yarn_lint.png)
   
-### Punctuation
+### TypeScript Formatting
 
-Set code punctuation to match the ESLint rules so that IntelliJ uses the correct punctuation when it inserts missing imports and when reformatting code.
+Set code punctuation and spacing to use what is expected by the ESLint rules so that IntelliJ will do the right thing when it inserts missing imports and when reformatting code.
+
+For each of the following, configure both Typescript and JavaScript.
 
   ![TypeScriptPunctuation](./images/idea/tsPunctuation.png)
   
-Do the same for JavaScript.
+  ![TypeScriptSpacing](./images/idea/tsSpacing.png)
+  
+The [IntelliJ Reformat Option](#intellij-reformat-option) can also be used on Vue components and TypeScript code. However, some of the Vue ESLint plugin enforced standards differ from IntelliJ's, so be sure to run [ESLint](#eslint) after running it to ensure that any errant reformats are auto-fixed.
+
 
 ### Webpack
 
