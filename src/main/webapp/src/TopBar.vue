@@ -109,14 +109,11 @@
 
     showHelp = false;
 
-    @notificationsModule.State
-    notificationUiHasNewMsg!: VuexNotificationsState['notificationUiHasNewMsg'];
+    @notificationsModule.State notificationUiHasNewMsg!: VuexNotificationsState['notificationUiHasNewMsg'];
 
-    @systemStatusModule.Getter
-    systemStatusOverallIconInfo?: SystemStatusIconInfo;
+    @systemStatusModule.Getter systemStatusOverallIconInfo?: SystemStatusIconInfo;
 
-    @helpModule.Mutation('showHelp')
-    mutateShowHelp!: (payload: boolean) => void;
+    @helpModule.Mutation('showHelp') mutateShowHelp!: (payload: boolean) => void;
 
     get iconInfo(): SystemStatusIconInfo | null {
       const iconInfo: SystemStatusIconInfo | undefined = this.systemStatusOverallIconInfo;

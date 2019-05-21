@@ -65,12 +65,14 @@
     ModelRuleDto,
     SegmentedModelDto,
     UpdateModelDtoPayload,
+    VuexModelState,
   } from '@/store/model/types';
   import Editor from './Editor.vue';
   import ModelEditor from './ModelEditor.vue';
   import { EditorInterface, ModelEditorInterface } from '@/components/model/editor/types';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { MODEL_MODULE_NAME } from '@/store/model/constants';
+  import { VuexHelpState } from '@/store/help/types';
 
   const helpModule = namespace(HELP_MODULE_NAME);
   const modelModule = namespace(MODEL_MODULE_NAME);
@@ -99,10 +101,10 @@
     };
 
     @helpModule.State
-    showHelp!: boolean;
+    showHelp!: VuexHelpState['showHelp'];
 
     @modelModule.State
-    editorTransition!: boolean;
+    editorTransition!: VuexModelState['editorTransition'];
 
     @modelModule.Getter
     isQueryActive!: boolean;

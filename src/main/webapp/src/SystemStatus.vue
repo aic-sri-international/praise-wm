@@ -41,11 +41,9 @@
 
   @Component
   export default class SystemStatus extends Vue {
-    @systemStatusModule.Getter
-    systemStatusDatabaseIconInfo?: SystemStatusIconInfo;
+    @systemStatusModule.Getter systemStatusDatabaseIconInfo?: SystemStatusIconInfo;
 
-    @systemStatusModule.Mutation
-    setSystemStatusUiIsOpen!: (show: boolean) => void;
+    @systemStatusModule.Mutation setSystemStatusUiIsOpen!: (show: boolean) => void;
 
     get items(): Item[] {
       const items: Item[] = [];

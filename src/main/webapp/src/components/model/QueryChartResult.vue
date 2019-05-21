@@ -49,14 +49,14 @@ when we are ready to display explanations component
     },
   })
   export default class QueryChartResult extends Vue {
-    @modelModule.Getter
-    curResult!: ExpressionResultDto | null;
-
     imageData: string | null = null;
 
     showChart = false;
 
     showIcon = false;
+
+    @modelModule.Getter
+    curResult!: ExpressionResultDto | null;
 
     @Watch('curResult')
     onCurResult() {

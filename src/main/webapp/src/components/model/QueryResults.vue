@@ -36,7 +36,8 @@
   import { Component, Vue } from 'vue-property-decorator';
   import { namespace } from 'vuex-class';
   import moment from 'moment';
-  import { QueryResultWrapper } from '@/store/model/types';
+  import { QueryResultWrapper, VuexModelState } from '@/store/model/types';
+  import { VuexHelpState } from '@/store/help/types';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { MODEL_MODULE_NAME } from '@/store/model/constants';
 
@@ -45,11 +46,11 @@
 
   @Component
   export default class QueryResults extends Vue {
-    @helpModule.State showHelp!: boolean;
+    @helpModule.State showHelp!: VuexHelpState['showHelp'];
 
-    @modelModule.State queryResults!: QueryResultWrapper[];
+    @modelModule.State queryResults!: VuexModelState['queryResults'];
 
-    @modelModule.State queryResultsIx!: number;
+    @modelModule.State queryResultsIx!: VuexModelState['queryResultsIx'];
 
     @modelModule.Mutation setQueryResultsIx!: (index: number) => void;
 

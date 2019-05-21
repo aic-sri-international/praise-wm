@@ -57,8 +57,7 @@
     },
   })
   export default class QueryMapResult extends Vue {
-    @modelModule.Getter
-    curResult!: ExpressionResultDto | null;
+    @modelModule.Getter curResult!: ExpressionResultDto | null;
 
     $refs!: {
       mapRef: OlMapInterface,

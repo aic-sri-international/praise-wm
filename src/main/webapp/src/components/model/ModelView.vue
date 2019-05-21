@@ -53,6 +53,8 @@
   import QueryMapResult from './QueryMapResult.vue';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { MODEL_MODULE_NAME } from '@/store/model/constants';
+  import { VuexHelpState } from '@/store/help/types';
+  import { VuexModelState } from '@/store/model/types';
 
   const helpModule = namespace(HELP_MODULE_NAME);
   const modelModule = namespace(MODEL_MODULE_NAME);
@@ -70,17 +72,17 @@
   export default class ModelView extends Vue {
     splitter?: Split.Instance = undefined;
 
-    @helpModule.State showHelp!: boolean;
+    @helpModule.State showHelp!: VuexHelpState['showHelp'];
 
-    @modelModule.State queryResultsIx!: number;
+    @modelModule.State queryResultsIx!: VuexModelState['queryResultsIx'];
 
     @modelModule.Getter isQueryActive!: boolean;
 
     @modelModule.Getter displayChart!: boolean;
 
-    @modelModule.Mutation setAbortQuery!: (abortFlag: boolean) => void;
-
     @modelModule.Action initialize!: () => Promise<any>;
+
+    @modelModule.Mutation setAbortQuery!: (abortFlag: boolean) => void;
 
     async created() {
       await this.initialize();

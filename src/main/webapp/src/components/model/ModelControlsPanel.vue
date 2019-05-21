@@ -142,11 +142,12 @@
   import ActionButton from '@/components/ActionButton.vue';
   import EditableDatalist from '@/components/EditableDatalist.vue';
   import InputTextFile from '@/components/InputTextFile.vue';
-  import { SegmentedModelDto } from '@/store/model/types';
+  import { SegmentedModelDto, VuexModelState } from '@/store/model/types';
   import { FileInfo } from '@/utils';
   import { EditableDatalistInterface } from '@/components/EditableDatalistInterface.types';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { MODEL_MODULE_NAME } from '@/store/model/constants';
+  import { VuexHelpState } from '@/store/help/types';
 
   type ModelOption = {
     text: string,
@@ -173,13 +174,13 @@
       queryOptionRef: EditableDatalistInterface,
     };
 
-    @helpModule.State showHelp!: boolean;
+    @helpModule.State showHelp!: VuexHelpState['showHelp'];
 
-    @modelModule.State curModelName!: string;
+    @modelModule.State curModelName!: VuexModelState['curModelName'];
 
-    @modelModule.State numberOfInitialSamples!: number;
+    @modelModule.State numberOfInitialSamples!: VuexModelState['numberOfInitialSamples'];
 
-    @modelModule.State numberOfDiscreteValues!: number;
+    @modelModule.State numberOfDiscreteValues!: VuexModelState['numberOfDiscreteValues'];
 
     @modelModule.Getter isQueryActive!: boolean;
 

@@ -71,6 +71,7 @@
   import VueTippy from 'vue-tippy';
   import { HttpError, VuexNotificationsState } from '@/store/notifications/types';
   import { VuexSideBarState } from '@/store/sidebar/types';
+  import { VuexUserState } from '@/store/user/types';
   import { USER_MODULE_NAME } from '@/store/user/constants';
   import { SIDEBAR_MODULE_NAME } from '@/store/sidebar/constants';
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
@@ -122,26 +123,19 @@
 
     showSystemsStatus = false;
 
-    @userModule.State
-    isLoggedIn!: boolean;
+    @userModule.State isLoggedIn!: VuexUserState['isLoggedIn'];
 
-    @notificationsModule.State
-    httpErrors!: VuexNotificationsState['httpErrors'];
+    @notificationsModule.State httpErrors!: VuexNotificationsState['httpErrors'];
 
-    @sideBarModule.State
-    sideBarStyle!: VuexSideBarState['sideBarStyle'];
+    @sideBarModule.State sideBarStyle!: VuexSideBarState['sideBarStyle'];
 
-    @notificationsModule.Mutation
-    removeHttpError!: (id: number) => void;
+    @notificationsModule.Mutation removeHttpError!: (id: number) => void;
 
-    @systemStatusModule.Mutation
-    setAllStatusesToUnknown!: () => void;
+    @systemStatusModule.Mutation setAllStatusesToUnknown!: () => void;
 
-    @notificationsModule.Mutation
-    removeAllNotificationsForUi!: () => void;
+    @notificationsModule.Mutation removeAllNotificationsForUi!: () => void;
 
-    @uploaderModule.Mutation
-    removeAllUploaderEntries!: () => void;
+    @uploaderModule.Mutation removeAllUploaderEntries!: () => void;
 
     @Watch('isLoggedIn')
     onIsLoggedIn(loggedIn: boolean) {

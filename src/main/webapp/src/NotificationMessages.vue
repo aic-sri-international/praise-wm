@@ -81,17 +81,13 @@
 
   @Component
   export default class NotificationMessages extends Vue {
-    @notificationsModule.State
-    notificationsForUi!: VuexNotificationsState['notificationsForUi'];
+    @notificationsModule.State notificationsForUi!: VuexNotificationsState['notificationsForUi'];
 
-    @notificationsModule.Mutation
-    setNotificationUiIsOpen!: (isOpen: boolean) => void;
+    @notificationsModule.Mutation setNotificationUiIsOpen!: (isOpen: boolean) => void;
 
-    @notificationsModule.Mutation
-    removeAllNotificationsForUi!: () => void;
+    @notificationsModule.Mutation removeAllNotificationsForUi!: () => void;
 
-    @notificationsModule.Mutation
-    removeNotificationsForUi!: (ids: number[]) => void;
+    @notificationsModule.Mutation removeNotificationsForUi!: (ids: number[]) => void;
 
     @Emit('close')
     closeNotifications(): void {
@@ -135,6 +131,9 @@
     onRemoveMessage(item: NotificationMessage) {
       const ids: number[] = [item.id];
       this.removeNotificationsForUi(ids);
+      if (!this.notificationsForUi.length) {
+        this.closeNotifications();
+      }
     }
 
     getCircleStyle(level: MessageLevel) {

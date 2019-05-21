@@ -125,11 +125,9 @@
       },
     };
 
-    @sideBarModule.State
-    isSideBarCollapsed!: VuexSideBarState['isSideBarCollapsed'];
+    @sideBarModule.State isSideBarCollapsed!: VuexSideBarState['isSideBarCollapsed'];
 
-    @sideBarModule.Mutation
-    toggleSideBarCollapse!: () => void;
+    @sideBarModule.Mutation toggleSideBarCollapse!: () => void;
 
     routeTo(path: string) {
       this.$router.push(path);

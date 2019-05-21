@@ -95,6 +95,8 @@
     ModelRuleWrapper,
   } from '@/components/model/editor/types';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
+  import { VuexHelpState } from '@/store/help/types';
+
 
   const helpModule = namespace(HELP_MODULE_NAME);
 
@@ -132,7 +134,7 @@
     }) readonly readOnly!: boolean;
 
     @helpModule.State
-    showHelp!: boolean;
+    showHelp!: VuexHelpState['showHelp'];
 
     $refs!: {
       ctxmenuRef: ContextMenuType;

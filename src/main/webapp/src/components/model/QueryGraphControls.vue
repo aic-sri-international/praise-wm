@@ -124,13 +124,13 @@
 
     debounced$: any = undefined;
 
-    @modelModule.Action runQueryFunction!: (payload: RunQueryFunctionPayload) => void;
-
-    @modelModule.Action xAxisSwap!: (xAxisVariableName: string) => void;
-
     @modelModule.Getter isQueryActive!: boolean;
 
     @modelModule.Getter curResultWrapper?: QueryResultWrapper;
+
+    @modelModule.Action runQueryFunction!: (payload: RunQueryFunctionPayload) => void;
+
+    @modelModule.Action xAxisSwap!: (xAxisVariableName: string) => void;
 
     get graphQueryVariableResults(): GraphQueryVariableResults | undefined {
       const resultsWrapper: QueryResultWrapper | undefined = this.curResultWrapper;
