@@ -73,6 +73,8 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
 [Client Toolset](docs/client_toolset.md)
 [Server Toolset](docs/server_toolset.md)
 
+The [Developer Test Panel](docs/developer_test_panel.md) can be used to test notifications and other messages pushed to the client. 
+
 The [WebPack DevServer](docs/webpack_dev_server.md) configuration will need a minor adjustment to run praise-wm under SSL.
 
 JavaScript uses the [Airbnb Javascript Style Guide][] and the [Vue.js Style Guide][].
