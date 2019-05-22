@@ -29,7 +29,7 @@ Stop the praise-wm container:
 
 The first time you run the *up* command it will download the Docker images and install them in your local Docker cache.
 
-A new praise-wm Docker image is created automatically by the [praise-wm GitLab Pipeline][] each time files are pushed into the repository. To get the most current version from the repository, you must run the following command which will download the most current version if it differs from what is in your local Docker cache.
+A new praise-wm Docker image is created automatically by the [praise-wm GitLab Pipeline][] each time files are pushed into the repository. To get the most up-to-date version from the repository, you must run the following command which will download the most up-to-date version if it differs from what is in your local Docker cache.
 
     docker-compose -f src/main/docker/praisewm.yml pull
 
