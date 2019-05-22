@@ -6,6 +6,7 @@ import com.sri.ai.praisewm.db.JooqContext;
 import com.sri.ai.praisewm.db.JooqDbUtil;
 import com.sri.ai.praisewm.db.jooq.tables.daos.UserDao;
 import com.sri.ai.praisewm.db.jooq.tables.pojos.User;
+import com.sri.ai.praisewm.service.SecurityServiceImpl;
 import java.util.List;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -42,7 +43,7 @@ public class UserRepository {
   }
 
   public static Number createUser(JooqContext jooqContext, User user) {
-    return JooqDbUtil.insert(jooqContext.dslContext(), USER, user);
+      return JooqDbUtil.insert(jooqContext.dslContext(), USER, user);
   }
 
   public static boolean updateUser(JooqContext jooqContext, User user) {
@@ -50,11 +51,13 @@ public class UserRepository {
   }
 
   public static boolean deleteUser(JooqContext jooqContext, String id) {
+    // Do not allow the special admin user to be deleted.
     int count =
         jooqContext
             .dslContext()
             .deleteFrom(USER)
-            .where(USER.USER_ID.equal(USER.USER_ID.getDataType().convert(id)))
+            .where(USER.USER_ID.equal(USER.USER_ID.getDataType().convert(id))
+                .and(USER.NAME.notEqual(SecurityServiceImpl.ADMIN_NAME)))
             .execute();
     return (count > 0);
   }
