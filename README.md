@@ -8,6 +8,7 @@
 1.  [Gradle Tasks](#gradle-tasks)
 1.  [Docker Deployment](docs/docker.md)
 1.  [Version Updates](#version-updates)
+1.  [Joint Development with AIC Dependencies](#joint-development-with-aic-dependencies)
 
 ## Preface
 This document covers the praise-wm project setup and its development tools.
@@ -128,9 +129,17 @@ Run the following to display a list of all gradle tasks:
 | node     | gradle_node_plugin_node_version | ./gradlew nodeSetup |
 | yarn     | gradle_node_plugin_yarn_version | ./gradlew yarnSetup |
 
+
+## Joint Development with AIC Dependencies
+
+If you are also doing local builds of the AIC library dependencies, you will probably want to change the repository search order so that your local maven repository will be searched prior to the deployed [AIC library repository][]. To change the search order, edit the repositories section towards the bottom of [build.gradle][] as noted in its comments.
+
+
 [Gradle]: https://gradle.org/
 [Airbnb Javascript Style Guide]: https://github.com/airbnb/javascript
 [Vue.js Style Guide]: https://vuejs.org/v2/style-guide/
 [Google Java Style Guide]: https://google.github.io/styleguide/javaguide.html
 [Vue resources]: https://github.com/vuejs/awesome-vue
 [gradle.properties]: ./gradle.properties
+[AIC library repository]: https://oss.sonatype.org/content/repositories/snapshots/
+[build.gradle]: ./build.gradle
