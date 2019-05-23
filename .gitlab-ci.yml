@@ -8,7 +8,9 @@ variables:
   MYSQL_DATABASE: 'praisewm'
 #  See application.properties for information on PRAISEWM_DATABASE_HOST
   PRAISEWM_DATABASE_HOST: 'praisewm'
-  REGISTRY_URI: 'worldmodelers.cse.sri.com/praise-wm'
+  REGISTRY: 'worldmodelers.cse.sri.com'
+  # REGISTRY_USERNAME and REGISTRY_PASSWORD are set in GitLab -> Settings -> CI/CD -> Environment.
+  DOCKER_BASE: 'praise-wm'
   BUILD_TAG: '$CI_COMMIT_REF_NAME'
   JAVA_OPTIONS: "-Djava.awt.headless=true"
 
@@ -19,13 +21,10 @@ cache:
 stages:
   - buildClient
   - buildServer
-  - deployAny
-  - deployMaster
+  - docker
 
 buildClient:
   stage: buildClient
-  tags:
-    - shared
   image: node:10.15.3
   script:
     - cd src/main/webapp
@@ -41,8 +40,6 @@ buildClient:
 
 buildServer:
   stage: buildServer
-  tags:
-    - shared
   image: openjdk:11.0.2-jdk-slim
   dependencies:
     - buildClient
@@ -62,24 +59,14 @@ buildServer:
       - build/libs
     expire_in: 1 week
 
-deployAny:
-  stage: deployAny
-  tags:
-    - privileged
+# Use kaniko to build the docker image so we don't need a privileged runner.
+docker:
+  stage: docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-    - cp -vf build/libs/praisewm*all.jar .
-    - cp -vf gencerts/keystore.jks .
-    - docker build -f src/main/docker/Dockerfile -t $REGISTRY_URI:$BUILD_TAG .
-    - docker push $REGISTRY_URI:$BUILD_TAG
-
-deployMaster:
-  stage: deployMaster
-  tags:
-    - privileged
-  script:
-    - docker pull $REGISTRY_URI:$BUILD_TAG
-    - docker tag $REGISTRY_URI:$BUILD_TAG $REGISTRY_URI:latest
-    - docker push $REGISTRY_URI:latest
-  only:
-    refs:
-      - master
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY\":{\"username\":\"$REGISTRY_USERNAME\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - if [ "$CI_COMMIT_REF_NAME" = "master" ] ; then DEST2="--destination $REGISTRY/$DOCKER_BASE:latest" ; fi
+    - /kaniko/executor -v warn --context $CI_PROJECT_DIR --dockerfile src/main/docker/Dockerfile --destination $REGISTRY/$DOCKER_BASE:$BUILD_TAG $DEST2
