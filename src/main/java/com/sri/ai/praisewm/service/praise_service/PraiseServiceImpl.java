@@ -1,6 +1,7 @@
 package com.sri.ai.praisewm.service.praise_service;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.expressionbased.core.byalgorithm.sampling.SolverType;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.sampling.HOGMMultiQuerySamplingProblemSolver;
 import com.sri.ai.praise.core.inference.byinputrepresentation.classbased.hogm.solver.HOGMProblemResult;
 import com.sri.ai.praise.core.representation.interfacebased.factor.core.expressionsampling.ExpressionWithProbabilityFunction;
@@ -84,6 +85,7 @@ public class PraiseServiceImpl implements PraiseService, Service {
         new HOGMMultiQuerySamplingProblemSolver(
             modelQuery.getModel(),
             Collections.singletonList(modelQuery.getQuery()),
+            SolverType.dynamic,
             v -> modelQuery.getNumberOfDiscreteValues(),
             modelQuery.getNumberOfInitialSamples(),
             new Random());
