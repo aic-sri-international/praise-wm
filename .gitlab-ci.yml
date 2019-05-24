@@ -83,7 +83,7 @@ deploy:
     key: deploy
   script:
     - PATH=${PWD}/deploy:${PATH}
-    - sh src/main/k8s/get-kubectl.sh deploy
+    - sh -x src/main/k8s/get-kubectl.sh deploy
     - kubectl config set-cluster dev --server=https://dev.k8s.sri.com:6443 --certificate-authority=src/main/k8s/dev-ca.pem
     - kubectl config set-credentials ci --token=${K8S_TOKEN}
     - kubectl config set-context dev --cluster=dev --user=ci
