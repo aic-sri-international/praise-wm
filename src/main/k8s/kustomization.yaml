@@ -1,11 +1,21 @@
 kind: Kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
+
 namespace: praise-wm
+
+secretGenerator:
+- name: mysql
+  literals:
+  - rootPassword=praisewm
+  - user=praisewm
+  - password=praisewm
+
 resources:
 - deploy.yaml
 - mysql.yaml
 - pvcs.yaml
 - ingress.yaml
+
 images:
 - name: praise-wm-placeholder
   newName: worldmodelers.cse.sri.com/praise-wm
