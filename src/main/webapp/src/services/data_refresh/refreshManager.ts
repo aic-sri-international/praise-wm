@@ -16,6 +16,7 @@ const refreshRegistry: {
 
 function debugLog(msg: string) {
   if (enableDebugMessages) {
+    // eslint-disable-next-line no-console
     console.debug(msg);
   }
 }
@@ -57,6 +58,7 @@ async function triggerRefresh(type: RefreshType): Promise<any> {
         debugLog(`Calling refresh method for ${e.name}`);
         await e.callback();
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(`Error return from auto-refresh call for type: ${type}, name: ${e.name}`);
       }
     });

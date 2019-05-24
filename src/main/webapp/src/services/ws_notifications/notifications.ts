@@ -68,8 +68,10 @@ function replaceToast(text: string) {
 
 function log(msg: string, isErr?: boolean): void {
   if (isErr) {
+    // eslint-disable-next-line no-console
     console.error(`${url}: ${msg}`);
   } else {
+    // eslint-disable-next-line no-console
     console.info(`${url}: ${msg}`);
   }
 }
@@ -203,6 +205,7 @@ function open(): void {
         // Ignore
         break;
       default:
+        // eslint-disable-next-line no-console
         console.error(`Unexpected notification event: ${nEvent.eventType}`);
     }
   };

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import { Feature } from 'geojson';
 
