@@ -1,6 +1,6 @@
 # Deployment and service for praise-wm.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
