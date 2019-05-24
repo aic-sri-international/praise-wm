@@ -10,6 +10,9 @@ spec:
   strategy:
     rollingUpdate:
       maxSurge: 0
+  selector:
+    matchLabels:
+      app: praise-wm
   template:
     metadata:
       labels:
