@@ -1,0 +1,10 @@
+namespace: praise-wm
+resources:
+- deploy.yaml
+- mysql.yaml
+- pvcs.yaml
+- ingress.yaml
+images:
+- name: praise-wm-placeholder
+  newName: worldmodelers.cse.sri.com/praise-wm
+  newTag: master.2

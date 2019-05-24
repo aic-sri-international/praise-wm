@@ -1,0 +1,53 @@
+# Deployment and service for praise-wm.
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: praise-wm
+  name: praise-wm
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+  template:
+    metadata:
+      labels:
+        app: praise-wm
+    spec:
+      containers:
+      - image: praise-wm-placeholder
+        name: praise-wm
+        env:
+        - name: PRAISEWM_DATABASE_HOST
+          value: mysql
+        - name: PRAISEWM_SLEEP
+          value: "0"
+        ports:
+        - containerPort: 4567
+          name: http
+        volumeMounts:
+        - name: data
+          mountPath: /opt/praisewm/data
+        livenessProbe:
+          httpGet:
+            port: 4567
+            path: /
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: praise-wm
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: praise-wm
+spec:
+  selector:
+    app: praise-wm
+  ports:
+    - port: 80
+      targetPort: 4567
+      name: http

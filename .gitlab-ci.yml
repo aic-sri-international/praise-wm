@@ -22,6 +22,7 @@ stages:
   - buildClient
   - buildServer
   - docker
+  - deploy
 
 buildClient:
   stage: buildClient
@@ -70,3 +71,22 @@ docker:
     - echo "{\"auths\":{\"$REGISTRY\":{\"username\":\"$REGISTRY_USERNAME\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - if [ "$CI_COMMIT_REF_NAME" = "master" ] ; then DEST2="--destination $REGISTRY/$DOCKER_BASE:latest" ; fi
     - /kaniko/executor -v warn --context $CI_PROJECT_DIR --dockerfile src/main/docker/Dockerfile --destination $REGISTRY/$DOCKER_BASE:$BUILD_TAG $DEST2
+
+deploy:
+  stage: deploy
+  # only:
+  #   - master
+  image: alpine
+  cache:
+    paths:
+      - deploy
+    key: deploy
+  script:
+    - PATH=${PWD}/deploy:${PATH}
+    - sh src/main/k8s/get-kubectl.sh deploy
+    - kubectl config set-cluster dev --server=https://dev.k8s.sri.com:6443 --certificate-authority=src/main/k8s/dev-ca.pem
+    - kubectl config set-credentials ci --token=${K8S_TOKEN}
+    - kubectl config set-context dev --cluster=dev --user=ci
+    - kubectl config use-context dev
+    - kustomize edit set image praise-wm-placeholder=$REGISTRY/$DOCKER_BASE:$BUILD_TAG
+    - kubectl apply -k src/main/k8s

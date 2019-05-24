@@ -1,0 +1,37 @@
+# Ingress and NetworkPolicy to allow external clients to connect to praise-wm.
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: praise-wm
+  annotations:
+    kubernetes.io/tls-acme: "true"
+spec:
+  rules:
+  - host: praise-wm.cse.sri.com
+    http:
+      paths:
+      - backend:
+          serviceName: praise-wm
+          servicePort: 80
+  tls:
+  - hosts:
+    - praise-wm.cse.sri.com
+    secretName: praise-wm.cse.sri.com
+
+---
+
+# This NetworkPolicy is like a firewall rule that allows things outside our namespace to contact our pods. "Our pods"
+# are matched according to the label selector "app: praise-wm".
+apiVersion: extensions/v1beta1
+kind: NetworkPolicy
+metadata:
+  name: praise-wm
+spec:
+  podSelector:
+    matchLabels:
+      app: praise-wm
+  ingress:
+  - ports:
+    - port: 4567
+      protocol: TCP
