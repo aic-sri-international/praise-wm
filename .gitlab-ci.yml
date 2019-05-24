@@ -88,5 +88,5 @@ deploy:
     - kubectl config set-credentials ci --token=${K8S_TOKEN}
     - kubectl config set-context dev --cluster=dev --user=ci
     - kubectl config use-context dev
-    - kustomize edit set image praise-wm-placeholder=$REGISTRY/$DOCKER_BASE:$BUILD_TAG
+    - cd src/main/k8s && kustomize edit set image praise-wm-placeholder=$REGISTRY/$DOCKER_BASE:$BUILD_TAG
     - kubectl apply -k src/main/k8s
