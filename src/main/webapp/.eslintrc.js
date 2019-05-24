@@ -9,8 +9,8 @@ module.exports = {
     '@vue/typescript',
   ],
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'import/prefer-default-export': 'off',
     // There is currently an issue with eslint not finding imported types from type files
     // Since we are using typescript for all our files and typescript correctly
