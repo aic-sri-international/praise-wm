@@ -170,13 +170,17 @@
 </script>
 
 <style lang="scss" scoped>
+  @import '~@/styles/_variables.scss';
+
+  $topPanelHeightOffset: $topBar-height + 8px;
+
   #app {
     font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    padding-top: 56px;
+    padding-top: $topBar-height;
     padding-right: 8px;
   }
 
@@ -186,30 +190,35 @@
   }
 
   .sideBar {
-    z-index: 100;
+    z-index: $z-index-sideBar;
     position: fixed;
     left: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(100vh - 56px);
+    height: calc(100vh - #{$topBar-height});
     background-color: #e1e1e1;
   }
 
-  /*
-    Bootstap uses a z-index of 1030 for its 'fixed' components.
-    Since the notification's panel will display a Bootstrap Model, we need to set its
-    z-index to a value >= 1030 so that the dialog is not hidden by the TopBar.
-  */
-  .notificationsPanel {
+  @mixin panel-mixin {
     position: fixed;
-    width: 440px;
-    right: 12px;
     max-width: 100vw;
-    max-height: calc(100vh - (56px + 8px));
+    max-height: calc(100vh - #{$topPanelHeightOffset});
     overflow-y: auto;
     overflow-x: hidden;
     margin-top: 4px;
-    z-index: 1030;
+    z-index: $z-index-panels;
+  }
+
+  .notificationsPanel {
+    @include panel-mixin;
+    width: 440px;
+    right: 12px;
+  }
+
+  .systemsStatusPanel {
+    @include panel-mixin;
+    width: 200px;
+    right: 240px;
   }
 
   .notificationsTesterPanel {
@@ -218,25 +227,13 @@
     max-width: 340px;
     overflow-x: auto;
     left: 0;
-    z-index: 1030;
-  }
-
-  .systemsStatusPanel {
-    position: fixed;
-    width: 200px;
-    right: 240px;
-    max-width: calc(100vw - 240px);
-    max-height: calc(100vh - (56px + 8px));
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-top: 4px;
-    z-index: 1030;
+    z-index: $z-index-panels;
   }
 
   .contentStyle {
     flex-grow: 1;
     padding-top: 8px;
     overflow-y: auto;
-    height: calc(100vh - (56px + 8px));
+    max-height: calc(100vh - #{$topPanelHeightOffset});
   }
 </style>

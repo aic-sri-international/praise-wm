@@ -10,7 +10,7 @@
             @click.stop="onRemoveAllMessages"
           >
             <i
-              class="fas fa-times removeIcon"
+              class="fas fa-times cursorPointer"
               data-fa-transform="grow-6"
             />
           </div>
@@ -44,7 +44,7 @@
             </div>
             <div class="ml-auto">
               <div @click.stop="onRemoveMessage(msg)">
-                <i class="fas fa-times removeIcon" />
+                <i class="fas fa-times cursorPointer" />
               </div>
             </div>
           </div>
@@ -156,7 +156,7 @@
     background-color: white;
   }
 
-  .removeIcon {
+  .cursorPointer {
     cursor: pointer;
   }
 </style>

@@ -27,8 +27,10 @@
 </script>
 
 <style lang="scss" scoped>
+  @import '~@/styles/_variables.scss';
+
   .button-up-style {
-    z-index: 1030;
+    z-index: $z-index-panels;
     position: fixed;
     bottom: .3em;
     padding-left: 2px;

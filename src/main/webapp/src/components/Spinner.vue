@@ -38,11 +38,13 @@
 </script>
 
 <style lang="scss" scoped>
+  @import '~@/styles/_variables.scss';
+
   .spinner {
     position: fixed;
     top: 50%;
     left: 50%;
     cursor: pointer;
-    z-index: 1030;
+    z-index: $z-index-panels;
   }
 </style>

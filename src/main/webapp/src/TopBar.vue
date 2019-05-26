@@ -146,11 +146,13 @@
 </script>
 
 <style lang="scss" scoped>
+  @import '~@/styles/_variables.scss';
+
   .header {
     color: white;
     background: #F5F5F5;
     width: 100%;
-    height: 56px;
+    height: $topBar-height;
     top: 0;
     left: 0;
     padding-left: 4px;
