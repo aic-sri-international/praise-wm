@@ -34,7 +34,7 @@ import spark.Response;
 
 /** SecurityServiceImpl. */
 public class SecurityServiceImpl implements Service, SecurityService {
-  public static final String SECURITY_HEADER_KEY = "SEC_SESSION_ID";
+  public static final String SECURITY_HEADER_KEY = "SESSION-ID";
   public static final String LOGIN_PATH = "/api/login";
   public static final String ADMIN_PATH_PREFIX = "/admin/";
   public static final String ADMIN_NAME = "admin";
