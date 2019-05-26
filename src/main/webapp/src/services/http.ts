@@ -7,6 +7,8 @@ import {
 } from '@/store/notifications/notificationsHelper';
 import { setServerTimeDeltaInMillis } from '@/services/clientState';
 
+const customSessionIdHeader = 'SESSION-ID';
+
 type FetchDataParams = {
   request: Request,
   isLogin?: boolean,
@@ -103,7 +105,7 @@ export function getWsMaxReconnectAttempts(): number {
 }
 
 function appendSessionIdQuery(url: string) {
-  return `${url}?SEC_SESSION_ID=${secSessionId}`;
+  return `${url}?${customSessionIdHeader}=${secSessionId}`;
 }
 
 export function getUrlForWebsocketEndpoint(endpoint: string): string {
@@ -139,7 +141,7 @@ function getFilenameFromHeader(headers: Headers): string {
 }
 
 function saveLoginHeaders(headers: Headers): void {
-  secSessionId = getHeaderValue(headers, 'SEC_SESSION_ID');
+  secSessionId = getHeaderValue(headers, customSessionIdHeader);
 }
 
 type HeadersAndBody = {
@@ -160,7 +162,7 @@ function getHeadersAndBody(body?: any): HeadersAndBody {
     }
   }
 
-  headers.append('SEC_SESSION_ID', secSessionId);
+  headers.append(customSessionIdHeader, secSessionId);
 
   if (bodyData !== undefined && bodyData !== null) {
     return { headers, body: bodyData };
