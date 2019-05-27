@@ -7,6 +7,7 @@ import notifications from './notifications';
 import systemStatus from './system_status';
 import uploader from './uploader';
 import model from './model';
+import featureCollection from './feature_collection';
 import help from './help';
 import { createStore } from '@/store/store';
 
@@ -30,6 +31,7 @@ const storeOptions: StoreOptions<RootState> = {
     uploader,
     sidebar,
     model,
+    featureCollection,
     help,
   },
   strict: process.env.NODE_ENV !== 'production',

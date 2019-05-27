@@ -120,12 +120,7 @@ public class PropertiesWrapper {
   public Path getPathToRelativeDirectory(String property, boolean createIfNotExist) {
     Path path = Paths.get(".", asString(property)).toAbsolutePath().normalize();
     if (createIfNotExist) {
-      try {
-        Files.createDirectories(path);
-      } catch (Exception e) {
-        throw new RuntimeException(
-            String.format("%s directory '%s' cannot be created", property, path), e);
-      }
+      FilesUtil.createDirectories(path, property);
     } else {
       if (!Files.isDirectory(path)) {
         throw new RuntimeException(

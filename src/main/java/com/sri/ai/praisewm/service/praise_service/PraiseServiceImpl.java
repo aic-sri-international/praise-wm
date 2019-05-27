@@ -31,12 +31,11 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * PraiseService implementation class.
- */
+/** PraiseService implementation class. */
 public class PraiseServiceImpl implements PraiseService, Service {
   private static final Logger LOG = LoggerFactory.getLogger(PraiseServiceImpl.class);
   private SegmentedModelLoader segmentedModelLoader;
+  private FeatureCollectionsLoader featureCollectionsLoader;
   private ProceduralAttachments proceduralAttachments;
   // Used to allow us to interrupt active solvers
   private Map<Integer, HOGMMultiQuerySamplingProblemSolver> activeSolverMap =
@@ -51,11 +50,19 @@ public class PraiseServiceImpl implements PraiseService, Service {
     proceduralAttachments = new ProceduralAttachmentFactory().getAttachments();
     segmentedModelLoader =
         new SegmentedModelLoader(serviceManager.getConfiguration(), serviceManager.getEventBus());
+    featureCollectionsLoader =
+        new FeatureCollectionsLoader(
+            serviceManager.getConfiguration(), serviceManager.getEventBus());
     queryFunctionManager = new QueryFunctionManager(serviceManager);
   }
 
   public void stop() {
-    segmentedModelLoader.stop();
+    if (segmentedModelLoader != null) {
+      segmentedModelLoader.stop();
+    }
+    if (featureCollectionsLoader != null) {
+      featureCollectionsLoader.stop();
+    }
     interruptSolvers();
   }
 
@@ -72,6 +79,16 @@ public class PraiseServiceImpl implements PraiseService, Service {
   @Override
   public List<SegmentedModelDto> getSegmentedModels() {
     return segmentedModelLoader.getSegmentedModels();
+  }
+
+  @Override
+  public List<String> getFeatureCollectionNames() {
+    return featureCollectionsLoader.getFeatureCollectionNames();
+  }
+
+  @Override
+  public String getFeatureCollection(String collectionName) {
+    return featureCollectionsLoader.getFeatureCollection(collectionName);
   }
 
   public ExpressionResultDto solveProblem(String sessionId, ModelQueryDto modelQuery) {

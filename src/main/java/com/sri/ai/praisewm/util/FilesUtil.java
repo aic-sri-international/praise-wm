@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +56,39 @@ public final class FilesUtil {
       } catch (Exception ex) {
         throw new RuntimeException("Cannot create " + msg, ex);
       }
-    } else {
-      LOG.info("Using " + msg);
     }
+  }
+
+  public static String readFileFully(Path filePath, String lineDelimiter) throws IOException {
+    StringBuilder data = new StringBuilder();
+    try (Stream<String> lines = Files.lines(filePath); ) {
+      lines.forEach(line -> data.append(line).append(lineDelimiter));
+    }
+    return data.toString();
+  }
+
+  public static Map<Path, String> loadFiles(
+      Path directory, Predicate<Path> filePathFilter, String lineDelimiter) {
+    Map<Path, String> fileContentsMap = new HashMap<>();
+
+    try {
+      Files.list(directory)
+          .filter(filePathFilter)
+          .forEach(
+              filePath -> {
+                try {
+                  String contents = readFileFully(filePath, lineDelimiter);
+                  fileContentsMap.put(filePath, contents);
+                } catch (Exception e) {
+                  LOG.error("Error reading file contents: File={}, file skipped", filePath, e);
+                }
+              });
+    } catch (IOException e) {
+      throw new RuntimeException(
+          String.format("Error accessing files in directory: %s", directory), e);
+    }
+
+    return fileContentsMap;
   }
 
   public static String imageFileToBase64DataImage(Path filepath) {

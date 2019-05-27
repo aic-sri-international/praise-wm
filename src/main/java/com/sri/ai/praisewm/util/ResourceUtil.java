@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.slf4j.Logger;
@@ -15,14 +17,14 @@ import org.slf4j.LoggerFactory;
 /**
  * list resources available from the classpath
  *
- * <p>From:
+ * <p>See:
  * https://stackoverflow.com/questions/3923129/get-a-list-of-resources-from-classpath-directory
  */
 public class ResourceUtil {
   private static final Logger LOG = LoggerFactory.getLogger(ResourceUtil.class);
 
   /**
-   * for all elements of java.class.path get a Collection of resources Pattern pattern =
+   * For all elements of java.class.path get a Collection of resources Pattern pattern =
    * Pattern.compile(".*"); gets all resources
    *
    * @param pattern the pattern to match
@@ -36,6 +38,19 @@ public class ResourceUtil {
       retval.addAll(getResources(element, pattern));
     }
     return retval;
+  }
+
+  /**
+   * Get a list of names of resources whose full paths match a regular expression.
+   *
+   * @param regex the regular expression to match
+   * @return the resources in the order they are found
+   */
+  public static List<String> getResourceNames(String regex) {
+    return ResourceUtil.getResources(Pattern.compile(regex)).stream()
+        .map(e -> new File(e).getName())
+        .filter(e -> !e.isBlank())
+        .collect(Collectors.toList());
   }
 
   private static Collection<String> getResources(final String element, final Pattern pattern) {

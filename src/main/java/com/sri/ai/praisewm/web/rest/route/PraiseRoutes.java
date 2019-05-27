@@ -62,5 +62,18 @@ public class PraiseRoutes extends AbstractRouteGroup {
           praiseService.interruptSolver(solverInterruptDto);
           return SparkUtil.respondNoContent(res);
         });
+
+    // get names of geojson feature collections
+    get(
+        "/featureCollectionNames",
+        (req, res) ->
+            SparkUtil.respondObjectOrNotFound(res, praiseService.getFeatureCollectionNames()));
+
+    // get names of geojson feature collections
+    get(
+        "/featureCollection/:id",
+        (req, res) ->
+            SparkUtil.respondObjectOrNotFound(
+                res, praiseService.getFeatureCollection(SparkUtil.getParam(req, ":id")), true));
   }
 }

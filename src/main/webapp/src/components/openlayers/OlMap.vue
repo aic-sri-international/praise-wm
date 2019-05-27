@@ -47,14 +47,18 @@
   // eslint-disable-next-line import/extensions,import/no-unresolved
   import { FeatureCollection } from 'geojson';
   // eslint-disable-next-line
+  import { namespace } from 'vuex-class';
   import OlPopup from './OlPopup.vue';
-  import featureCollection from './SS_Admin2_2011.4326';
   import { FeatureCollectionHandler, newFeatureCollectionHandler } from './features';
   import { OlPopupInterface } from '@/components/openlayers/OlPopup.types';
   import { OlMapInterface } from '@/components/openlayers/OlMap.types';
+  import { FEATURE_COLLECTION_MODULE_NAME } from '@/store/feature_collection/constants';
+  import { VuexFeatureCollectionState } from '@/store/feature_collection/types';
 
   const srcProjection = 'EPSG:4326';
   const destProjection = 'EPSG:3857';
+
+  const featureCollectionModule = namespace(FEATURE_COLLECTION_MODULE_NAME);
 
   @Component({
     components: {
@@ -74,10 +78,12 @@
 
     map: Map | null = null;
 
-    featureCollection: FeatureCollection | null = null;
-
     featureHandler: FeatureCollectionHandler | null = null;
 
+    @featureCollectionModule.State
+    currentFeatureCollection!: VuexFeatureCollectionState['currentFeatureCollection'];
+
+    @featureCollectionModule.Action initFeatureCollectionState!: () => Promise<any>;
 
     get mapStyle() {
       return { width: '100%', height: `calc(100vh - ${this.heightOffset}px)` };
@@ -85,11 +91,11 @@
 
     @Watch('mapRegionNameToValue')
     onMapRegionNameToValue() {
-      if (!this.featureCollection) {
+      if (!this.currentFeatureCollection) {
         return;
       }
       this.featureHandler = newFeatureCollectionHandler(
-        this.featureCollection,
+        this.currentFeatureCollection,
         this.mapRegionNameToValue,
       );
       // Force the view to redraw the features; replace if there's a better way to do it
@@ -103,19 +109,25 @@
       }, 50);
     }
 
-    mounted() {
+    async mounted() {
+      if (!this.currentFeatureCollection) {
+        await this.initFeatureCollectionState();
+        if (!this.currentFeatureCollection) {
+          return;
+        }
+      }
+
       window.addEventListener('resize', this.updateMapSize);
-      this.featureCollection = featureCollection as FeatureCollection;
       this.featureHandler = newFeatureCollectionHandler(
-        this.featureCollection,
+        this.currentFeatureCollection,
         this.mapRegionNameToValue,
       );
       const geoJson: GeoJSON = new GeoJSON();
       const geoJsonFeatures = geoJson.readFeatures(
-        featureCollection,
+        this.currentFeatureCollection,
         { dataProjection: srcProjection, featureProjection: destProjection },
       );
-      const centroid = getCentroid(featureCollection);
+      const centroid = getCentroid(this.currentFeatureCollection);
       const center = transform(centroid.geometry.coordinates, srcProjection, destProjection);
 
       const vectorSource = new VectorSource({

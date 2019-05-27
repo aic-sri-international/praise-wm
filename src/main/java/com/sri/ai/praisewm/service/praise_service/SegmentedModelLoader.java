@@ -1,72 +1,66 @@
 package com.sri.ai.praisewm.service.praise_service;
 
+import static com.sri.ai.praisewm.util.FilesUtil.loadFiles;
+import static com.sri.ai.praisewm.util.FilesUtil.readFileFully;
+
 import com.google.common.eventbus.EventBus;
-import com.google.common.io.Resources;
+import com.sri.ai.praisewm.event.notification.NotificationEvent;
+import com.sri.ai.praisewm.event.notification.NotificationEvent.Broadcast;
+import com.sri.ai.praisewm.event.notification.NotificationEvent.Level;
+import com.sri.ai.praisewm.event.notification.NotificationTextMessage;
 import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
-import com.sri.ai.praisewm.util.FilesUtil;
+import com.sri.ai.praisewm.util.DirectoryWatcher;
+import com.sri.ai.praisewm.util.DirectoryWatcher.DirChangeEntry;
 import com.sri.ai.praisewm.util.JsonConverter;
 import com.sri.ai.praisewm.util.PropertiesWrapper;
-import com.sri.ai.praisewm.util.ResourceUtil;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import com.sri.ai.praisewm.util.ResourceFileDirectoryCopy;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * The SegmentedModelLoader loads and caches the models, making them accessible to clients.
- * <p>
- *  Model files are loaded at startup from the {@link #EXAMPLES_RESOURCE_DIR} resources path
- *  and copied into the directory referenced by the <code>application.properties</code> property
- *  {@link #MODEL_FILES_DIR_PROPERTY} if they do not already exist within that directory.
- * <p>
- * Files within the model directory are cached in memory as instances of {@link SegmentedModelDto}
- * and kept current by using the services of the {@link ModelWatcher}.
+ *
+ * <p>Model files are loaded at startup from the {@link #EXAMPLES_RESOURCE_DIR} resources path and
+ * copied into the directory referenced by the <code>application.properties</code> property {@link
+ * #MODEL_FILES_DIR_PROPERTY} if they do not already exist within that directory.
+ *
+ * <p>Files within the model directory are cached in memory as instances of {@link
+ * SegmentedModelDto} and kept current by using the services of the {@link DirectoryWatcher}.
  */
 public class SegmentedModelLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(SegmentedModelLoader.class);
-  private static final Predicate<Object> jsonFilter = o -> o.toString().endsWith(".json");
-
-  private PropertiesWrapper propertiesWrapper;
-  private ModelWatcher modelWatcher;
-  private Map<String, SegmentedModelDto> segmentedModelMap = Collections.emptyMap();
-  private Path segmentedModelDir;
-  private boolean refresh;
   public static final String EXAMPLES_RESOURCE_DIR = "model_examples";
-  public static final String MODEL_FILES_DIR_PROPERTY = "server.segmentedModelFolder";
+  public static final String MODEL_FILES_DIR_PROPERTY = "server.modelsFolder";
+  private static final Logger LOG = LoggerFactory.getLogger(SegmentedModelLoader.class);
+  private static final Predicate<Path> jsonFilter = o -> o.toString().endsWith(".json");
+  private final EventBus eventBus;
+  private final Path segmentedModelDir;
+  private DirectoryWatcher directoryWatcher;
+  private Map<String, SegmentedModelDto> segmentedModelMap;
+  private boolean refresh;
+
   /**
-   * The Segmented Model Loader c
-   * @param propertiesWrapper
-   * @param eventBus
+   * The Segmented Model Loader
+   *
+   * @param propertiesWrapper config properties wrapper
+   * @param eventBus event bus
    */
   public SegmentedModelLoader(PropertiesWrapper propertiesWrapper, EventBus eventBus) {
-    this.propertiesWrapper = propertiesWrapper;
-    initSegmentedModelFolder();
-    copyExamplesIntoSegmentedModelsDir();
-    loadSegmentedModels();
-    modelWatcher =
-        new ModelWatcher(
-            eventBus,
-            segmentedModelDir,
-            jsonFilter::test,
-            () -> refresh = true,
-            filepath -> {
-              SegmentedModelDto smd = loadSegmentedModelFileDto(filepath);
-              return smd == null ? null : smd.getName();
-            });
+    this.eventBus = eventBus;
+    this.segmentedModelDir = propertiesWrapper.getPathToRelativeDirectory(MODEL_FILES_DIR_PROPERTY);
+    ResourceFileDirectoryCopy resourceFileDirectoryCopy =
+        new ResourceFileDirectoryCopy(
+            EXAMPLES_RESOURCE_DIR, e -> e.endsWith(".json"), segmentedModelDir);
+    resourceFileDirectoryCopy.apply();
+    segmentedModelMap = loadSegmentedModels(segmentedModelDir);
+    directoryWatcher =
+        new DirectoryWatcher(segmentedModelDir, true, this::processedDirectoryChange);
 
     LOG.info(
         "Loaded {} model file{} from {}",
@@ -75,35 +69,20 @@ public class SegmentedModelLoader {
         segmentedModelDir);
   }
 
-  private static void loadSegmentedModelFileDto(
-      Path filePath, Map<String, SegmentedModelDto> segmentedModelMap) {
-
-    SegmentedModelDto modelDto = loadSegmentedModelFileDto(filePath);
-    if (modelDto != null) {
-      // The model's name needs to be unique, if it is not unique, make it unique:
-      int uniqueId = 0;
-      String origName = modelDto.getName();
-      while (segmentedModelMap.containsKey(modelDto.getName())) {
-        ++uniqueId;
-        modelDto.setName(String.format("%s (%d)", origName, uniqueId));
-      }
-
-      segmentedModelMap.put(modelDto.getName(), modelDto);
-    }
-  }
-
   private static SegmentedModelDto loadSegmentedModelFileDto(Path filePath) {
-    StringBuilder data = new StringBuilder();
-    try (Stream<String> lines = Files.lines(filePath); ) {
-      lines.forEach(line -> data.append(line).append("\n"));
+    try {
+      String fileContents = readFileFully(filePath, "\n");
+      return toSegmentedModelDto(filePath, fileContents);
     } catch (Exception e) {
       LOG.error("Error reading model file contents: File={}, file skipped", filePath, e);
       return null;
     }
+  }
 
+  private static SegmentedModelDto toSegmentedModelDto(Path filePath, String fileContents) {
     SegmentedModelDto modelDto;
     try {
-      modelDto = JsonConverter.from(data.toString(), SegmentedModelDto.class);
+      modelDto = JsonConverter.from(fileContents, SegmentedModelDto.class);
     } catch (Exception e) {
       LOG.error(
           "Error converting model file from text to JSON contents: File={}, file skipped",
@@ -122,117 +101,85 @@ public class SegmentedModelLoader {
     return modelDto;
   }
 
-  private static List<String> getResourceFiles(String regex) {
-    Collection<String> files = ResourceUtil.getResources(Pattern.compile(regex));
-    LOG.info("Files matched: {}", files);
-    List<String> list = new ArrayList<>();
-    files.forEach(
-        file -> {
-          int ix = file.lastIndexOf('/');
-          if (ix == -1) {
-            list.add(file);
-          } else {
-            list.add(file.substring(ix + 1));
+  private static Map<String, SegmentedModelDto> loadSegmentedModels(Path modelDir) {
+    Map<Path, String> fileContentsMap = loadFiles(modelDir, jsonFilter, "\n");
+    Map<String, SegmentedModelDto> modelMap = new HashMap<>();
+    fileContentsMap.forEach(
+        (k, v) -> {
+          SegmentedModelDto modelDto = toSegmentedModelDto(k, v);
+          if (modelDto != null) {
+            // The model's name needs to be unique, if it is not unique, make it unique:
+            int uniqueId = 0;
+            String origName = modelDto.getName();
+            while (modelMap.containsKey(modelDto.getName())) {
+              ++uniqueId;
+              modelDto.setName(String.format("%s (%d)", origName, uniqueId));
+            }
+
+            modelMap.put(modelDto.getName(), modelDto);
           }
         });
-    return list;
+    return modelMap;
   }
 
-  private static List<String> getResourceContents(String resourceName) {
-    List<String> lines = Collections.emptyList();
-    URL url;
-    try {
-      url = Resources.getResource(resourceName);
-    } catch (Exception e) {
-      LOG.error("Cannot get resource for {}", resourceName, e);
-      return lines;
+  private void processedDirectoryChange(DirChangeEntry dirChangeEntry) {
+    this.refresh = true;
+
+    String msg;
+
+    boolean appendModelName = false;
+
+    switch (dirChangeEntry.getType()) {
+      case CREATE:
+        msg = "New model available: ";
+        appendModelName = true;
+        break;
+      case DELETE:
+        msg = "Deleted model file: " + dirChangeEntry.getFile();
+        break;
+      case MODIFY:
+        msg = "Modified model available: ";
+        appendModelName = true;
+        break;
+      case OVERFLOW:
+        msg = "Models added, deleted, and/or modified";
+        break;
+      default:
+        LOG.warn("Unknown event type: {}", dirChangeEntry.getType());
+        return;
     }
 
-    try {
-      lines = Resources.readLines(url, StandardCharsets.UTF_8);
-    } catch (Exception e) {
-      LOG.error("Cannot read contents of resource {}", url, e);
-      return lines;
-    }
+    if (appendModelName) {
+      Path filePath = segmentedModelDir.resolve(dirChangeEntry.getFile());
+      SegmentedModelDto smd = loadSegmentedModelFileDto(filePath);
+      if (smd == null) {
+        return;
+      }
 
-    return lines;
+      msg += smd.getName();
+    }
+    NotificationEvent notificationEvent =
+        new NotificationTextMessage()
+            .setText(msg)
+            .setLevel(Level.INFO)
+            .setBroadcast(Broadcast.EXCLUSIVE);
+    eventBus.post(notificationEvent);
   }
 
   public void stop() {
-    if (modelWatcher != null) {
-      modelWatcher.stop();
+    if (directoryWatcher != null) {
+      directoryWatcher.stop();
     }
   }
 
-  private void initSegmentedModelFolder() {
-    String segmentedModelFolder = propertiesWrapper.asString(MODEL_FILES_DIR_PROPERTY);
-    segmentedModelDir = Paths.get("." + segmentedModelFolder).toAbsolutePath().normalize();
-    FilesUtil.createDirectories(segmentedModelDir, "segmented models");
-  }
-
-  private void copyExamplesIntoSegmentedModelsDir() {
-    // Pattern to match files contained in the EXAMPLES_RESOURCE_DIR in the classpath
-    // for development and production.
-    final String CLASSPATH_MODEL_EXAMPLE_FILES_REGEX =
-        "(^|.*/)" + EXAMPLES_RESOURCE_DIR + "/[^/]+\\.json";
-    List<String> files = getResourceFiles(CLASSPATH_MODEL_EXAMPLE_FILES_REGEX);
-    List<String> filesCopied = new ArrayList<>();
-    List<String> filesAlreadyExisted = new ArrayList<>();
-
-    files.stream()
-        .filter(jsonFilter)
-        .forEach(
-            filename -> {
-              final String fileResourcePath = EXAMPLES_RESOURCE_DIR + '/' + filename;
-              final Path fileDiskPath = segmentedModelDir.resolve(filename);
-
-              if (Files.exists(fileDiskPath)) {
-                filesAlreadyExisted.add(filename);
-              } else {
-                try {
-                  List<String> arr = getResourceContents(fileResourcePath);
-                  if (!arr.isEmpty()) {
-                    byte[] bytes = String.join("\n", arr).getBytes();
-                    Files.write(fileDiskPath, bytes);
-                    filesCopied.add(filename);
-                  }
-                } catch (Exception e) {
-                  LOG.error(
-                      "Error processing model resource files in {}", EXAMPLES_RESOURCE_DIR, e);
-                }
-              }
-            });
-    LOG.info("Example resource model files copied to {}: {}", segmentedModelDir, filesCopied);
-    LOG.info(
-        "Example resource model files that already existed in and not copied to {}: {}",
-        segmentedModelDir,
-        filesAlreadyExisted);
-  }
-
-   List<SegmentedModelDto> getSegmentedModels() {
+  List<SegmentedModelDto> getSegmentedModels() {
     if (refresh) {
-      loadSegmentedModels();
+      segmentedModelMap = loadSegmentedModels(segmentedModelDir);
       refresh = false;
     }
 
     List<SegmentedModelDto> list = new ArrayList<>(segmentedModelMap.values());
     list.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
     return list;
-  }
-
-  private void loadSegmentedModels() {
-    segmentedModelMap = new HashMap<>();
-
-    try {
-      Files.list(segmentedModelDir)
-          .filter(jsonFilter)
-          .forEach(
-              filePath -> {
-                loadSegmentedModelFileDto(filePath, segmentedModelMap);
-              });
-    } catch (IOException e) {
-      throw new RuntimeException(
-          String.format("Error accessing model files in directory: %s", segmentedModelDir), e);
-    }
   }
 }

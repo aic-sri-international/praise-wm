@@ -31,6 +31,8 @@ import spark.Response;
  * </ul>
  */
 public final class SparkUtil {
+  private static final String APPLICATION_JSON = "application/json";
+
   private SparkUtil() {}
 
   /**
@@ -41,7 +43,7 @@ public final class SparkUtil {
    * @return the JSON string
    */
   public static String toJson(Object o, Response response) {
-    response.type("application/json");
+    response.type(APPLICATION_JSON);
     return JsonConverter.to(o);
   }
 
@@ -142,13 +144,34 @@ public final class SparkUtil {
    * @return the value to be returned from the REST method call
    */
   public static String respondObjectOrNotFound(Response response, Object body) {
+    return respondObjectOrNotFound(response, body, false);
+  }
+
+  /**
+   * Use when the REST call expects a payload in the response
+   *
+   * <p>This method should be called and returned as the last line in the REST method handler.
+   *
+   * @param response the response Object to update
+   * @param body the Java Object to be converted to JSON and returned to the client - set to null if
+   *     the Object to return was not found
+   * @param bodyIsJson set to true if the contents of body should already be in JSON and should not
+   *     be converted.
+   * @return the value to be returned from the REST method call
+   */
+  public static String respondObjectOrNotFound(Response response, Object body, boolean bodyIsJson) {
     String retValue;
     if (body == null) {
       response.status(HttpStatus.NOT_FOUND);
       retValue = "";
     } else {
       response.status(HttpStatus.OK);
-      retValue = toJson(body, response);
+      if (bodyIsJson) {
+        response.type(APPLICATION_JSON);
+        retValue = body.toString();
+      } else {
+        retValue = toJson(body, response);
+      }
     }
     return retValue;
   }

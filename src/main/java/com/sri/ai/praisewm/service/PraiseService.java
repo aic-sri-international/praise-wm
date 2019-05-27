@@ -8,9 +8,7 @@ import com.sri.ai.praisewm.service.dto.SegmentedModelDto;
 import com.sri.ai.praisewm.service.dto.SolverInterruptDto;
 import java.util.List;
 
-/**
- * The PraiseService manages aic-praise model queries.
- */
+/** The PraiseService manages aic-praise model queries. */
 public interface PraiseService {
 
   /**
@@ -21,16 +19,30 @@ public interface PraiseService {
   List<SegmentedModelDto> getSegmentedModels();
 
   /**
+   * Get a list of all available GeoJSON feature collection file names.
+   *
+   * @return list of feature collection names
+   */
+  List<String> getFeatureCollectionNames();
+
+  /**
+   * Get a GeoJSON feature collection.
+   *
+   * @param collectionName name of the feature collection
+   */
+  String getFeatureCollection(String collectionName);
+
+  /**
    * Solve a Praise HOGM query.
-   * <p>
-   * The result from a successful HOGM query contains a <code>Function</code> object that
-   * is used to obtain a graphic or map data representation of a problem result.
-   * <p>
-   * The <code>Function</code> object is accessed to obtain the variables/values from the
-   * model and to determine which variable to select as the initial x-axis variable. This
-   * information, along with the <code>Function</code> object, are passed to an instance of
-   * <code>com.sri.ai.util.graph2d.core.DefaultGraphSetMaker</code> to obtain a region to
-   * value map, a bar graph, or a line chart.
+   *
+   * <p>The result from a successful HOGM query contains a <code>Function</code> object that is used
+   * to obtain a graphic or map data representation of a problem result.
+   *
+   * <p>The <code>Function</code> object is accessed to obtain the variables/values from the model
+   * and to determine which variable to select as the initial x-axis variable. This information,
+   * along with the <code>Function</code> object, are passed to an instance of <code>
+   * com.sri.ai.util.graph2d.core.DefaultGraphSetMaker</code> to obtain a region to value map, a bar
+   * graph, or a line chart.
    *
    * @param sessionId the client's sessionId
    * @param modelQuery the data required for a HOGM query and query options.
