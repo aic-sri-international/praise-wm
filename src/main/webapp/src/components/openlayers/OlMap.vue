@@ -15,41 +15,23 @@
   import {
     Component, Prop, Vue, Watch,
   } from 'vue-property-decorator';
-  // @ts-ignore
   import getCentroid from '@turf/centroid';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
-  import OlFeature from 'ol/Feature';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
+  import OlFeature, { FeatureLike } from 'ol/Feature';
   import Map from 'ol/Map';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
-  import Collection from 'ol/Collection';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import MapBrowserEvent from 'ol/MapBrowserEvent';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import View from 'ol/View';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import { transform } from 'ol/proj';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import GeoJSON from 'ol/format/GeoJSON';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import { OSM, Vector as VectorSource } from 'ol/source';
   // eslint-disable-next-line import/extensions,import/no-unresolved
   import { FeatureCollection } from 'geojson';
   // eslint-disable-next-line
   import { namespace } from 'vuex-class';
+  import { Style } from 'ol/style';
+  import { Control } from 'ol/control';
   import OlPopup from './OlPopup.vue';
-  import { FeatureCollectionHandler, newFeatureCollectionHandler } from './features';
+  import { FeatureCollectionHandler, newFeatureCollectionHandler, defaultFeatureStyle } from './features';
   import { OlPopupInterface } from '@/components/openlayers/OlPopup.types';
   import { OlMapInterface } from '@/components/openlayers/OlMap.types';
   import { FEATURE_COLLECTION_MODULE_NAME } from '@/store/feature_collection/constants';
@@ -99,14 +81,16 @@
         this.mapRegionNameToValue,
       );
       // Force the view to redraw the features; replace if there's a better way to do it
-      const view: View = this.map.getView();
-      const oldZoom = view.getZoom();
-      // Small enough so that it probably won't be noticed
-      view.setZoom(oldZoom + 0.0000001);
-      // Reset it
-      setTimeout(() => {
-        view.setZoom(oldZoom);
-      }, 50);
+      if (this.map) {
+        const view: View = this.map.getView();
+        const oldZoom = view.getZoom();
+        // Small enough so that it probably won't be noticed
+        view.setZoom(oldZoom + 0.0000001);
+        // Reset it
+        setTimeout(() => {
+          view.setZoom(oldZoom);
+        }, 50);
+      }
     }
 
     async mounted() {
@@ -134,11 +118,11 @@
         features: geoJsonFeatures,
       });
 
-      const getStyle = (feature: OlFeature) => {
+      const getStyle = (feature: FeatureLike, param: any) : Style => {
         if (!this.featureHandler) {
-          return null;
+          return defaultFeatureStyle;
         }
-        return this.featureHandler.getStyleForFeature(feature);
+        return this.featureHandler.getStyleForFeature(feature as OlFeature);
       };
 
       const vectorLayer = new VectorLayer({
@@ -146,7 +130,7 @@
         style: getStyle,
       });
 
-      const controls: Collection = new Collection();
+      const controls: Control[] = [];
       this.map = new Map({
         layers: [
           new TileLayer({
@@ -177,8 +161,12 @@
 
     beforeDestroy() {
       window.removeEventListener('resize', this.updateMapSize);
-      this.map.un('pointermove');
-      this.map.setTarget(undefined);
+      if (this.map) {
+        this.map.un('pointermove', () => {});
+        // param should be: HTMLElement|string|undefined
+        const noTarget: any = undefined;
+        this.map.setTarget(noTarget);
+      }
     }
 
     updateMapSize() {

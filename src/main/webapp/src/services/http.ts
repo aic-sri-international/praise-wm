@@ -121,7 +121,7 @@ function getHeaderValue(headers: Headers, key: string): string {
       return value;
     }
 
-    // noinspection ExceptionCaughtLocallyJS eslint-disable-next-line semi
+    // noinspection ExceptionCaughtLocallyJS
     throw Error('value not set');
   } catch (err) {
     throw Error(`${key} not found in response header: ${err.message}`);

@@ -11,17 +11,9 @@
 <script lang="ts">
 
   import { Component, Vue } from 'vue-property-decorator';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import Map from 'ol/Map';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
   import Overlay from 'ol/Overlay';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
-  import OlFeature from 'ol/Feature';
-  // @ts-ignore
-  // noinspection TypeScriptCheckImport
+  import OlFeature, { FeatureLike } from 'ol/Feature';
   import MapBrowserEvent from 'ol/MapBrowserEvent';
   import { props as propConst } from './features';
   import { OlPopupInterface } from '@/components/openlayers/OlPopup.types';
@@ -83,7 +75,7 @@
       let html = '';
       let isOurs = false;
 
-      event.map.forEachFeatureAtPixel(event.pixel, (feature: OlFeature) => {
+      const featureCallback = (feature: FeatureLike) => {
         if (isOurs) {
           // We only want the first one
           return;
@@ -99,7 +91,7 @@
               <td ${popupConsts.tdStyle}>${feature.get(propConst.County)}</td>
             </tr>`;
 
-        const value = getValueForFeature(feature);
+        const value = getValueForFeature(feature as OlFeature);
         if (typeof value === 'number') {
           html += `
             <tr ${popupConsts.trStyle}>
@@ -110,7 +102,9 @@
 
         html += '</table>';
         isOurs = true;
-      });
+      };
+
+      event.map.forEachFeatureAtPixel(event.pixel, featureCallback);
 
       if (isOurs) {
         this.overlay.setPosition(event.coordinate);
@@ -139,7 +133,9 @@
 
     closePopup() {
       if (this.overlay && this.overlay.getPosition() !== undefined) {
-        this.overlay.setPosition(undefined);
+        // If the position is `undefined` the overlay is hidden.
+        const position: any = undefined;
+        this.overlay.setPosition(position);
       }
     }
   }

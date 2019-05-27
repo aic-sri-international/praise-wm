@@ -1,6 +1,4 @@
-// @ts-ignore
 import OlFeature from 'ol/Feature';
-// @ts-ignore
 import { Fill, Stroke, Style } from 'ol/style';
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import { Feature, FeatureCollection } from 'geojson';
@@ -32,7 +30,7 @@ const newFill = (r: number, g: number, b: number, opacity: number) => new Fill({
   color: `rgba(${r}, ${g}, ${b}, ${opacity})`,
 });
 
-const defaultFeatureStyle = new Style({
+export const defaultFeatureStyle = new Style({
   stroke: defaultStroke,
   fill: newFill(0, 0, 0, 0),
 });
@@ -135,11 +133,9 @@ export class FeatureCollectionHandler {
 
 
     this.featureCollection.features.forEach((geoJsonFeature) => {
-      if (featureQualifies(geoJsonFeature)) {
+      if (featureQualifies(geoJsonFeature) && geoJsonFeature.properties) {
         const styleEntry: StyleEntry = {
-          // @ts-ignore
           state: geoJsonFeature.properties[props.State],
-          // @ts-ignore
           county: geoJsonFeature.properties[props.County],
           style: defaultFeatureStyle,
         };
@@ -184,9 +180,9 @@ export class FeatureCollectionHandler {
     return styleEntry ? styleEntry.style : defaultFeatureStyle;
   }
 
-  getValueForFeature(feature: OlFeature): Style | null | undefined {
+  getValueForFeature(feature: OlFeature): number | null {
     const styleEntry: StyleEntry | null = this.getStyleEntryForFeature(feature);
-    return styleEntry ? styleEntry.value : null;
+    return styleEntry ? (styleEntry.value || null) : null;
   }
 }
 

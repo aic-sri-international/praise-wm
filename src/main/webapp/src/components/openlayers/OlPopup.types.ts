@@ -1,11 +1,5 @@
-// @ts-ignore
-// noinspection TypeScriptCheckImport
 import Map from 'ol/Map';
-// @ts-ignore
-// noinspection TypeScriptCheckImport
 import MapBrowserEvent from 'ol/MapBrowserEvent';
-// @ts-ignore
-// noinspection TypeScriptCheckImport
 import OlFeature from 'ol/Feature';
 import { Vue } from 'vue-property-decorator';
 
