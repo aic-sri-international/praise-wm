@@ -2,9 +2,7 @@ package com.sri.ai.praisewm.service.dto;
 
 import java.util.Map;
 
-/**
- * Contains the results of a successful aic-praise query result Function call.
- */
+/** Contains the results of a successful aic-praise query result Function call. */
 public class GraphRequestResultDto {
   private String imageData;
   private Map<String, Double> mapRegionNameToValue;

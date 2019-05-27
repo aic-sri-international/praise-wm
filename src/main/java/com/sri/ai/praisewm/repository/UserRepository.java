@@ -43,7 +43,7 @@ public class UserRepository {
   }
 
   public static Number createUser(JooqContext jooqContext, User user) {
-      return JooqDbUtil.insert(jooqContext.dslContext(), USER, user);
+    return JooqDbUtil.insert(jooqContext.dslContext(), USER, user);
   }
 
   public static boolean updateUser(JooqContext jooqContext, User user) {
@@ -56,8 +56,10 @@ public class UserRepository {
         jooqContext
             .dslContext()
             .deleteFrom(USER)
-            .where(USER.USER_ID.equal(USER.USER_ID.getDataType().convert(id))
-                .and(USER.NAME.notEqual(SecurityServiceImpl.ADMIN_NAME)))
+            .where(
+                USER.USER_ID
+                    .equal(USER.USER_ID.getDataType().convert(id))
+                    .and(USER.NAME.notEqual(SecurityServiceImpl.ADMIN_NAME)))
             .execute();
     return (count > 0);
   }

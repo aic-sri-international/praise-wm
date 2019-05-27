@@ -5,15 +5,15 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Represents the results of a HOGM query and the subsequent graphic representation derived from
- * the query's <code>Function</code> result.
- * <p>
- * If the actual HOGM query result contained errors, {@link #getAnswers()} will return
- * those error messages, and {@link #getGraphQueryResultDto()} will return <code>null</code>.
- * <p>
- * NOTE: {@link #getExplanationTree()} currently returns null. The <code>explanationTree</code>
- * field needs to be set from the HOGM query result when the new HOGM ExplanationTree
- * implementation is ready.
+ * Represents the results of a HOGM query and the subsequent graphic representation derived from the
+ * query's <code>Function</code> result.
+ *
+ * <p>If the actual HOGM query result contained errors, {@link #getAnswers()} will return those
+ * error messages, and {@link #getGraphQueryResultDto()} will return <code>null</code>.
+ *
+ * <p>NOTE: {@link #getExplanationTree()} currently returns null. The <code>explanationTree</code>
+ * field needs to be set from the HOGM query result when the new HOGM ExplanationTree implementation
+ * is ready.
  */
 public class ExpressionResultDto {
   private String query;

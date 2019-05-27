@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Client request to be applied against a <code>Function</code> result from a prior HOGM Query result.
+ * Client request to be applied against a <code>Function</code> result from a prior HOGM Query
+ * result.
  */
 public class GraphRequestDto {
   private String xmVariable;

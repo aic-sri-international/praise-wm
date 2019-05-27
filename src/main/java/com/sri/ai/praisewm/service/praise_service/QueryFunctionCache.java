@@ -10,8 +10,8 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * The QueryFunctionCache manages a cache of {@link QueryFunctionCacheEntry}.
- * <p>
- * Entries are automatically removed when their client's session closes.
+ *
+ * <p>Entries are automatically removed when their client's session closes.
  */
 public class QueryFunctionCache {
   private final Map<String, QueryFunctionCacheEntry> sessionIdToEntry = new HashMap<>();

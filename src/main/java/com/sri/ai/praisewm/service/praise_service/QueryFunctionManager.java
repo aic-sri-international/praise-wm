@@ -14,9 +14,7 @@ import com.sri.ai.util.graph2d.api.GraphPlot;
 import com.sri.ai.util.graph2d.api.GraphSetMaker;
 import java.util.Map;
 
-/**
- * The QueryFunctionManager manages a HOGM query result Function request.
- */
+/** The QueryFunctionManager manages a HOGM query result Function request. */
 public class QueryFunctionManager {
   private final QueryFunctionCache queryFunctionCache;
 

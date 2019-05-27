@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * GraphQueryResultDto represents data contained within and derived from a HOGM query
- * <code>Function</code> result.
+ * GraphQueryResultDto represents data contained within and derived from a HOGM query <code>Function
+ * </code> result.
  */
 public class GraphQueryResultDto {
   // Not empty

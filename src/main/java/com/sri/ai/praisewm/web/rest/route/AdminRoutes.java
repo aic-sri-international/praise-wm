@@ -43,8 +43,8 @@ public class AdminRoutes extends AbstractRouteGroup {
                   User user = SparkUtil.fromJson(req, User.class);
                   // Do not allow a rest client to update the admin user
                   boolean updated =
-                      !user.getName().equals(SecurityServiceImpl.ADMIN_NAME) && UserRepository
-                          .updateUser(jc, user);
+                      !user.getName().equals(SecurityServiceImpl.ADMIN_NAME)
+                          && UserRepository.updateUser(jc, user);
                   if (updated) {
                     eventBus.post(SparkUtil.newRefreshEvent(req, RefreshType.USER));
                   }
