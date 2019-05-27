@@ -18,7 +18,7 @@
     "@types/ol": "^5.3.0",
     "ace-builds": "^1.4.4",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.0-rc.20",
+    "bootstrap-vue": "2.0.0-rc.20",
     "chroma-js": "^2.0.3",
     "common-tags": "^2.0.0-alpha.1",
     "core-js": "^2.6.5",
