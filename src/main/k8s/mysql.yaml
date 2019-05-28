@@ -1,0 +1,91 @@
+# Deployment and service for MySQL
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+  name: mysql
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+      # This init container removes lost+found from the PVC, which otherwise causes MySQL to complain.
+      - image: debian
+        name: prepare-pvc
+        command:
+        - /bin/rm
+        - -fd
+        - /data/lost+found
+        volumeMounts:
+        - name: database
+          mountPath: /data
+      containers:
+      - image: mysql:5.7
+        name: mysql
+        ports:
+        - name: mysql
+          containerPort: 3306
+          protocol: TCP
+        volumeMounts:
+        - name: database
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: rootPassword
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql
+              key: password
+        - name: MYSQL_DATABASE
+          value: praisewm
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "true"
+        livenessProbe:
+          initialDelaySeconds: 300
+          exec:
+            command:
+            - mysqladmin
+            - ping
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+      volumes:
+      - name: database
+        persistentVolumeClaim:
+          claimName: mysql
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+    protocol: TCP
+    targetPort: mysql
+  selector:
+    app: mysql

@@ -15,8 +15,8 @@ ENV PRAISEWM_SLEEP=0 \
 
 WORKDIR /opt/praisewm
 
-COPY praisewm*.jar praisewm.jar
-COPY keystore.jks keystore.jks
+COPY build/libs/praisewm*all.jar praisewm.jar
+COPY gencerts/keystore.jks keystore.jks
 COPY application.properties application.properties
 COPY logback.xml logback.xml
 

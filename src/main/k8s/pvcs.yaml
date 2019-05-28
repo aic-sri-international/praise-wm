@@ -1,0 +1,29 @@
+# Persistent Volume Claims for MySQL and praise-wm.
+
+# WARNING! If you modify this file, GitLab CI may delete and re-create the persistent volumes.
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: praise-wm
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 1Gi
