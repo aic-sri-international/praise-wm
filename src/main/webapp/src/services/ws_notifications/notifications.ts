@@ -176,12 +176,6 @@ function open(): void {
     resetActivityTimeout();
     const nEvent: NotificationEvent = JSON.parse(msg.data);
 
-    if (nEvent.eventType !== EventType.PING_EVENT) {
-      log(`message received: ${msg.data}`);
-    } else {
-      log(`message received: ${msg.data}`);
-    }
-
     if (typeof nEvent.eventType !== 'string') {
       log(`message does not contain an eventType string: ${msg.data}`, true);
       return;
