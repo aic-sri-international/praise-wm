@@ -4,8 +4,7 @@ import { Module } from 'vuex';
 import { RootState } from '@/store/types';
 
 const state: VuexNotificationsState = {
-  // true if the notification window is open
-  uiIsOpen: false,
+  showNotificationsUi: false,
   // true if a message has arrived and the notification window is not open
   notificationUiHasNewMsg: false,
   notificationsForUi: [],

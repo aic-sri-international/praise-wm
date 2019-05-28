@@ -38,7 +38,7 @@ export default {
     };
 
     state.notificationsForUi.push(notification);
-    if (!state.uiIsOpen) {
+    if (!state.showNotificationsUi) {
       state.notificationUiHasNewMsg = true;
     }
   },
@@ -54,8 +54,8 @@ export default {
     state.notificationsForUi = [];
     state.notificationUiHasNewMsg = false;
   },
-  setNotificationUiIsOpen(state: VuexNotificationsState, isOpen: boolean) {
-    state.uiIsOpen = isOpen;
+  setShowNotificationsUi(state: VuexNotificationsState, isOpen: boolean) {
+    state.showNotificationsUi = isOpen;
     if (isOpen) {
       state.notificationUiHasNewMsg = false;
     }

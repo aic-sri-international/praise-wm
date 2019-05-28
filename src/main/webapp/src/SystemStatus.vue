@@ -43,7 +43,7 @@
   export default class SystemStatus extends Vue {
     @systemStatusModule.Getter systemStatusDatabaseIconInfo?: SystemStatusIconInfo;
 
-    @systemStatusModule.Mutation setSystemStatusUiIsOpen!: (show: boolean) => void;
+    @systemStatusModule.Mutation setShowSystemStatus!: (show: boolean) => void;
 
     get items(): Item[] {
       const items: Item[] = [];
@@ -55,16 +55,8 @@
       return items;
     }
 
-    created() {
-      this.setSystemStatusUiIsOpen(true);
-    }
-
-    beforeDestroy() {
-      this.setSystemStatusUiIsOpen(false);
-    }
-
     onClickOutside() {
-      this.$emit('close');
+      this.setShowSystemStatus(false);
     }
   }
 </script>

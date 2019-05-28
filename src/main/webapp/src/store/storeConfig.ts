@@ -4,6 +4,7 @@ import { RootState } from './types';
 import user from './user';
 import sidebar from './sidebar';
 import notifications from './notifications';
+import preferences from './preferences';
 import systemStatus from './system_status';
 import uploader from './uploader';
 import model from './model';
@@ -32,6 +33,7 @@ const storeOptions: StoreOptions<RootState> = {
     sidebar,
     model,
     featureCollection,
+    preferences,
     help,
   },
   strict: process.env.NODE_ENV !== 'production',

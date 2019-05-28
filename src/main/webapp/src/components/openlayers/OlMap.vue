@@ -36,11 +36,16 @@
   import { OlMapInterface } from '@/components/openlayers/OlMap.types';
   import { FEATURE_COLLECTION_MODULE_NAME } from '@/store/feature_collection/constants';
   import { VuexFeatureCollectionState } from '@/store/feature_collection/types';
+  import { PREFERENCES_MODULE_NAME } from '@/store/preferences/constants';
+  import { VuexPreferencesState } from '@/store/preferences/types';
 
   const srcProjection = 'EPSG:4326';
   const destProjection = 'EPSG:3857';
 
+  type ListenerTypeForPopup = 'pointermove' | 'singleclick';
+
   const featureCollectionModule = namespace(FEATURE_COLLECTION_MODULE_NAME);
+  const preferencesModule = namespace(PREFERENCES_MODULE_NAME);
 
   @Component({
     components: {
@@ -60,10 +65,15 @@
 
     map: Map | null = null;
 
+    mapPopupListenerCallback!: (event: MapBrowserEvent) => void;
+
     featureHandler: FeatureCollectionHandler | null = null;
 
     @featureCollectionModule.State
     currentFeatureCollection!: VuexFeatureCollectionState['currentFeatureCollection'];
+
+    @preferencesModule.State showMapPopupOnMouseOver!: VuexPreferencesState['showMapPopupOnMouseOver'];
+
 
     @featureCollectionModule.Action initFeatureCollectionState!: () => Promise<any>;
 
@@ -93,6 +103,24 @@
       }
     }
 
+    @Watch('showMapPopupOnMouseOver')
+    onShowMapPopupOnMouseOver() {
+      if (!this.map) {
+        return;
+      }
+      this.$refs.olPopupRef.closePopup();
+
+      const current = this.actionTypeForPopupListener;
+
+      const prior = current === 'singleclick' ? 'pointermove' : 'singleclick';
+      this.map.un(prior, this.mapPopupListenerCallback);
+      this.map.on(current, this.mapPopupListenerCallback);
+    }
+
+    get actionTypeForPopupListener() : ListenerTypeForPopup {
+      return this.showMapPopupOnMouseOver ? 'pointermove' : 'singleclick';
+    }
+
     async mounted() {
       if (!this.currentFeatureCollection) {
         await this.initFeatureCollectionState();
@@ -118,7 +146,7 @@
         features: geoJsonFeatures,
       });
 
-      const getStyle = (feature: FeatureLike, param: any) : Style => {
+      const getStyle = (feature: FeatureLike) : Style => {
         if (!this.featureHandler) {
           return defaultFeatureStyle;
         }
@@ -146,7 +174,7 @@
         controls, // we do not want any map controls, this will remove the defaults
       });
 
-      const onMapEvent = (event: MapBrowserEvent) => {
+      this.mapPopupListenerCallback = (event: MapBrowserEvent) => {
         const getValueForFeature = (feature: OlFeature) => {
           if (!this.featureHandler) {
             return null;
@@ -155,14 +183,14 @@
         };
         this.$refs.olPopupRef.onMapEvent(event, getValueForFeature);
       };
-      this.map.on('pointermove', onMapEvent);
+      this.map.on(this.actionTypeForPopupListener, this.mapPopupListenerCallback);
       this.$refs.olPopupRef.addOverlay(this.map);
     }
 
     beforeDestroy() {
       window.removeEventListener('resize', this.updateMapSize);
       if (this.map) {
-        this.map.un('pointermove', () => {});
+        this.map.un(this.actionTypeForPopupListener, this.mapPopupListenerCallback);
         // param should be: HTMLElement|string|undefined
         const noTarget: any = undefined;
         this.map.setTarget(noTarget);

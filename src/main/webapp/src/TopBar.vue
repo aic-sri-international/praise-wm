@@ -29,7 +29,7 @@
       v-tippy
       class="headerIcon headerNotification"
       title="Notifications"
-      @click.stop="$emit('notificationsClicked')"
+      @click.stop="setShowNotificationsUi(!showNotificationsUi)"
     >
       <span class="fa-layers fa-fw">
         <i
@@ -50,7 +50,7 @@
       v-tippy
       class="headerIcon headerSystemStatus"
       title="System Status"
-      @click.stop="$emit('systemsStatusClicked')"
+      @click.stop="setShowSystemStatus(!showSystemStatus)"
     >
       <span class="fa-layers fa-fw">
         <i
@@ -72,6 +72,18 @@
 
     <span
       v-tippy
+      class="headerIcon headerPreferences"
+      title="Preferences"
+      @click.stop="setShowPreferences(!showPreferences)"
+    >
+      <i
+        class="fas fa-cog"
+        data-fa-transform="grow-14"
+      />
+    </span>
+
+    <span
+      v-tippy
       class="headerIcon headerLogout"
       title="Click to logout"
       @click="doLogout"
@@ -89,17 +101,20 @@
   import { namespace } from 'vuex-class';
   import Paths from '@/router';
   import { logout } from '@/components/login/dataSourceProxy';
-  import { SystemStatusIconInfo } from '@/store/system_status/types';
+  import { SystemStatusIconInfo, VuexSystemStatusState } from '@/store/system_status/types';
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
   import { HELP_MODULE_NAME } from '@/store/help/constants';
   import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
   import { VuexNotificationsState } from '@/store/notifications/types';
+  import { PREFERENCES_MODULE_NAME } from '@/store/preferences/constants';
+  import { VuexPreferencesState } from '@/store/preferences/types';
 
   let intervalId: number = 0;
 
   const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
   const helpModule = namespace(HELP_MODULE_NAME);
   const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
+  const preferencesModule = namespace(PREFERENCES_MODULE_NAME);
 
   @Component
   export default class TopBar extends Vue {
@@ -109,11 +124,23 @@
 
     showHelp = false;
 
+    @notificationsModule.State showNotificationsUi!: VuexNotificationsState['showNotificationsUi'];
+
     @notificationsModule.State notificationUiHasNewMsg!: VuexNotificationsState['notificationUiHasNewMsg'];
+
+    @preferencesModule.State showPreferences!: VuexPreferencesState['showPreferences'];
+
+    @systemStatusModule.State showSystemStatus!: VuexSystemStatusState['showSystemStatus'];
 
     @systemStatusModule.Getter systemStatusOverallIconInfo?: SystemStatusIconInfo;
 
     @helpModule.Mutation('showHelp') mutateShowHelp!: (payload: boolean) => void;
+
+    @notificationsModule.Mutation setShowNotificationsUi!: (isOpen: boolean) => void;
+
+    @preferencesModule.Mutation setShowPreferences!: (show: boolean) => void;
+
+    @systemStatusModule.Mutation setShowSystemStatus!: (show: boolean) => void;
 
     get iconInfo(): SystemStatusIconInfo | null {
       const iconInfo: SystemStatusIconInfo | undefined = this.systemStatusOverallIconInfo;
@@ -199,10 +226,14 @@
   .time {
     position: fixed;
     top: 20px;
-    right: 100px;
+    right: 116px;
     font-size: 12px;
     font-weight: bold;
     color: black;
+  }
+
+  .headerPreferences {
+    right: 80px;
   }
 
   .headerLogout {

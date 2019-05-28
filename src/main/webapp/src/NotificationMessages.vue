@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-  import { Component, Emit, Vue } from 'vue-property-decorator';
+  import { Component, Vue } from 'vue-property-decorator';
   import { namespace } from 'vuex-class';
   import moment from 'moment';
   import { MessageLevel } from '@/services/ws_notifications/types';
@@ -82,15 +82,12 @@
   export default class NotificationMessages extends Vue {
     @notificationsModule.State notificationsForUi!: VuexNotificationsState['notificationsForUi'];
 
-    @notificationsModule.Mutation setNotificationUiIsOpen!: (isOpen: boolean) => void;
+    @notificationsModule.Mutation setShowNotificationsUi!: (isOpen: boolean) => void;
 
     @notificationsModule.Mutation removeAllNotificationsForUi!: () => void;
 
     @notificationsModule.Mutation removeNotificationsForUi!: (ids: number[]) => void;
 
-    @Emit('close')
-    closeNotifications(): void {
-    }
 
     $refs!: {
       confirmDeleteModal: any
@@ -100,20 +97,12 @@
       return [...this.notificationsForUi].reverse();
     }
 
-    created() {
-      this.setNotificationUiIsOpen(true);
-    }
-
-    beforeDestroy() {
-      this.setNotificationUiIsOpen(false);
-    }
-
     getTimeAgo(date: string) {
       return moment.utc(date).fromNow(true);
     }
 
     onClickOutside() {
-      this.closeNotifications();
+      this.setShowNotificationsUi(false);
     }
 
     onRemoveAllMessages() {
@@ -124,14 +113,14 @@
 
     removeAllMessages() {
       this.removeAllNotificationsForUi();
-      this.closeNotifications();
+      this.setShowNotificationsUi(false);
     }
 
     onRemoveMessage(item: NotificationMessage) {
       const ids: number[] = [item.id];
       this.removeNotificationsForUi(ids);
       if (!this.notificationsForUi.length) {
-        this.closeNotifications();
+        this.setShowNotificationsUi(false);
       }
     }
 

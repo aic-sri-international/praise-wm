@@ -37,7 +37,7 @@ const getters = {
 };
 
 const state: VuexSystemStatusState = {
-  uiIsOpen: false,
+  showSystemStatus: false,
   database: null,
 };
 

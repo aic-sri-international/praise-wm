@@ -5,9 +5,7 @@
   >
     <top-bar
       v-show="isLoggedIn"
-      @notificationsClicked="onNotificationsClicked"
       @notificationsTesterClicked="onNotificationsTesterClicked"
-      @systemsStatusClicked="onSystemsStatusClicked"
     />
 
     <div class="parent">
@@ -25,18 +23,20 @@
         @scroll="ev => $refs.scrollToTopRef.onScrollEvent(ev)"
       >
         <notification-messages
-          v-if="showNotifications"
+          v-if="showNotificationsUi"
           class="notificationsPanel"
-          @close="showNotifications = false"
         />
         <notification-message-tester
           v-if="showNotificationsTester"
           class="notificationsTesterPanel"
         />
         <system-status
-          v-if="showSystemsStatus"
+          v-if="showSystemStatus"
           class="systemsStatusPanel"
-          @close="showSystemsStatus = false"
+        />
+        <preferences
+          v-if="showPreferences"
+          class="preferencesPanel"
         />
         <router-view id="router" />
         <span
@@ -67,6 +67,7 @@
   import NotificationMessages from '@/NotificationMessages.vue';
   import MsgTester from '@/MsgTester.vue';
   import SystemStatus from '@/SystemStatus.vue';
+  import Preferences from '@/Preferences.vue';
   import Vue2Filters from 'vue2-filters';
   import VueTippy from 'vue-tippy';
   import { HttpError, VuexNotificationsState } from '@/store/notifications/types';
@@ -77,6 +78,9 @@
   import { NOTIFICATIONS_MODULE_NAME } from '@/store/notifications/constants';
   import { SYSTEM_STATUS_MODULE_NAME } from '@/store/system_status/constants';
   import { UPLOADER_MODULE_NAME } from '@/store/uploader/constants';
+  import { PREFERENCES_MODULE_NAME } from '@/store/preferences/constants';
+  import { VuexPreferencesState } from '@/store/preferences/types';
+  import { VuexSystemStatusState } from '@/store/system_status/types';
 
   Vue.use(BootstrapVue);
   Vue.use(Toasted);
@@ -105,6 +109,7 @@
   const notificationsModule = namespace(NOTIFICATIONS_MODULE_NAME);
   const systemStatusModule = namespace(SYSTEM_STATUS_MODULE_NAME);
   const uploaderModule = namespace(UPLOADER_MODULE_NAME);
+  const preferencesModule = namespace(PREFERENCES_MODULE_NAME);
 
   @Component({
     components: {
@@ -113,17 +118,20 @@
       ScrollToTopButton,
       NotificationMessages,
       'notification-message-tester': MsgTester,
+      Preferences,
       SystemStatus,
     },
   })
   export default class App extends Vue {
-    showNotifications = false;
-
     showNotificationsTester = false;
 
-    showSystemsStatus = false;
-
     @userModule.State isLoggedIn!: VuexUserState['isLoggedIn'];
+
+    @preferencesModule.State showPreferences!: VuexPreferencesState['showPreferences'];
+
+    @systemStatusModule.State showSystemStatus!: VuexSystemStatusState['showSystemStatus'];
+
+    @notificationsModule.State showNotificationsUi!: VuexNotificationsState['showNotificationsUi'];
 
     @notificationsModule.State httpErrors!: VuexNotificationsState['httpErrors'];
 
@@ -135,13 +143,20 @@
 
     @notificationsModule.Mutation removeAllNotificationsForUi!: () => void;
 
+    @notificationsModule.Mutation setShowNotificationsUi!: (isOpen: boolean) => void;
+
     @uploaderModule.Mutation removeAllUploaderEntries!: () => void;
+
+    @preferencesModule.Mutation setShowPreferences!: (show: boolean) => void;
+
+    @systemStatusModule.Mutation setShowSystemStatus!: (show: boolean) => void;
 
     @Watch('isLoggedIn')
     onIsLoggedIn(loggedIn: boolean) {
       if (!loggedIn) {
-        this.showSystemsStatus = false;
-        this.showNotifications = false;
+        this.setShowSystemStatus(false);
+        this.setShowNotificationsUi(false);
+        this.setShowPreferences(false);
         this.setAllStatusesToUnknown();
         this.removeAllNotificationsForUi();
         this.removeAllUploaderEntries();
@@ -153,18 +168,10 @@
       this.removeHttpError(msg.id);
     }
 
-    onNotificationsClicked() {
-      this.showNotifications = !this.showNotifications;
-    }
-
     onNotificationsTesterClicked() {
       if (process.env.NODE_ENV !== 'production') {
         this.showNotificationsTester = !this.showNotificationsTester;
       }
-    }
-
-    onSystemsStatusClicked() {
-      this.showSystemsStatus = !this.showSystemsStatus;
     }
   }
 </script>
@@ -230,6 +237,11 @@
     z-index: $z-index-panels;
   }
 
+  .preferencesPanel {
+    @include panel-mixin;
+    width: 280px;
+    right: 12px;
+  }
   .contentStyle {
     flex-grow: 1;
     padding-top: 8px;

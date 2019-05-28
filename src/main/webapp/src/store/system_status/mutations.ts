@@ -9,7 +9,7 @@ export default {
   setAllStatusesToUnknown(state: VuexSystemStatusState) {
     state.database = null;
   },
-  setSystemStatusUiIsOpen(state: VuexSystemStatusState, isOpen: boolean) {
-    state.uiIsOpen = isOpen;
+  setShowSystemStatus(state: VuexSystemStatusState, isOpen: boolean) {
+    state.showSystemStatus = isOpen;
   },
 };
