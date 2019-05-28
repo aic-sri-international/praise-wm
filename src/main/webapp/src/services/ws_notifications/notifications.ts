@@ -175,6 +175,8 @@ function open(): void {
 
     if (nEvent.eventType !== EventType.PING_EVENT) {
       log(`message received: ${msg.data}`);
+    } else {
+      log(`message received: ${msg.data}`);
     }
 
     if (typeof nEvent.eventType !== 'string') {
