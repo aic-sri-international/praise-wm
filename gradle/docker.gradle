@@ -1,33 +1,10 @@
 import org.gradle.internal.os.OperatingSystem
 
 task buildDocker(type: Exec) {
-    doFirst {
-        copy {
-            from "src/main/docker/"
-            into "build/docker/"
-            include "*"
-        }
-        copy {
-            from "build/libs"
-            into "build/docker/"
-            include "*-all.jar"
-        }
-        copy {
-            from "gencerts/"
-            into "build/docker/"
-            include "keystore.jks"
-        }
-        copy {
-            from "."
-            into "build/docker/"
-            include "application.properties"
-            include "logback.xml"
-        }
-    }
     if (OperatingSystem.current().isWindows()) {
-        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'praisewm:latest', 'build/docker/'
+        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'src/main/docker/Dockerfile', '-t', 'praisewm:latest', '.'
     } else {
-        commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'praisewm:latest', 'build/docker/'
+        commandLine 'docker', 'image', 'build', '-f', 'src/main/docker/Dockerfile', '-t', 'praisewm:latest', '.'
     }
 }
 
