@@ -105,7 +105,10 @@ function ckActivity() {
 function displayReconnectAttemptToast() {
   const max = getWsMaxReconnectAttempts();
   const cur = max - reconnectAttemptsLeft;
-  replaceToast(`Trying to reconnect to server: ${cur} of ${max} attempts...`);
+
+  if (cur === max) {
+    replaceToast(`Trying to reconnect to server: ${cur} of ${max} attempts...`);
+  }
 }
 
 function handleNotificationTextMessage(nEvent: NotificationTextMessage) {
