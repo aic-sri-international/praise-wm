@@ -6,7 +6,7 @@ metadata:
   name: praise-wm
   annotations:
     kubernetes.io/tls-acme: "true"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 600
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
 spec:
   rules:
   - host: praise-wm.cse.sri.com
