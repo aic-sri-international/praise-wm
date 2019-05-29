@@ -86,6 +86,8 @@ public abstract class WebSocketSessionManager {
     String sessionId = WebsocketUtil.getSessionId(session);
     LOG.error(
         "Error on session: sessionId={}, {}", sessionId, getFormattedWsSessionInfo(session), e);
-    wsSessionStore.close(sessionId, WsStatusCode.ON_ERROR, e.getMessage());
+    if (sessionId != null) {
+      wsSessionStore.close(sessionId, WsStatusCode.ON_ERROR, e.getMessage());
+    }
   }
 }

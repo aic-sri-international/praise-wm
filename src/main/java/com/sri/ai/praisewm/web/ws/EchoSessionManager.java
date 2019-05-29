@@ -25,7 +25,10 @@ public class EchoSessionManager extends WebSocketSessionManager {
 
   @OnWebSocketMessage
   public void onMessage(Session session, String message) {
-    sendMessage(WebsocketUtil.getSessionId(session), message);
+    String sessionId = WebsocketUtil.getSessionId(session);
+    if (sessionId != null) {
+      sendMessage(WebsocketUtil.getSessionId(session), message);
+    }
   }
 
   private class SessionCloseEventListener {
