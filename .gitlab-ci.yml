@@ -75,8 +75,8 @@ docker:
 deploy:
   stage: deploy
   # when: manual
-  # only:
-  #   - master
+  only:
+    - master
   image: alpine
   cache:
     paths:
