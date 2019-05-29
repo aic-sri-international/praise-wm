@@ -5,6 +5,7 @@ import static com.sri.ai.praisewm.web.ws.WebsocketUtil.getFormattedWsSessionInfo
 import com.sri.ai.praisewm.service.SecurityServiceImpl;
 import com.sri.ai.praisewm.util.PropertiesWrapper;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class WsSessionStore {
   private static final Logger LOG = LoggerFactory.getLogger(WsSessionStore.class);
   private final long refreshEventInterval;
-  private Map<String, WsSessionWrapper> sessionMap = new HashMap<>();
+  private Map<String, WsSessionWrapper> sessionMap = Collections.synchronizedMap(new HashMap<>());
 
   public WsSessionStore(PropertiesWrapper pw) {
     this.refreshEventInterval = pw.asLong("server.ws.refresh.minIntervalInMillis");
