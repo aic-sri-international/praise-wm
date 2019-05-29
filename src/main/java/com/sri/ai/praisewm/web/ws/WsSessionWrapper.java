@@ -83,7 +83,9 @@ public class WsSessionWrapper {
             }
           }
         };
-    executor.schedule(messageDispatch, interval, TimeUnit.MILLISECONDS);
+    if (!executor.isShutdown()) {
+      executor.schedule(messageDispatch, interval, TimeUnit.MILLISECONDS);
+    }
   }
 
   private void sendOrEnqueueEvent(DataRefreshEvent event) {
