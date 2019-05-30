@@ -28,7 +28,6 @@ type User = {
 type LoginResponse = {
   user: User,
   isAdminRole: boolean,
-  localPort: number,
   serverTime: string,
   wsReconnectInterval: number,
   wsMaxReconnectAttempts: number,

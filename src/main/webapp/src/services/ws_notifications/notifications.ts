@@ -107,7 +107,7 @@ function displayReconnectAttemptToast() {
   const cur = max - reconnectAttemptsLeft;
 
   if (cur === max) {
-    replaceToast(`Trying to reconnect to server: ${cur} of ${max} attempts...`);
+    replaceToast(`Already tried ${cur - 1} times to reconnect to server: Final attempt...`);
   }
 }
 

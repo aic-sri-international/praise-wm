@@ -28,11 +28,12 @@ public class WsSessionWrapper {
   private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private Runnable messageDispatch;
   private List<DataRefreshEvent> events = new ArrayList<>();
-  private Session session;
-  private String sessionId;
-  private boolean error;
-  private boolean closeCalled;
-  private long interval;
+  private final Session session;
+  private final String sessionId;
+  private final long interval;
+
+  private transient boolean error;
+  private transient boolean closeCalled;
 
   WsSessionWrapper(Session session, String sessionId, long interval) {
     this.session = session;
