@@ -9219,10 +9219,10 @@ vue-toasted@^1.1.27:
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.27.tgz#ce0a74b875f90c2e4a9e163cce6d5fc37d78a07c"
   integrity sha512-GVbwInwnqkVxQ4GU/XYeQt1e0dAXL8sF5Hr1H/coCBbYUan5xP0G2mEz/HRDf1lt73rFQAN/bJcLTOKkqiM6tg==
 
-vue2-filters@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/vue2-filters/-/vue2-filters-0.4.1.tgz#c72e697addc02b313b80b69c123c14cdee962cf5"
-  integrity sha512-I4r3oZ7u4DBjHr6+DhRBG8I/BWPnu45Z3D5nDSyHMYxOrpSN7g7ZetZoVZ366spxw1w0Dj8e2XlvAGev8sePqg==
+vue2-filters@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/vue2-filters/-/vue2-filters-0.6.0.tgz#48c66175cb23e8d66fe829adb6e4b19c87c219bb"
+  integrity sha512-l7GPoQW0aWBS0RBP5dI1udAlg8qcfd8zOHqFrQ29ZOKfAaLxGMyqsqTo1thvfaAs6w2egLPlllsaqBhmHzaV6w==
 
 vue@^2.6.10:
   version "2.6.10"

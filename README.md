@@ -6,6 +6,7 @@
 1.  [Setup](#setup)
 1.  [Development](#development)
 1.  [Gradle Tasks](#gradle-tasks)
+1.  [Build Warnings](#build-warnings)
 1.  [Docker Deployment](docs/docker.md)
 1.  [Version Updates](#version-updates)
 1.  [Joint Development with AIC Dependencies](#joint-development-with-aic-dependencies)
@@ -119,6 +120,37 @@ Run the following to display a list of all gradle tasks:
     Pattern: "npm_<command>": Executes an NPM command.
     Pattern: "yarn_<command>": Executes an Yarn command.
 
+#### Build Warnings
+
+##### Yarn
+
+The application uses Bootstrap-vue which uses CSS from bootstrap, however, it does not use jquery and it does not use popper.js via bootstrap.
+
+    warning " > bootstrap@4.3.1" has unmet peer dependency "jquery@1.9.1 - 3".
+    warning " > bootstrap@4.3.1" has unmet peer dependency "popper.js@^1.14.7".
+
+The build uses the vetted versions of the following dependencies as published by vue-cli so that Vue and its dependencies will function correctly. The warnings should be eliminate after upgrading with a subsequent release of vue-cli.
+
+    warning "@vue/cli-plugin-unit-jest > vue-jest@3.0.4" has unmet peer dependency "babel-core@^6.25.0 || ^7.0.0-0".
+    warning "@vue/eslint-config-airbnb > eslint-import-resolver-webpack@0.10.1" has unmet peer dependency "webpack@>=1.11.0".
+    warning " > sass-loader@7.1.0" has unmet peer dependency "webpack@^3.0.0 || ^4.0.0".
+    warning " > ts-jest@23.10.5" has unmet peer dependency "jest@>=22 <24".
+
+Warnings about the size of various assets will be displayed during a build deployment.
+
+##### jOOQ Schema Build
+
+JOOQ's schema generator has a dependency on jaxb. The following problem should be resolved once a production version of jaxb-impl-2.4 is 
+released, and JOOQ has upgraded their generator to use the new release.
+
+    WARNING: Illegal reflective access by com.sun.xml.bind.v2.runtime.reflect.opt.Injector  on jaxb-impl-2.3.0.1.jar
+
+##### Gradle
+
+The yarn task from com.moowork.gradle:gradle-node-plugin is removed and replaced with a custom yarn task. Gradle has deprecated the task removal feature, which causes the following warning. A different approach will need to be implemented before upgrading to Gradle 6.
+
+    Deprecated Gradle features were used in this build, making it incompatible with Gradle 6.0.
+    
 ## Version Updates
 
  Update the appropriate property in [gradle.properties][] and run its associated task:

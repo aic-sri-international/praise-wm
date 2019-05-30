@@ -116,7 +116,6 @@ apply from: 'gradle/node.gradle'
  assemble, build, buildDependents, buildNeeded,
  init, install].each {
     it.enabled = false
-    tasks.remove(it)
 }
 
 test {
@@ -165,7 +164,7 @@ repositories {
     maven { url "http://maven.geomajas.org/" }
     maven { url "http://repo.maven.apache.org/maven2" }
     // The aic- libs are published to the oss.sonatype.org repos. If developing in conjunction with
-    // local development on the aic- libs code, you will probably want to declare mavenLocal() 
+    // local development on the aic- libs code, you will probably want to declare mavenLocal()
     // before the sonatype repositories so that your local repository is searched first.
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     mavenLocal()
