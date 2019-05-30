@@ -138,6 +138,14 @@ The build uses the vetted versions of the following dependencies as published by
 
 Warnings about the size of various assets will be displayed during a build deployment.
 
+When running the jest unit tests you will see the following warning:
+
+    console.warn node_modules/bootstrap-vue/dist/bootstrap-vue.common.js:80
+    [BootstrapVue warn]: Multiple instances of Vue detected!
+    See: https://bootstrap-vue.js.org/docs#using-module-bundlers 
+    
+It should be fixed in a [subsequent release of Bootstap-Vue][]. The version set within package.json for Bootstrap-vue is currently pinned to an earlier version due to a TypeScript bug contained in the next release. The rc.22 release should fix both the above warning and the TypeScript bug.
+
 ##### jOOQ Schema Build
 
 JOOQ's schema generator has a dependency on jaxb. The following problem should be resolved once a production version of jaxb-impl-2.4 is 
@@ -175,3 +183,4 @@ If you are also doing local builds of the AIC library dependencies, you will pro
 [gradle.properties]: ./gradle.properties
 [AIC library repository]: https://oss.sonatype.org/content/repositories/snapshots/
 [build.gradle]: ./build.gradle
+[subsequent release of Bootstap-Vue]: https://github.com/bootstrap-vue/bootstrap-vue/issues/3303
