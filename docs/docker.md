@@ -5,6 +5,20 @@
 1. [Install Docker][]
 1. [Install Docker Compose][] if not already installed during the Docker installation.
 
+## Building the praise-wm Docker IMAGE
+
+The GitLab CI system will automatically create and deploy a Docker image of praise-wm to the SRI Artifactory when it runs the [praise-wm GitLab Pipeline][]: 
+
+If you want to create a Docker image locally without using GitLab CI, you can run the following command:
+
+    ./gradlew buildDocker
+    
+The above command will create a Docker image tagged as *praisewm:latest* 
+
+To use the image, you will need to set the appropriate environmental variable prior to using praisewm.yml, as discussed later in this document.
+
+    PRAISEWM_IMAGE_NAME=praisewm:latest
+
 ## Running the MySQL Container
 
 Start the MySQL container:

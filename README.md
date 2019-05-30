@@ -56,7 +56,7 @@ To start a terminal console from within IntelliJ: View | Tool Windows | Terminal
         ./gradlew yarnSetup yarn deploy
 1.  Start the praise-wm application
 
-        java -jar build/libs/praisewm-2.4-all.jar
+        java -jar build/libs/praisewm-2.5-all.jar
 
 1. Access the praise-wm application using a browser
 
