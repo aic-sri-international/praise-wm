@@ -75,8 +75,8 @@ docker:
 deploy:
   stage: deploy
   # when: manual
-  # only:
-  #   - master
+  only:
+    - master
   image: alpine
   cache:
     paths:
@@ -90,4 +90,5 @@ deploy:
     - kubectl config set-context dev --cluster=dev --user=ci
     - kubectl config use-context dev
     - ( cd src/main/k8s && kustomize edit set image praise-wm-placeholder=$REGISTRY/$DOCKER_BASE:$BUILD_TAG )
+    - kubectl kustomize src/main/k8s
     - kubectl apply -k src/main/k8s
