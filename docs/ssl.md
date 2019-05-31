@@ -1,10 +1,12 @@
 # SSL
 
+To use SSL, you will need to make sure that the *server.ssl.keystoreFile* line in [application.properties] is uncommented.
+
 Directory *gencerts* contains a Certificate Authority Root Certificate, a server keystore, and the script used to create them.
 
 During development, you will probably not need to create a new CA or keystore.
 
-**NOTE**: In the following graphics, replace the word **dolphin** with **praise-wm**. If you ever need to run the praise-wm application without using SSL, comment-out the *server.ssl.keystoreFile* line in [application.properties]
+**NOTE**: In the following graphics, replace the word **dolphin** with **praise-wm**. 
 
 ## Installation
 
